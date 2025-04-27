@@ -247,6 +247,57 @@ export const getMatch = async (id) => {
             logEvent("warn", "Инициализирован пустой массив sets для матча из Supabase", "getMatch", { matchId: id })
           }
 
+          // Загружаем информацию о странах игроков
+          try {
+            // Собираем ID всех игроков из матча
+            const playerIds = [...match.teamA.players.map((p) => p.id), ...match.teamB.players.map((p) => p.id)].filter(
+              (id, index, self) => self.indexOf(id) === index,
+            ) // Убираем дубликаты
+
+            if (playerIds.length > 0) {
+              // Получаем информацию о странах игроков
+              const { data: playersData, error: playersError } = await supabase
+                .from("players")
+                .select("id, country")
+                .in("id", playerIds)
+
+              if (!playersError && playersData) {
+                // Создаем карту игрок ID -> страна
+                const playerCountryMap = {}
+                playersData.forEach((player) => {
+                  if (player.country) {
+                    playerCountryMap[player.id] = player.country
+                  }
+                })
+
+                // Обновляем информацию о странах в объекте матча
+                match.teamA.players.forEach((player) => {
+                  if (playerCountryMap[player.id]) {
+                    player.country = playerCountryMap[player.id]
+                  }
+                })
+
+                match.teamB.players.forEach((player) => {
+                  if (playerCountryMap[player.id]) {
+                    player.country = playerCountryMap[player.id]
+                  }
+                })
+
+                logEvent("info", "Информация о странах игроков успешно загружена", "getMatch", { matchId: id })
+              } else {
+                logEvent("warn", "Не удалось загрузить информацию о странах игроков", "getMatch", {
+                  matchId: id,
+                  error: playersError,
+                })
+              }
+            }
+          } catch (countryError) {
+            logEvent("error", "Ошибка при загрузке информации о странах игроков", "getMatch", {
+              error: countryError,
+              matchId: id,
+            })
+          }
+
           // Сохраняем в кэш
           matchCache.set(id, { data: match, timestamp: Date.now() })
 
