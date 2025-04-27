@@ -328,6 +328,13 @@ const getImportantPoint = (match) => {
   return { type: isTiebreak ? "TIEBREAK" : "GAME", team: null }
 }
 
+// Изменяем функцию getPlayerCountry, чтобы она возвращала пустую строку вместо "---"
+const getPlayerCountry = (team, playerIndex, match) => {
+  if (!match) return ""
+  const player = match[team]?.players[playerIndex]
+  return player?.country || ""
+}
+
 export default function VmixPage({ params }: MatchParams) {
   const [match, setMatch] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -767,9 +774,7 @@ export default function VmixPage({ params }: MatchParams) {
 
   // Получаем страну игрока
   const getPlayerCountry = (team, playerIndex) => {
-    if (!match) return "---"
-    const player = match[team]?.players[playerIndex]
-    return player?.country || "---"
+    return getPlayerCountry(team, playerIndex, match)
   }
 
   // Стили в зависимости от темы и параметров
@@ -946,16 +951,19 @@ export default function VmixPage({ params }: MatchParams) {
   // Определяем фиксированную ширину для ячеек имен
   const nameColumnWidth = 300
   const countryColumnWidth = 50 // Ширина столбца для страны
+  const serveColumnWidth = 30 // Ширина столбца для индикации подачи
 
   // Рассчитываем ширину таблицы для индикатора
   const tableWidth = showPoints
     ? nameColumnWidth +
       (showCountry ? countryColumnWidth : 0) +
+      (showServer ? serveColumnWidth : 0) +
       (match.score.sets?.length || 0) * 40 +
       (match.score.currentSet ? 40 : 0) +
       60
     : nameColumnWidth +
       (showCountry ? countryColumnWidth : 0) +
+      (showServer ? serveColumnWidth : 0) +
       (match.score.sets?.length || 0) * 40 +
       (match.score.currentSet ? 40 : 0)
 
@@ -1015,38 +1023,12 @@ export default function VmixPage({ params }: MatchParams) {
                   <span style={{ flex: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                     {match.teamA.players[0]?.name}
                   </span>
-                  {showServer && isServing("teamA", 0) && (
-                    <span
-                      style={{
-                        color: accentColor,
-                        marginLeft: "5px",
-                        fontSize: "2em",
-                        lineHeight: 1,
-                        flexShrink: 0,
-                      }}
-                    >
-                      •
-                    </span>
-                  )}
                 </div>
                 {match.teamA.players.length > 1 && (
                   <div style={{ display: "flex", alignItems: "center" }}>
                     <span style={{ flex: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                       {match.teamA.players[1]?.name}
                     </span>
-                    {showServer && isServing("teamA", 1) && (
-                      <span
-                        style={{
-                          color: accentColor,
-                          marginLeft: "5px",
-                          fontSize: "2em",
-                          lineHeight: 1,
-                          flexShrink: 0,
-                        }}
-                      >
-                        •
-                      </span>
-                    )}
                   </div>
                 )}
               </div>
@@ -1075,6 +1057,55 @@ export default function VmixPage({ params }: MatchParams) {
                 <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
                   <div>{getPlayerCountry("teamA", 0)}</div>
                   {match.teamA.players.length > 1 && <div>{getPlayerCountry("teamA", 1)}</div>}
+                </div>
+              </div>
+            )}
+
+            {/* Индикация подачи для первого игрока/команды */}
+            {showServer && (
+              <div
+                style={{
+                  color: theme === "transparent" ? accentColor : accentColor,
+                  padding: "10px",
+                  flex: "0 0 auto",
+                  width: `${serveColumnWidth}px`,
+                  minWidth: `${serveColumnWidth}px`,
+                  maxWidth: `${serveColumnWidth}px`,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  background: theme === "transparent" ? "transparent" : "#000000",
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "space-around",
+                    height: "100%",
+                  }}
+                >
+                  <div
+                    style={{
+                      visibility: isServing("teamA", 0) ? "visible" : "hidden",
+                      fontSize: "5em",
+                      lineHeight: "0.5",
+                    }}
+                  >
+                    •
+                  </div>
+                  {match.teamA.players.length > 1 && (
+                    <div
+                      style={{
+                        visibility: isServing("teamA", 1) ? "visible" : "hidden",
+                        fontSize: "5em",
+                        lineHeight: "0.5",
+                      }}
+                    >
+                      •
+                    </div>
+                  )}
                 </div>
               </div>
             )}
@@ -1188,38 +1219,12 @@ export default function VmixPage({ params }: MatchParams) {
                   <span style={{ flex: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                     {match.teamB.players[0]?.name}
                   </span>
-                  {showServer && isServing("teamB", 0) && (
-                    <span
-                      style={{
-                        color: accentColor,
-                        marginLeft: "5px",
-                        fontSize: "2em",
-                        lineHeight: 1,
-                        flexShrink: 0,
-                      }}
-                    >
-                      •
-                    </span>
-                  )}
                 </div>
                 {match.teamB.players.length > 1 && (
                   <div style={{ display: "flex", alignItems: "center" }}>
                     <span style={{ flex: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                       {match.teamB.players[1]?.name}
                     </span>
-                    {showServer && isServing("teamB", 1) && (
-                      <span
-                        style={{
-                          color: accentColor,
-                          marginLeft: "5px",
-                          fontSize: "2em",
-                          lineHeight: 1,
-                          flexShrink: 0,
-                        }}
-                      >
-                        •
-                      </span>
-                    )}
                   </div>
                 )}
               </div>
@@ -1248,6 +1253,55 @@ export default function VmixPage({ params }: MatchParams) {
                 <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
                   <div>{getPlayerCountry("teamB", 0)}</div>
                   {match.teamB.players.length > 1 && <div>{getPlayerCountry("teamB", 1)}</div>}
+                </div>
+              </div>
+            )}
+
+            {/* Индикация подачи для второго игрока/команды */}
+            {showServer && (
+              <div
+                style={{
+                  color: theme === "transparent" ? accentColor : accentColor,
+                  padding: "10px",
+                  flex: "0 0 auto",
+                  width: `${serveColumnWidth}px`,
+                  minWidth: `${serveColumnWidth}px`,
+                  maxWidth: `${serveColumnWidth}px`,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  background: theme === "transparent" ? "transparent" : "#000000",
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "space-around",
+                    height: "100%",
+                  }}
+                >
+                  <div
+                    style={{
+                      visibility: isServing("teamB", 0) ? "visible" : "hidden",
+                      fontSize: "5em",
+                      lineHeight: "0.5",
+                    }}
+                  >
+                    •
+                  </div>
+                  {match.teamB.players.length > 1 && (
+                    <div
+                      style={{
+                        visibility: isServing("teamB", 1) ? "visible" : "hidden",
+                        fontSize: "5em",
+                        lineHeight: "0.5",
+                      }}
+                    >
+                      •
+                    </div>
+                  )}
                 </div>
               </div>
             )}
