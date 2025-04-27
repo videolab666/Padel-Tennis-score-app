@@ -329,7 +329,8 @@ const getImportantPoint = (match) => {
 }
 
 // Изменяем функцию getPlayerCountry, чтобы она возвращала пустую строку вместо "---"
-const getPlayerCountry = (team, playerIndex, match) => {
+// Получаем страну игрока
+const getPlayerCountryDisplay = (team, playerIndex) => {
   if (!match) return ""
   const player = match[team]?.players[playerIndex]
   return player?.country || ""
@@ -773,8 +774,10 @@ export default function VmixPage({ params }: MatchParams) {
   }
 
   // Получаем страну игрока
-  const getPlayerCountry = (team, playerIndex) => {
-    return getPlayerCountry(team, playerIndex, match)
+  const getPlayerCountryDisplay = (team, playerIndex) => {
+    if (!match) return ""
+    const player = match[team]?.players[playerIndex]
+    return player?.country || ""
   }
 
   // Стили в зависимости от темы и параметров
@@ -1055,8 +1058,8 @@ export default function VmixPage({ params }: MatchParams) {
                 }}
               >
                 <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                  <div>{getPlayerCountry("teamA", 0)}</div>
-                  {match.teamA.players.length > 1 && <div>{getPlayerCountry("teamA", 1)}</div>}
+                  <div>{getPlayerCountryDisplay("teamA", 0)}</div>
+                  {match.teamA.players.length > 1 && <div>{getPlayerCountryDisplay("teamA", 1)}</div>}
                 </div>
               </div>
             )}
@@ -1251,8 +1254,8 @@ export default function VmixPage({ params }: MatchParams) {
                 }}
               >
                 <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                  <div>{getPlayerCountry("teamB", 0)}</div>
-                  {match.teamB.players.length > 1 && <div>{getPlayerCountry("teamB", 1)}</div>}
+                  <div>{getPlayerCountryDisplay("teamB", 0)}</div>
+                  {match.teamB.players.length > 1 && <div>{getPlayerCountryDisplay("teamB", 1)}</div>}
                 </div>
               </div>
             )}
