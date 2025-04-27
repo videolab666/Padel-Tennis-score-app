@@ -767,9 +767,9 @@ export default function VmixPage({ params }: MatchParams) {
 
   // Получаем страну игрока
   const getPlayerCountry = (team, playerIndex) => {
-    if (!match) return ""
+    if (!match) return "---"
     const player = match[team]?.players[playerIndex]
-    return player?.country || ""
+    return player?.country || "---"
   }
 
   // Стили в зависимости от темы и параметров
