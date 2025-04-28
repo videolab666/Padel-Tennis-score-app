@@ -38,7 +38,9 @@ export function ScoreBoard({
 
     // Сбрасываем размер шрифта на начальное значение для точного измерения
     playerNameElements.forEach((el) => {
-      ;(el as HTMLElement).style.fontSize = "1.4em"(el as HTMLElement).style.whiteSpace = "nowrap" // Важно для правильного измерения
+      const element = el as HTMLElement
+      element.style.fontSize = "1.4em"
+      element.style.whiteSpace = "nowrap" // Важно для правильного измерения
     })
 
     // Даем браузеру время на перерисовку с новым размером шрифта
@@ -67,12 +69,14 @@ export function ScoreBoard({
 
       // Применяем одинаковый размер шрифта ко всем элементам
       playerNameElements.forEach((el) => {
-        ;(el as HTMLElement).style.fontSize = `${minFontSize}em`
+        const element = el as HTMLElement
+        element.style.fontSize = `${minFontSize}em`
         // Если даже с минимальным размером шрифта текст не помещается, включаем эллипсис
         if (minFontSize <= minAllowedFontSize) {
-          ;(el as HTMLElement).style.textOverflow = "ellipsis"(el as HTMLElement).style.overflow = "hidden"
+          element.style.textOverflow = "ellipsis"
+          element.style.overflow = "hidden"
         } else {
-          ;(el as HTMLElement).style.textOverflow = "clip"
+          element.style.textOverflow = "clip"
         }
       })
     }, 100)
