@@ -1022,7 +1022,7 @@ export default function VmixPage({ params }: MatchParams) {
             <div
               style={{
                 color: theme === "transparent" ? textColor : "white",
-                padding: "10px",
+                padding: "6px", // Было "10px"
                 flex: "0 0 auto",
                 width: `${nameColumnWidth}px`,
                 minWidth: `${nameColumnWidth}px`,
@@ -1038,13 +1038,29 @@ export default function VmixPage({ params }: MatchParams) {
             >
               <div style={{ display: "flex", flexDirection: "column", width: "100%", overflow: "hidden" }}>
                 <div style={{ display: "flex", alignItems: "center" }}>
-                  <span style={{ flex: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                  <span
+                    style={{
+                      flex: 1,
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      fontSize: "0.9em",
+                    }}
+                  >
                     {match.teamA.players[0]?.name}
                   </span>
                 </div>
                 {match.teamA.players.length > 1 && (
                   <div style={{ display: "flex", alignItems: "center" }}>
-                    <span style={{ flex: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                    <span
+                      style={{
+                        flex: 1,
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        fontSize: "0.9em",
+                      }}
+                    >
                       {match.teamA.players[1]?.name}
                     </span>
                   </div>
@@ -1057,7 +1073,7 @@ export default function VmixPage({ params }: MatchParams) {
               <div
                 style={{
                   color: theme === "transparent" ? textColor : "white",
-                  padding: "10px",
+                  padding: "6px", // Было "10px"
                   flex: "0 0 auto",
                   width: `${countryColumnWidth}px`,
                   minWidth: `${countryColumnWidth}px`,
@@ -1094,7 +1110,7 @@ export default function VmixPage({ params }: MatchParams) {
               <div
                 style={{
                   color: theme === "transparent" ? accentColor : accentColor,
-                  padding: "10px",
+                  padding: "6px", // Было "10px"
                   flex: "0 0 auto",
                   width: `${serveColumnWidth}px`,
                   minWidth: `${serveColumnWidth}px`,
@@ -1121,7 +1137,7 @@ export default function VmixPage({ params }: MatchParams) {
                   <div
                     style={{
                       visibility: isServing("teamA", 0) ? "visible" : "hidden",
-                      fontSize: "5em",
+                      fontSize: "4em", // Было "5em"
                       lineHeight: "0.5",
                     }}
                   >
@@ -1131,7 +1147,7 @@ export default function VmixPage({ params }: MatchParams) {
                     <div
                       style={{
                         visibility: isServing("teamA", 1) ? "visible" : "hidden",
-                        fontSize: "5em",
+                        fontSize: "4em", // Было "5em"
                         lineHeight: "0.5",
                       }}
                     >
@@ -1155,7 +1171,7 @@ export default function VmixPage({ params }: MatchParams) {
                           ? getGradientStyle(true, setsGradientFrom, setsGradientTo)
                           : { background: setsBgColor }),
                       color: theme === "transparent" ? textColor : setsTextColor,
-                      padding: "10px",
+                      padding: "6px", // Было "10px"
                       flex: "0 0 auto",
                       width: "40px",
                       minWidth: "40px",
@@ -1164,7 +1180,7 @@ export default function VmixPage({ params }: MatchParams) {
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      fontSize: "1.5em", // Увеличенный размер шрифта для сетов
+                      fontSize: "1.2em", // Было "1.5em"
                     }}
                   >
                     {tiebreakScores[idx] ? formatSetScore(set.teamA, tiebreakScores[idx].teamA) : set.teamA}
@@ -1180,7 +1196,7 @@ export default function VmixPage({ params }: MatchParams) {
                           ? getGradientStyle(true, setsGradientFrom, setsGradientTo)
                           : { background: setsBgColor }),
                       color: theme === "transparent" ? textColor : setsTextColor,
-                      padding: "10px",
+                      padding: "6px", // Было "10px"
                       flex: "0 0 auto",
                       width: "40px",
                       minWidth: "40px",
@@ -1189,7 +1205,7 @@ export default function VmixPage({ params }: MatchParams) {
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      fontSize: "1.5em", // Увеличенный размер шрифта для сетов
+                      fontSize: "1.2em", // Было "1.5em"
                     }}
                   >
                     {match.score.currentSet.teamA}
@@ -1203,13 +1219,13 @@ export default function VmixPage({ params }: MatchParams) {
               <div
                 style={{
                   color: theme === "transparent" ? textColor : "white",
-                  padding: "10px",
+                  padding: "6px", // Было "10px"
                   flex: "0 0 auto",
                   width: "60px",
                   minWidth: "60px",
                   textAlign: "center",
                   borderLeft: theme === "transparent" ? "none" : "1px solid #e5e5e5",
-                  fontSize: "2.5em", // Увеличено в 2 раза (было 1.25em)
+                  fontSize: "2em", // Было "2.5em"
                   fontWeight: "bold",
                   display: "flex",
                   alignItems: "center",
@@ -1232,7 +1248,7 @@ export default function VmixPage({ params }: MatchParams) {
             <div
               style={{
                 color: theme === "transparent" ? textColor : "white",
-                padding: "10px",
+                padding: "6px", // Было "10px"
                 flex: "0 0 auto",
                 width: `${nameColumnWidth}px`,
                 minWidth: `${nameColumnWidth}px`,
@@ -1248,13 +1264,29 @@ export default function VmixPage({ params }: MatchParams) {
             >
               <div style={{ display: "flex", flexDirection: "column", width: "100%", overflow: "hidden" }}>
                 <div style={{ display: "flex", alignItems: "center" }}>
-                  <span style={{ flex: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                  <span
+                    style={{
+                      flex: 1,
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      fontSize: "0.9em",
+                    }}
+                  >
                     {match.teamB.players[0]?.name}
                   </span>
                 </div>
                 {match.teamB.players.length > 1 && (
                   <div style={{ display: "flex", alignItems: "center" }}>
-                    <span style={{ flex: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                    <span
+                      style={{
+                        flex: 1,
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        fontSize: "0.9em",
+                      }}
+                    >
                       {match.teamB.players[1]?.name}
                     </span>
                   </div>
@@ -1267,7 +1299,7 @@ export default function VmixPage({ params }: MatchParams) {
               <div
                 style={{
                   color: theme === "transparent" ? textColor : "white",
-                  padding: "10px",
+                  padding: "6px", // Было "10px"
                   flex: "0 0 auto",
                   width: `${countryColumnWidth}px`,
                   minWidth: `${countryColumnWidth}px`,
@@ -1304,7 +1336,7 @@ export default function VmixPage({ params }: MatchParams) {
               <div
                 style={{
                   color: theme === "transparent" ? accentColor : accentColor,
-                  padding: "10px",
+                  padding: "6px", // Было "10px"
                   flex: "0 0 auto",
                   width: `${serveColumnWidth}px`,
                   minWidth: `${serveColumnWidth}px`,
@@ -1331,7 +1363,7 @@ export default function VmixPage({ params }: MatchParams) {
                   <div
                     style={{
                       visibility: isServing("teamB", 0) ? "visible" : "hidden",
-                      fontSize: "5em",
+                      fontSize: "4em", // Было "5em"
                       lineHeight: "0.5",
                     }}
                   >
@@ -1341,7 +1373,7 @@ export default function VmixPage({ params }: MatchParams) {
                     <div
                       style={{
                         visibility: isServing("teamB", 1) ? "visible" : "hidden",
-                        fontSize: "5em",
+                        fontSize: "4em", // Было "5em"
                         lineHeight: "0.5",
                       }}
                     >
@@ -1365,7 +1397,7 @@ export default function VmixPage({ params }: MatchParams) {
                           ? getGradientStyle(true, setsGradientFrom, setsGradientTo)
                           : { background: setsBgColor }),
                       color: theme === "transparent" ? textColor : setsTextColor,
-                      padding: "10px",
+                      padding: "6px", // Было "10px"
                       flex: "0 0 auto",
                       width: "40px",
                       minWidth: "40px",
@@ -1374,7 +1406,7 @@ export default function VmixPage({ params }: MatchParams) {
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      fontSize: "1.5em", // Увеличенный размер шрифта для сетов
+                      fontSize: "1.2em", // Было "1.5em"
                     }}
                   >
                     {tiebreakScores[idx] ? formatSetScore(set.teamB, tiebreakScores[idx].teamB) : set.teamB}
@@ -1391,7 +1423,7 @@ export default function VmixPage({ params }: MatchParams) {
                           ? getGradientStyle(true, setsGradientFrom, setsGradientTo)
                           : { background: setsBgColor }),
                       color: theme === "transparent" ? textColor : setsTextColor,
-                      padding: "10px",
+                      padding: "6px", // Было "10px"
                       flex: "0 0 auto",
                       width: "40px",
                       minWidth: "40px",
@@ -1400,7 +1432,7 @@ export default function VmixPage({ params }: MatchParams) {
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      fontSize: "1.5em", // Увеличенный размер шрифта для сетов
+                      fontSize: "1.2em", // Было "1.5em"
                     }}
                   >
                     {match.score.currentSet.teamB}
@@ -1414,13 +1446,13 @@ export default function VmixPage({ params }: MatchParams) {
               <div
                 style={{
                   color: theme === "transparent" ? textColor : "white",
-                  padding: "10px",
+                  padding: "6px", // Было "10px"
                   flex: "0 0 auto",
                   width: "60px",
                   minWidth: "60px",
                   textAlign: "center",
                   borderLeft: theme === "transparent" ? "none" : "1px solid #e5e5e5",
-                  fontSize: "2.5em", // Увеличено в 2 раза (было 1.25em)
+                  fontSize: "2em", // Было "2.5em"
                   fontWeight: "bold",
                   display: "flex",
                   alignItems: "center",
