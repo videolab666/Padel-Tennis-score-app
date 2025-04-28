@@ -52,10 +52,11 @@ export default function VmixSettingsPage({ params }) {
   const [countryGradient, setCountryGradient] = useState(false)
   const [countryGradientFrom, setCountryGradientFrom] = useState("#0369a1")
   const [countryGradientTo, setCountryGradientTo] = useState("#0284c7")
-  const [serveGradient, setServeGradient] = useState(false)
-  const [serveGradientFrom, setServeGradientFrom] = useState("#000000")
-  const [serveGradientTo, setServeGradientTo] = useState("#1e1e1e")
+  const [serveGradient, setServeGradient] = useState(true)
+  const [serveGradientFrom, setServeGradientFrom] = useState("#0369a1")
+  const [serveGradientTo, setServeGradientTo] = useState("#0284c7")
   const [pointsGradient, setPointsGradient] = useState(false)
+
   const [pointsGradientFrom, setPointsGradientFrom] = useState("#0369a1")
   const [pointsGradientTo, setPointsGradientTo] = useState("#0284c7")
   const [setsGradient, setSetsGradient] = useState(false)
@@ -68,10 +69,6 @@ export default function VmixSettingsPage({ params }) {
   const [indicatorGradient, setIndicatorGradient] = useState(false)
   const [indicatorGradientFrom, setIndicatorGradientFrom] = useState("#7c2d12")
   const [indicatorGradientTo, setIndicatorGradientTo] = useState("#991b1b")
-
-  // Настройки анимаций
-  const [animationType, setAnimationType] = useState("fade")
-  const [animationDuration, setAnimationDuration] = useState(500)
 
   // Добавим функцию сохранения настроек и загрузки сохраненных настроек
   // Добавьте эти функции после объявления всех состояний (useState) и перед useEffect
@@ -111,8 +108,6 @@ export default function VmixSettingsPage({ params }) {
         setsGradient,
         setsGradientFrom,
         setsGradientTo,
-        animationType,
-        animationDuration,
         // Добавляем настройки индикатора
         indicatorBgColor,
         indicatorTextColor,
@@ -165,6 +160,7 @@ export default function VmixSettingsPage({ params }) {
         setSetsBgColor(settings.setsBgColor || "#ffffff")
         setSetsTextColor(settings.setsTextColor || "#000000")
 
+        // Загружаем настройки градиентов
         setNamesGradient(settings.namesGradient !== undefined ? settings.namesGradient : false)
         setNamesGradientFrom(settings.namesGradientFrom || "#0369a1")
         setNamesGradientTo(settings.namesGradientTo || "#0284c7")
@@ -173,11 +169,12 @@ export default function VmixSettingsPage({ params }) {
         setCountryGradientFrom(settings.countryGradientFrom || "#0369a1")
         setCountryGradientTo(settings.countryGradientTo || "#0284c7")
 
-        setServeGradient(settings.serveGradient !== undefined ? settings.serveGradient : false)
-        setServeGradientFrom(settings.serveGradientFrom || "#000000")
-        setServeGradientTo(settings.serveGradientTo || "#1e1e1e")
+        setServeGradient(settings.serveGradient !== undefined ? settings.serveGradient : true)
+        setServeGradientFrom(settings.serveGradientFrom || "#0369a1")
+        setServeGradientTo(settings.serveGradientTo || "#0284c7")
 
         setPointsGradient(settings.pointsGradient !== undefined ? settings.pointsGradient : false)
+
         setPointsGradientFrom(settings.pointsGradientFrom || "#0369a1")
         setPointsGradientTo(settings.pointsGradientTo || "#0284c7")
 
@@ -191,9 +188,6 @@ export default function VmixSettingsPage({ params }) {
         setIndicatorGradient(settings.indicatorGradient !== undefined ? settings.indicatorGradient : false)
         setIndicatorGradientFrom(settings.indicatorGradientFrom || "#7c2d12")
         setIndicatorGradientTo(settings.indicatorGradientTo || "#991b1b")
-
-        setAnimationType(settings.animationType || "fade")
-        setAnimationDuration(settings.animationDuration || 500)
 
         // Загружаем размер шрифта имен игроков
         setPlayerNamesFontSize(settings.playerNamesFontSize !== undefined ? settings.playerNamesFontSize : 1.2)
@@ -297,10 +291,6 @@ export default function VmixSettingsPage({ params }) {
       url.searchParams.set("indicatorGradientFrom", formatColorForUrl(indicatorGradientFrom))
       url.searchParams.set("indicatorGradientTo", formatColorForUrl(indicatorGradientTo))
     }
-
-    // Добавляем параметры анимаций
-    url.searchParams.set("animationType", animationType)
-    url.searchParams.set("animationDuration", animationDuration.toString())
 
     return url.toString()
   }
@@ -538,78 +528,6 @@ export default function VmixSettingsPage({ params }) {
                       <Label htmlFor="showCountry">Показывать страны</Label>
                       <Switch id="showCountry" checked={showCountry} onCheckedChange={setShowCountry} />
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Настройки анимаций */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Настройки анимаций</CardTitle>
-                  <CardDescription>Настройте анимации при изменении счета</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="animationType">Тип анимации</Label>
-                    <Select value={animationType} onValueChange={setAnimationType}>
-                      <SelectTrigger id="animationType">
-                        <SelectValue placeholder="Выберите тип анимации" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="fade">Плавное появление</SelectItem>
-                        <SelectItem value="zoom">Увеличение</SelectItem>
-                        <SelectItem value="pulse">Пульсация</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="animationDuration">Длительность анимации: {animationDuration} мс</Label>
-                    <Slider
-                      id="animationDuration"
-                      min={100}
-                      max={2000}
-                      step={50}
-                      value={[animationDuration]}
-                      onValueChange={(value) => setAnimationDuration(value[0])}
-                    />
-                  </div>
-
-                  <div className="bg-gray-100 p-4 rounded-md">
-                    <h3 className="font-medium mb-2">Предпросмотр анимации</h3>
-                    <div className="flex justify-center">
-                      <div
-                        className="w-16 h-16 bg-blue-600 text-white flex items-center justify-center text-xl font-bold rounded"
-                        style={{
-                          animation: `${
-                            animationType === "fade"
-                              ? "fade-animation"
-                              : animationType === "zoom"
-                                ? "zoom-animation"
-                                : "pulse-animation"
-                          } ${animationDuration}ms ease-in-out infinite`,
-                        }}
-                      >
-                        15
-                      </div>
-                    </div>
-                    <style>{`
-                      @keyframes fade-animation {
-                        0% { opacity: 0; }
-                        50% { opacity: 1; }
-                        100% { opacity: 0; }
-                      }
-                      @keyframes zoom-animation {
-                        0% { transform: scale(1.3); opacity: 0; }
-                        50% { transform: scale(1.1); opacity: 0.7; }
-                        100% { transform: scale(1); opacity: 0; }
-                      }
-                      @keyframes pulse-animation {
-                        0% { transform: scale(1); }
-                        50% { transform: scale(1.2); }
-                        100% { transform: scale(1); }
-                      }
-                    `}</style>
                   </div>
                 </CardContent>
               </Card>
