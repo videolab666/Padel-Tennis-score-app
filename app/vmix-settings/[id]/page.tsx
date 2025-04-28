@@ -36,6 +36,9 @@ export default function VmixSettingsPage({ params }) {
   const [textColor, setTextColor] = useState("#ffffff")
   const [accentColor, setAccentColor] = useState("#fbbf24")
 
+  // Настройки размера шрифта имен игроков
+  const [playerNamesFontSize, setPlayerNamesFontSize] = useState(1.2)
+
   // Настройки цветов и градиентов
   const [namesBgColor, setNamesBgColor] = useState("#0369a1")
   const [countryBgColor, setCountryBgColor] = useState("#0369a1")
@@ -116,6 +119,8 @@ export default function VmixSettingsPage({ params }) {
         indicatorGradient,
         indicatorGradientFrom,
         indicatorGradientTo,
+        // Добавляем размер шрифта имен игроков
+        playerNamesFontSize,
       }
 
       localStorage.setItem("vmix_settings", JSON.stringify(settings))
@@ -190,6 +195,9 @@ export default function VmixSettingsPage({ params }) {
         setAnimationType(settings.animationType || "fade")
         setAnimationDuration(settings.animationDuration || 500)
 
+        // Загружаем размер шрифта имен игроков
+        setPlayerNamesFontSize(settings.playerNamesFontSize !== undefined ? settings.playerNamesFontSize : 1.2)
+
         logEvent("info", "Загружены сохраненные настройки vMix", "vmix-settings-load")
       }
     } catch (error) {
@@ -256,6 +264,7 @@ export default function VmixSettingsPage({ params }) {
     url.searchParams.set("bgOpacity", bgOpacity.toString())
     url.searchParams.set("textColor", formatColorForUrl(textColor))
     url.searchParams.set("accentColor", formatColorForUrl(accentColor))
+    url.searchParams.set("playerNamesFontSize", playerNamesFontSize.toString())
 
     // Добавляем параметры цветов и градиентов (только если тема не прозрачная)
     if (theme !== "transparent") {
@@ -434,6 +443,18 @@ export default function VmixSettingsPage({ params }) {
                         <SelectItem value="xlarge">Очень большой</SelectItem>
                       </SelectContent>
                     </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="playerNamesFontSize">Размер шрифта имен игроков: {playerNamesFontSize}em</Label>
+                    <Slider
+                      id="playerNamesFontSize"
+                      min={0.6}
+                      max={2.0}
+                      step={0.1}
+                      value={[playerNamesFontSize]}
+                      onValueChange={(value) => setPlayerNamesFontSize(value[0])}
+                    />
                   </div>
 
                   {theme !== "transparent" && (

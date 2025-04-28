@@ -354,11 +354,12 @@ export default function VmixPage({ params }: MatchParams) {
   const showPoints = searchParams.get("showPoints") !== "false"
   const showSets = searchParams.get("showSets") !== "false"
   const showServer = searchParams.get("showServer") !== "false"
-  const showCountry = searchParams.get("showCountry") !== "false" // Новый параметр для отображения страны
+  const showCountry = searchParams.get("showCountry") !== "false"
   const fontSize = searchParams.get("fontSize") || "normal"
   const bgOpacity = Number.parseFloat(searchParams.get("bgOpacity") || "0.5")
   const textColor = parseColorParam(searchParams.get("textColor"), "#ffffff")
-  const accentColor = parseColorParam(searchParams.get("accentColor"), "#a4fb23") // Изменен цвет индикатора подачи
+  const accentColor = parseColorParam(searchParams.get("accentColor"), "#a4fb23")
+  const playerNamesFontSize = Number.parseFloat(searchParams.get("playerNamesFontSize") || "1.2")
   const outputFormat = searchParams.get("format") || "html"
   const showDebug = searchParams.get("debug") === "true"
 
@@ -416,11 +417,14 @@ export default function VmixPage({ params }: MatchParams) {
           if (settings.showPoints !== undefined) newParams.set("showPoints", settings.showPoints.toString())
           if (settings.showSets !== undefined) newParams.set("showSets", settings.showSets.toString())
           if (settings.showServer !== undefined) newParams.set("showServer", settings.showServer.toString())
-          if (settings.showCountry !== undefined) newParams.set("showCountry", settings.showCountry.toString()) // Новый параметр
+          if (settings.showCountry !== undefined) newParams.set("showCountry", settings.showCountry.toString())
           if (settings.fontSize) newParams.set("fontSize", settings.fontSize)
           if (settings.bgOpacity !== undefined) newParams.set("bgOpacity", settings.bgOpacity.toString())
           if (settings.textColor) newParams.set("textColor", settings.textColor.replace("#", ""))
           if (settings.accentColor) newParams.set("accentColor", settings.accentColor.replace("#", ""))
+          if (settings.playerNamesFontSize !== undefined)
+            newParams.set("playerNamesFontSize", settings.playerNamesFontSize.toString())
+
           if (settings.namesBgColor) newParams.set("namesBgColor", settings.namesBgColor.replace("#", ""))
           if (settings.countryBgColor) newParams.set("countryBgColor", settings.countryBgColor.replace("#", "")) // Новый параметр
           if (settings.pointsBgColor) newParams.set("pointsBgColor", settings.pointsBgColor.replace("#", ""))
@@ -1032,7 +1036,7 @@ export default function VmixPage({ params }: MatchParams) {
                       whiteSpace: "nowrap",
                       overflow: "hidden",
                       textOverflow: "ellipsis",
-                      fontSize: "1.2em", // Изменено с 1.4em на 1.2em
+                      fontSize: `${playerNamesFontSize}em`,
                     }}
                   >
                     {match.teamA.players[0]?.name}
@@ -1046,7 +1050,7 @@ export default function VmixPage({ params }: MatchParams) {
                         whiteSpace: "nowrap",
                         overflow: "hidden",
                         textOverflow: "ellipsis",
-                        fontSize: "1.2em", // Изменено с 1.4em на 1.2em
+                        fontSize: `${playerNamesFontSize}em`,
                       }}
                     >
                       {match.teamA.players[1]?.name}
@@ -1258,7 +1262,7 @@ export default function VmixPage({ params }: MatchParams) {
                       whiteSpace: "nowrap",
                       overflow: "hidden",
                       textOverflow: "ellipsis",
-                      fontSize: "1.2em", // Изменено с 1.4em на 1.2em
+                      fontSize: `${playerNamesFontSize}em`,
                     }}
                   >
                     {match.teamB.players[0]?.name}
@@ -1272,7 +1276,7 @@ export default function VmixPage({ params }: MatchParams) {
                         whiteSpace: "nowrap",
                         overflow: "hidden",
                         textOverflow: "ellipsis",
-                        fontSize: "1.2em", // Изменено с 1.4em на 1.2em
+                        fontSize: `${playerNamesFontSize}em`,
                       }}
                     >
                       {match.teamB.players[1]?.name}
