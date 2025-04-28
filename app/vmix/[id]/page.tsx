@@ -790,6 +790,11 @@ export default function VmixPage({ params }: MatchParams) {
     return player?.country || null
   }
 
+  // Изменяем функцию getPlayerCountry, чтобы она возвращала пробел вместо "---"
+  const getPlayerCountryDisplay = (team, playerIndex, matchData) => {
+    return getPlayerCountry(team, playerIndex, matchData) || " "
+  }
+
   // Стили в зависимости от темы и параметров
   const getStyles = () => {
     const fontSizeMap = {
@@ -1013,7 +1018,7 @@ export default function VmixPage({ params }: MatchParams) {
         <div style={{ display: "flex", flexDirection: "column", width: "fit-content" }}>
           {/* Строка для первого игрока/команды */}
           <div style={{ display: "flex", marginBottom: "1px" }}>
-            {/* Имя первого игрока/команды с интегрированным отображением страны */}
+            {/* Имя первого игрока/команды */}
             <div
               style={{
                 color: theme === "transparent" ? textColor : "white",
@@ -1036,54 +1041,53 @@ export default function VmixPage({ params }: MatchParams) {
                   <span style={{ flex: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                     {match.teamA.players[0]?.name}
                   </span>
-                  {showCountry && (
-                    <span
-                      style={{
-                        marginLeft: "10px",
-                        padding: "2px 5px",
-                        backgroundColor: theme === "transparent" ? "transparent" : countryBgColor,
-                        color: theme === "transparent" ? textColor : "white",
-                        borderRadius: "3px",
-                        fontSize: "0.8em",
-                        ...(theme === "transparent"
-                          ? {}
-                          : countryGradient
-                            ? getGradientStyle(true, countryGradientFrom, countryGradientTo)
-                            : {}),
-                      }}
-                    >
-                      {getPlayerCountryDisplay("teamA", 0, match)}
-                    </span>
-                  )}
                 </div>
                 {match.teamA.players.length > 1 && (
                   <div style={{ display: "flex", alignItems: "center" }}>
                     <span style={{ flex: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                       {match.teamA.players[1]?.name}
                     </span>
-                    {showCountry && (
-                      <span
-                        style={{
-                          marginLeft: "10px",
-                          padding: "2px 5px",
-                          backgroundColor: theme === "transparent" ? "transparent" : countryBgColor,
-                          color: theme === "transparent" ? textColor : "white",
-                          borderRadius: "3px",
-                          fontSize: "0.8em",
-                          ...(theme === "transparent"
-                            ? {}
-                            : countryGradient
-                              ? getGradientStyle(true, countryGradientFrom, countryGradientTo)
-                              : {}),
-                        }}
-                      >
-                        {getPlayerCountryDisplay("teamA", 1, match)}
-                      </span>
-                    )}
                   </div>
                 )}
               </div>
             </div>
+
+            {/* Страна первого игрока/команды */}
+            {showCountry && (
+              <div
+                style={{
+                  color: theme === "transparent" ? textColor : "white",
+                  padding: "10px",
+                  flex: "0 0 auto",
+                  width: `${countryColumnWidth}px`,
+                  minWidth: `${countryColumnWidth}px`,
+                  maxWidth: `${countryColumnWidth}px`,
+                  display: "flex",
+                  flexDirection: "column",
+                  ...(theme === "transparent"
+                    ? { background: "transparent" }
+                    : countryGradient
+                      ? getGradientStyle(true, countryGradientFrom, countryGradientTo)
+                      : { background: countryBgColor }),
+                }}
+              >
+                <div
+                  style={{
+                    height: match.teamA.players.length > 1 ? "50%" : "100%",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  {getPlayerCountryDisplay("teamA", 0, match)}
+                </div>
+                {match.teamA.players.length > 1 && (
+                  <div style={{ height: "50%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    {getPlayerCountryDisplay("teamA", 1, match)}
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Индикация подачи для первого игрока/команды */}
             {showServer && (
@@ -1224,7 +1228,7 @@ export default function VmixPage({ params }: MatchParams) {
 
           {/* Строка для второго игрока/команды */}
           <div style={{ display: "flex" }}>
-            {/* Имя второго игрока/команды с интегрированным отображением страны */}
+            {/* Имя второго игрока/команды */}
             <div
               style={{
                 color: theme === "transparent" ? textColor : "white",
@@ -1247,54 +1251,53 @@ export default function VmixPage({ params }: MatchParams) {
                   <span style={{ flex: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                     {match.teamB.players[0]?.name}
                   </span>
-                  {showCountry && (
-                    <span
-                      style={{
-                        marginLeft: "10px",
-                        padding: "2px 5px",
-                        backgroundColor: theme === "transparent" ? "transparent" : countryBgColor,
-                        color: theme === "transparent" ? textColor : "white",
-                        borderRadius: "3px",
-                        fontSize: "0.8em",
-                        ...(theme === "transparent"
-                          ? {}
-                          : countryGradient
-                            ? getGradientStyle(true, countryGradientFrom, countryGradientTo)
-                            : {}),
-                      }}
-                    >
-                      {getPlayerCountryDisplay("teamB", 0, match)}
-                    </span>
-                  )}
                 </div>
                 {match.teamB.players.length > 1 && (
                   <div style={{ display: "flex", alignItems: "center" }}>
                     <span style={{ flex: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                       {match.teamB.players[1]?.name}
                     </span>
-                    {showCountry && (
-                      <span
-                        style={{
-                          marginLeft: "10px",
-                          padding: "2px 5px",
-                          backgroundColor: theme === "transparent" ? "transparent" : countryBgColor,
-                          color: theme === "transparent" ? textColor : "white",
-                          borderRadius: "3px",
-                          fontSize: "0.8em",
-                          ...(theme === "transparent"
-                            ? {}
-                            : countryGradient
-                              ? getGradientStyle(true, countryGradientFrom, countryGradientTo)
-                              : {}),
-                        }}
-                      >
-                        {getPlayerCountryDisplay("teamB", 1, match)}
-                      </span>
-                    )}
                   </div>
                 )}
               </div>
             </div>
+
+            {/* Страна второго игрока/команды */}
+            {showCountry && (
+              <div
+                style={{
+                  color: theme === "transparent" ? textColor : "white",
+                  padding: "10px",
+                  flex: "0 0 auto",
+                  width: `${countryColumnWidth}px`,
+                  minWidth: `${countryColumnWidth}px`,
+                  maxWidth: `${countryColumnWidth}px`,
+                  display: "flex",
+                  flexDirection: "column",
+                  ...(theme === "transparent"
+                    ? { background: "transparent" }
+                    : countryGradient
+                      ? getGradientStyle(true, countryGradientFrom, countryGradientTo)
+                      : { background: countryBgColor }),
+                }}
+              >
+                <div
+                  style={{
+                    height: match.teamB.players.length > 1 ? "50%" : "100%",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  {getPlayerCountryDisplay("teamB", 0, match)}
+                </div>
+                {match.teamB.players.length > 1 && (
+                  <div style={{ height: "50%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    {getPlayerCountryDisplay("teamB", 1, match)}
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Индикация подачи для второго игрока/команды */}
             {showServer && (
