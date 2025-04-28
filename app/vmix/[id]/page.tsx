@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef, useCallback } from "react"
+import { useState, useEffect } from "react"
 import { useSearchParams } from "next/navigation"
 import { getMatch, subscribeToMatchUpdates } from "@/lib/match-storage"
 import { getTennisPointName } from "@/lib/tennis-utils"
@@ -340,18 +340,6 @@ const getPlayerCountryDisplay = (team, playerIndex, matchData) => {
   return getPlayerCountry(team, playerIndex, matchData) || " "
 }
 
-// Функция для измерения ширины текста
-const measureTextWidth = (text, fontSize, fontFamily = "Arial") => {
-  // Создаем временный элемент для измерения
-  const canvas = document.createElement("canvas")
-  const context = canvas.getContext("2d")
-  if (!context) return 0
-
-  context.font = `${fontSize}em ${fontFamily}`
-  const metrics = context.measureText(text)
-  return metrics.width
-}
-
 export default function VmixPage({ params }: MatchParams) {
   const [match, setMatch] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -359,17 +347,6 @@ export default function VmixPage({ params }: MatchParams) {
   const searchParams = useSearchParams()
   const [jsonOutput, setJsonOutput] = useState("")
   const [debugInfo, setDebugInfo] = useState("")
-  const [namesFontSize, setNamesFontSize] = useState(1.4) // Начальный размер шрифта 1.4em
-
-  // Определяем фиксированную ширину для ячеек имен - перемещаем сюда, чтобы избежать ошибки
-  const nameColumnWidth = 300
-  const countryColumnWidth = 50 // Ширина столбца для страны
-  const serveColumnWidth = 30 // Ширина столбца для индикации подачи
-
-  // Refs для доступа к DOM-элементам
-  const teamANamesRef = useRef([])
-  const teamBNamesRef = useRef([])
-  const nameContainerRef = useRef(null)
 
   // Параметры отображения из URL
   const theme = searchParams.get("theme") || "default"
@@ -419,59 +396,6 @@ export default function VmixPage({ params }: MatchParams) {
   const serveGradient = searchParams.get("serveGradient") === "true"
   const serveGradientFrom = parseColorParam(searchParams.get("serveGradientFrom"), "#000000")
   const serveGradientTo = parseColorParam(searchParams.get("serveGradientTo"), "#1e1e1e")
-
-  // Полностью переработанная функция для адаптивного размера шрифта
-  const adjustFontSize = useCallback(() => {
-    if (!match) return
-
-    // Получаем все имена игроков
-    const allPlayerNames = [
-      ...match.teamA.players.map((p) => p.name || ""),
-      ...match.teamB.players.map((p) => p.name || ""),
-    ].filter(Boolean)
-
-    if (allPlayerNames.length === 0) return
-
-    console.log("Adjusting font size for names:", allPlayerNames)
-
-    // Доступная ширина для имен (с учетом padding)
-    const availableWidth = nameColumnWidth - 10
-
-    // Начинаем с большого размера шрифта и уменьшаем его, пока все имена не поместятся
-    let currentSize = 1.4 // Начальный размер
-    let allFit = false
-
-    while (!allFit && currentSize >= 0.5) {
-      // Минимальный размер 0.5em
-      allFit = true
-
-      // Проверяем, помещаются ли все имена при текущем размере шрифта
-      for (const name of allPlayerNames) {
-        const textWidth = measureTextWidth(name, currentSize)
-        if (textWidth > availableWidth) {
-          allFit = false
-          break
-        }
-      }
-
-      // Если не все имена помещаются, уменьшаем размер шрифта
-      if (!allFit) {
-        currentSize -= 0.05 // Уменьшаем более плавно
-      }
-    }
-
-    // Применяем итоговый размер шрифта
-    setNamesFontSize(currentSize)
-    console.log("Final font size set to:", currentSize)
-
-    // Применяем размер шрифта ко всем элементам
-    const allRefs = [...teamANamesRef.current, ...teamBNamesRef.current].filter(Boolean)
-    allRefs.forEach((ref) => {
-      if (ref) {
-        ref.style.fontSize = `${currentSize}em`
-      }
-    })
-  }, [match, nameColumnWidth])
 
   // Загрузка сохраненных настроек из localStorage
   useEffect(() => {
@@ -596,32 +520,6 @@ export default function VmixPage({ params }: MatchParams) {
     indicatorGradientFrom,
     indicatorGradientTo,
   ])
-
-  // Адаптируем размер шрифта при изменении данных
-  useEffect(() => {
-    if (match) {
-      // Инициализируем refs для новых элементов
-      teamANamesRef.current = Array(match.teamA?.players?.length || 0).fill(null)
-      teamBNamesRef.current = Array(match.teamB?.players?.length || 0).fill(null)
-
-      // Даем время для рендеринга элементов
-      setTimeout(() => {
-        console.log("Running adjustFontSize after timeout")
-        adjustFontSize()
-      }, 200) // Увеличиваем задержку для надежности
-    }
-  }, [match, adjustFontSize])
-
-  // Добавляем обработчик изменения размера окна
-  useEffect(() => {
-    const handleResize = () => {
-      console.log("Window resized, adjusting font size")
-      adjustFontSize()
-    }
-
-    window.addEventListener("resize", handleResize)
-    return () => window.removeEventListener("resize", handleResize)
-  }, [adjustFontSize])
 
   useEffect(() => {
     const loadMatch = async () => {
@@ -885,6 +783,18 @@ export default function VmixPage({ params }: MatchParams) {
     )
   }
 
+  // Получаем страну игрока
+  const getPlayerCountry = (team, playerIndex, matchData) => {
+    if (!matchData) return null
+    const player = matchData[team]?.players[playerIndex]
+    return player?.country || null
+  }
+
+  // Изменяем функцию getPlayerCountry, чтобы она возвращала пробел вместо "---"
+  const getPlayerCountryDisplay = (team, playerIndex, matchData) => {
+    return getPlayerCountry(team, playerIndex, matchData) || " "
+  }
+
   // Стили в зависимости от темы и параметров
   const getStyles = () => {
     const fontSizeMap = {
@@ -1056,6 +966,11 @@ export default function VmixPage({ params }: MatchParams) {
   console.log("Set Point:", isSetPoint(match))
   console.log("Match Point:", isMatchPoint(match))
 
+  // Определяем фиксированную ширину для ячеек имен
+  const nameColumnWidth = 300
+  const countryColumnWidth = 50 // Ширина столбца для страны
+  const serveColumnWidth = 30 // Ширина столбца для индикации подачи
+
   // Рассчитываем ширину таблицы для индикатора
   const tableWidth = showPoints
     ? nameColumnWidth +
@@ -1105,7 +1020,6 @@ export default function VmixPage({ params }: MatchParams) {
           <div style={{ display: "flex", marginBottom: "1px" }}>
             {/* Имя первого игрока/команды */}
             <div
-              ref={nameContainerRef}
               style={{
                 color: theme === "transparent" ? textColor : "white",
                 padding: "1px",
@@ -1125,33 +1039,29 @@ export default function VmixPage({ params }: MatchParams) {
               <div style={{ display: "flex", flexDirection: "column", width: "100%", overflow: "hidden" }}>
                 <div style={{ display: "flex", alignItems: "center" }}>
                   <span
-                    ref={(el) => (teamANamesRef.current[0] = el)}
                     style={{
-                      display: "block",
-                      width: "100%",
+                      flex: 1,
                       whiteSpace: "nowrap",
                       overflow: "hidden",
                       textOverflow: "ellipsis",
-                      fontSize: `${namesFontSize}em`,
+                      fontSize: "1.4em",
                     }}
                   >
-                    {match.teamA.players[0]?.name || ""}
+                    {match.teamA.players[0]?.name}
                   </span>
                 </div>
                 {match.teamA.players.length > 1 && (
                   <div style={{ display: "flex", alignItems: "center" }}>
                     <span
-                      ref={(el) => (teamANamesRef.current[1] = el)}
                       style={{
-                        display: "block",
-                        width: "100%",
+                        flex: 1,
                         whiteSpace: "nowrap",
                         overflow: "hidden",
                         textOverflow: "ellipsis",
-                        fontSize: `${namesFontSize}em`,
+                        fontSize: "1.4em",
                       }}
                     >
-                      {match.teamA.players[1]?.name || ""}
+                      {match.teamA.players[1]?.name}
                     </span>
                   </div>
                 )}
@@ -1355,33 +1265,29 @@ export default function VmixPage({ params }: MatchParams) {
               <div style={{ display: "flex", flexDirection: "column", width: "100%", overflow: "hidden" }}>
                 <div style={{ display: "flex", alignItems: "center" }}>
                   <span
-                    ref={(el) => (teamBNamesRef.current[0] = el)}
                     style={{
-                      display: "block",
-                      width: "100%",
+                      flex: 1,
                       whiteSpace: "nowrap",
                       overflow: "hidden",
                       textOverflow: "ellipsis",
-                      fontSize: `${namesFontSize}em`,
+                      fontSize: "1.4em",
                     }}
                   >
-                    {match.teamB.players[0]?.name || ""}
+                    {match.teamB.players[0]?.name}
                   </span>
                 </div>
                 {match.teamB.players.length > 1 && (
                   <div style={{ display: "flex", alignItems: "center" }}>
                     <span
-                      ref={(el) => (teamBNamesRef.current[1] = el)}
                       style={{
-                        display: "block",
-                        width: "100%",
+                        flex: 1,
                         whiteSpace: "nowrap",
                         overflow: "hidden",
                         textOverflow: "ellipsis",
-                        fontSize: `${namesFontSize}em`,
+                        fontSize: "1.4em",
                       }}
                     >
-                      {match.teamB.players[1]?.name || ""}
+                      {match.teamB.players[1]?.name}
                     </span>
                   </div>
                 )}
@@ -1506,6 +1412,7 @@ export default function VmixPage({ params }: MatchParams) {
                     {tiebreakScores[idx] ? formatSetScore(set.teamB, tiebreakScores[idx].teamB) : set.teamB}
                   </div>
                 ))}
+
                 {/* Текущий сет */}
                 {match.score.currentSet && (
                   <div
@@ -1561,47 +1468,61 @@ export default function VmixPage({ params }: MatchParams) {
               </div>
             )}
           </div>
-        </div>
 
-        {/* Индикатор важного момента */}
-        <div
-          style={{
-            background:
-              theme === "transparent"
-                ? "transparent"
-                : indicatorGradient
-                  ? getGradientStyle(true, indicatorGradientFrom, indicatorGradientTo)
-                  : indicatorBgColor,
-            color: indicatorTextColor,
-            padding: "10px",
-            marginTop: "10px",
-            textAlign: "center",
-            fontSize: "1.5em",
-            fontWeight: "bold",
-            width: `${tableWidth}px`,
-            borderRadius: "5px",
-          }}
-        >
-          {importantPoint.type} {importantPoint.team ? `for ${importantPoint.team}` : ""}
-        </div>
-
-        {showDebug && (
-          <pre
+          {/* Индикатор особой ситуации (game point, set point, match point) - всегда показываем */}
+          <div
             style={{
-              whiteSpace: "pre-wrap",
-              wordWrap: "break-word",
-              padding: "20px",
-              background: "#f5f5f5",
-              color: "#333",
-              fontFamily: "monospace",
-              fontSize: "14px",
-              borderRadius: "4px",
-              overflow: "auto",
+              display: "flex",
+              width: "100%",
+              height: "18px", // Увеличиваем высоту до 18px (было 7px)
+              marginTop: "1px", // Небольшой отступ от таблицы счета
+              justifyContent: "flex-end", // Выравниваем содержимое по правому краю
             }}
           >
-            {debugInfo}
-          </pre>
-        )}
+            {/* Показываем индикатор только если есть важное событие или идет тай-брейк */}
+            {importantPoint.type && importantPoint.type !== "GAME" && (
+              <div
+                style={{
+                  color: theme === "transparent" ? accentColor : indicatorTextColor,
+                  backgroundColor:
+                    theme === "transparent" ? "transparent" : indicatorGradient ? undefined : indicatorBgColor,
+                  ...(indicatorGradient ? getGradientStyle(true, indicatorGradientFrom, indicatorGradientTo) : {}),
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  width: "33%", // Ширина индикатора - треть от общей ширины
+                  height: "100%",
+                  fontWeight: "bold",
+                  fontSize: "0.8em", // Увеличиваем размер шрифта для большей высоты
+                  textTransform: "uppercase",
+                  letterSpacing: "0.5px",
+                }}
+              >
+                {importantPoint.type}
+              </div>
+            )}
+          </div>
+
+          {/* Отладочная информация */}
+          {showDebug && (
+            <div
+              style={{
+                marginTop: "20px",
+                padding: "10px",
+                backgroundColor: "rgba(0,0,0,0.8)",
+                color: "white",
+                fontFamily: "monospace",
+                fontSize: "12px",
+                whiteSpace: "pre-wrap",
+                wordBreak: "break-all",
+                maxWidth: "100%",
+                overflow: "auto",
+              }}
+            >
+              {debugInfo}
+            </div>
+          )}
+        </div>
       </div>
     </>
   )

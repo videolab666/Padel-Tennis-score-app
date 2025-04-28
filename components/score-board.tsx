@@ -3,7 +3,7 @@
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { getTennisPointName } from "@/lib/tennis-utils"
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -15,89 +15,10 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 
-export function ScoreBoard({
-  match,
-  updateMatch,
-  team1Player1,
-  team1Player2,
-  team2Player1,
-  team2Player2,
-  showScoreboard,
-}) {
+export function ScoreBoard({ match, updateMatch }) {
   const [showMatchEndDialog, setShowMatchEndDialog] = useState(false)
   const [pendingMatchUpdate, setPendingMatchUpdate] = useState(null)
   const [previousMatchState, setPreviousMatchState] = useState(null)
-
-  // Функция для адаптивного изменения размера шрифта имен игроков
-  const adjustFontSize = () => {
-    if (typeof window === "undefined") return
-
-    // Получаем все элементы с именами игроков
-    const playerNameElements = document.querySelectorAll(".player-name")
-    if (!playerNameElements.length) return
-
-    // Сбрасываем размер шрифта на начальное значение для точного измерения
-    playerNameElements.forEach((el) => {
-      const element = el as HTMLElement
-      element.style.fontSize = "1.4em"
-      element.style.whiteSpace = "nowrap" // Важно для правильного измерения
-    })
-
-    // Даем браузеру время на перерисовку с новым размером шрифта
-    setTimeout(() => {
-      let minFontSize = 1.4 // Начальный размер шрифта
-      const minAllowedFontSize = 0.6 // Минимально допустимый размер шрифта
-
-      // Проверяем каждый элемент и находим необходимый размер шрифта
-      playerNameElements.forEach((el) => {
-        const element = el as HTMLElement
-        const parent = element.parentElement as HTMLElement
-
-        if (!parent) return
-
-        // Получаем ширину контейнера и текста
-        const containerWidth = parent.clientWidth
-        const textWidth = element.scrollWidth
-
-        // Если текст не помещается, вычисляем необходимый размер шрифта
-        if (textWidth > containerWidth) {
-          const ratio = containerWidth / textWidth
-          const newFontSize = Math.max(minAllowedFontSize, 1.4 * ratio)
-          minFontSize = Math.min(minFontSize, newFontSize)
-        }
-      })
-
-      // Применяем одинаковый размер шрифта ко всем элементам
-      playerNameElements.forEach((el) => {
-        const element = el as HTMLElement
-        element.style.fontSize = `${minFontSize}em`
-        // Если даже с минимальным размером шрифта текст не помещается, включаем эллипсис
-        if (minFontSize <= minAllowedFontSize) {
-          element.style.textOverflow = "ellipsis"
-          element.style.overflow = "hidden"
-        } else {
-          element.style.textOverflow = "clip"
-        }
-      })
-    }, 100)
-  }
-
-  // Эффект для адаптации размера шрифта при изменении данных
-  useEffect(() => {
-    // Вызываем функцию при монтировании компонента
-    adjustFontSize()
-
-    // Вызываем функцию при изменении имен игроков
-    const timeoutId = setTimeout(adjustFontSize, 200)
-
-    // Добавляем обработчик изменения размера окна
-    window.addEventListener("resize", adjustFontSize)
-
-    return () => {
-      clearTimeout(timeoutId)
-      window.removeEventListener("resize", adjustFontSize)
-    }
-  }, [team1Player1?.name, team1Player2?.name, team2Player1?.name, team2Player2?.name, showScoreboard])
 
   if (!match) return null
 
@@ -519,7 +440,7 @@ export function ScoreBoard({
                   <span className="sr-only">Подача</span>
                 </Badge>
               )}
-              <p className="font-medium truncate text-sm sm:text-base player-name">{player.name}</p>
+              <p className="font-medium truncate text-sm sm:text-base">{player.name}</p>
             </div>
           ))}
         </div>
@@ -532,7 +453,7 @@ export function ScoreBoard({
           </div>
           {teamB.players.map((player, idx) => (
             <div key={idx} className="flex items-center">
-              <p className="font-medium truncate text-sm sm:text-base player-name">{player.name}</p>
+              <p className="font-medium truncate text-sm sm:text-base">{player.name}</p>
               {isServing("teamB", idx) && (
                 <Badge
                   variant="outline"
