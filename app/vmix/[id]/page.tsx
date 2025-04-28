@@ -347,11 +347,14 @@ export default function VmixPage({ params }: MatchParams) {
   const searchParams = useSearchParams()
   const [jsonOutput, setJsonOutput] = useState("")
   const [debugInfo, setDebugInfo] = useState("")
-
-  // Добавим новые состояния и refs для адаптивного размера шрифта
-  // Добавьте эти строки после объявления других состояний в компоненте VmixPage
-
   const [namesFontSize, setNamesFontSize] = useState(1.4) // Начальный размер шрифта 1.4em
+
+  // Определяем фиксированную ширину для ячеек имен - перемещаем сюда, чтобы избежать ошибки
+  const nameColumnWidth = 300
+  const countryColumnWidth = 50 // Ширина столбца для страны
+  const serveColumnWidth = 30 // Ширина столбца для индикации подачи
+
+  // Refs для доступа к DOM-элементам
   const teamANamesRef = useRef([])
   const teamBNamesRef = useRef([])
   const nameContainerRef = useRef(null)
@@ -404,6 +407,46 @@ export default function VmixPage({ params }: MatchParams) {
   const serveGradient = searchParams.get("serveGradient") === "true"
   const serveGradientFrom = parseColorParam(searchParams.get("serveGradientFrom"), "#000000")
   const serveGradientTo = parseColorParam(searchParams.get("serveGradientTo"), "#1e1e1e")
+
+  // Функция для проверки и адаптации размера шрифта
+  const adjustFontSize = useCallback(() => {
+    if (!nameContainerRef.current) return
+
+    const containerWidth = nameColumnWidth - 10 // Учитываем padding
+    const allRefs = [...teamANamesRef.current, ...teamBNamesRef.current].filter(Boolean)
+
+    if (allRefs.length === 0) return
+
+    // Начинаем с размера 1.4em
+    let newSize = 1.4
+    let allFit = false
+
+    // Уменьшаем размер шрифта, пока все имена не поместятся
+    while (!allFit && newSize > 0.7) {
+      // Минимальный размер 0.7em
+      allFit = true
+
+      // Устанавливаем новый размер для проверки
+      allRefs.forEach((ref) => {
+        if (ref) ref.style.fontSize = `${newSize}em`
+      })
+
+      // Проверяем, все ли имена помещаются
+      for (const ref of allRefs) {
+        if (ref && ref.scrollWidth > containerWidth) {
+          allFit = false
+          break
+        }
+      }
+
+      // Если не все помещаются, уменьшаем размер
+      if (!allFit) {
+        newSize -= 0.1
+      }
+    }
+
+    setNamesFontSize(newSize)
+  }, [nameColumnWidth])
 
   // Загрузка сохраненных настроек из localStorage
   useEffect(() => {
@@ -528,6 +571,18 @@ export default function VmixPage({ params }: MatchParams) {
     indicatorGradientFrom,
     indicatorGradientTo,
   ])
+
+  // Адаптируем размер шрифта при изменении данных
+  useEffect(() => {
+    if (match) {
+      // Инициализируем refs для новых элементов
+      teamANamesRef.current = Array(match.teamA.players.length).fill(null)
+      teamBNamesRef.current = Array(match.teamB.players.length).fill(null)
+
+      // Даем время для рендеринга элементов
+      setTimeout(adjustFontSize, 0)
+    }
+  }, [match, adjustFontSize])
 
   useEffect(() => {
     const loadMatch = async () => {
@@ -762,58 +817,6 @@ export default function VmixPage({ params }: MatchParams) {
     }
   }, [params.id, outputFormat, showDebug])
 
-  // Функция для проверки и адаптации размера шрифта
-  const adjustFontSize = useCallback(() => {
-    if (!nameContainerRef.current) return
-
-    const containerWidth = nameColumnWidth - 10 // Учитываем padding
-    const allRefs = [...teamANamesRef.current, ...teamBNamesRef.current].filter(Boolean)
-
-    if (allRefs.length === 0) return
-
-    // Начинаем с размера 1.4em
-    let newSize = 1.4
-    let allFit = false
-
-    // Уменьшаем размер шрифта, пока все имена не поместятся
-    while (!allFit && newSize > 0.7) {
-      // Минимальный размер 0.7em
-      allFit = true
-
-      // Устанавливаем новый размер для проверки
-      allRefs.forEach((ref) => {
-        if (ref) ref.style.fontSize = `${newSize}em`
-      })
-
-      // Проверяем, все ли имена помещаются
-      for (const ref of allRefs) {
-        if (ref && ref.scrollWidth > containerWidth) {
-          allFit = false
-          break
-        }
-      }
-
-      // Если не все помещаются, уменьшаем размер
-      if (!allFit) {
-        newSize -= 0.1
-      }
-    }
-
-    setNamesFontSize(newSize)
-  }, [nameColumnWidth])
-
-  // Адаптируем размер шрифта при изменении данных
-  useEffect(() => {
-    if (match) {
-      // Инициализируем refs для новых элементов
-      teamANamesRef.current = Array(match.teamA.players.length).fill(null)
-      teamBNamesRef.current = Array(match.teamB.players.length).fill(null)
-
-      // Даем время для рендеринга элементов
-      setTimeout(adjustFontSize, 0)
-    }
-  }, [match, adjustFontSize])
-
   // Получаем текущий счет в виде строки (0, 15, 30, 40, Ad)
   const getCurrentGameScore = (team) => {
     if (!match || !match.score || !match.score.currentSet) return ""
@@ -841,18 +844,6 @@ export default function VmixPage({ params }: MatchParams) {
         <sup>{tiebreakScore}</sup>
       </span>
     )
-  }
-
-  // Получаем страну игрока
-  const getPlayerCountry = (team, playerIndex, matchData) => {
-    if (!matchData) return null
-    const player = matchData[team]?.players[playerIndex]
-    return player?.country || null
-  }
-
-  // Изменяем функцию getPlayerCountry, чтобы она возвращала пробел вместо "---"
-  const getPlayerCountryDisplay = (team, playerIndex, matchData) => {
-    return getPlayerCountry(team, playerIndex, matchData) || " "
   }
 
   // Стили в зависимости от темы и параметров
@@ -1025,11 +1016,6 @@ export default function VmixPage({ params }: MatchParams) {
   console.log("Game Point:", isGamePoint(match))
   console.log("Set Point:", isSetPoint(match))
   console.log("Match Point:", isMatchPoint(match))
-
-  // Определяем фиксированную ширину для ячеек имен
-  const nameColumnWidth = 300
-  const countryColumnWidth = 50 // Ширина столбца для страны
-  const serveColumnWidth = 30 // Ширина столбца для индикации подачи
 
   // Рассчитываем ширину таблицы для индикатора
   const tableWidth = showPoints
