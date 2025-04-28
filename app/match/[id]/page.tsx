@@ -374,7 +374,128 @@ export default function MatchPage({ params }: MatchParams) {
             </Button>
             <Button
               variant="outline"
-              onClick={() => window.open(`/vmix/${params.id}`, "_blank")}
+              onClick={() => {
+                // Загружаем сохраненные настройки vMix
+                const savedSettings = localStorage.getItem("vmix_settings")
+                if (savedSettings) {
+                  const settings = JSON.parse(savedSettings)
+                  // Формируем URL с параметрами
+                  const url = new URL(`${window.location.origin}/vmix/${params.id}`)
+
+                  // Добавляем основные параметры
+                  url.searchParams.set("theme", settings.theme || "custom")
+                  url.searchParams.set(
+                    "showNames",
+                    (settings.showNames !== undefined ? settings.showNames : true).toString(),
+                  )
+                  url.searchParams.set(
+                    "showPoints",
+                    (settings.showPoints !== undefined ? settings.showPoints : true).toString(),
+                  )
+                  url.searchParams.set(
+                    "showSets",
+                    (settings.showSets !== undefined ? settings.showSets : true).toString(),
+                  )
+                  url.searchParams.set(
+                    "showServer",
+                    (settings.showServer !== undefined ? settings.showServer : true).toString(),
+                  )
+                  url.searchParams.set(
+                    "showCountry",
+                    (settings.showCountry !== undefined ? settings.showCountry : true).toString(),
+                  )
+                  url.searchParams.set("fontSize", settings.fontSize || "normal")
+                  url.searchParams.set(
+                    "bgOpacity",
+                    (settings.bgOpacity !== undefined ? settings.bgOpacity : 0.5).toString(),
+                  )
+                  url.searchParams.set("textColor", (settings.textColor || "#ffffff").replace("#", ""))
+                  url.searchParams.set("accentColor", (settings.accentColor || "#fbbf24").replace("#", ""))
+
+                  // Добавляем параметры цветов и градиентов
+                  if (settings.theme !== "transparent") {
+                    url.searchParams.set("namesBgColor", (settings.namesBgColor || "#0369a1").replace("#", ""))
+                    url.searchParams.set("countryBgColor", (settings.countryBgColor || "#0369a1").replace("#", ""))
+                    url.searchParams.set("serveBgColor", (settings.serveBgColor || "#000000").replace("#", ""))
+                    url.searchParams.set("pointsBgColor", (settings.pointsBgColor || "#0369a1").replace("#", ""))
+                    url.searchParams.set("setsBgColor", (settings.setsBgColor || "#ffffff").replace("#", ""))
+                    url.searchParams.set("setsTextColor", (settings.setsTextColor || "#000000").replace("#", ""))
+                    url.searchParams.set(
+                      "namesGradient",
+                      (settings.namesGradient !== undefined ? settings.namesGradient : false).toString(),
+                    )
+                    url.searchParams.set(
+                      "namesGradientFrom",
+                      (settings.namesGradientFrom || "#0369a1").replace("#", ""),
+                    )
+                    url.searchParams.set("namesGradientTo", (settings.namesGradientTo || "#0284c7").replace("#", ""))
+                    url.searchParams.set(
+                      "countryGradient",
+                      (settings.countryGradient !== undefined ? settings.countryGradient : false).toString(),
+                    )
+                    url.searchParams.set(
+                      "countryGradientFrom",
+                      (settings.countryGradientFrom || "#0369a1").replace("#", ""),
+                    )
+                    url.searchParams.set(
+                      "countryGradientTo",
+                      (settings.countryGradientTo || "#0284c7").replace("#", ""),
+                    )
+                    url.searchParams.set(
+                      "serveGradient",
+                      (settings.serveGradient !== undefined ? settings.serveGradient : false).toString(),
+                    )
+                    url.searchParams.set(
+                      "serveGradientFrom",
+                      (settings.serveGradientFrom || "#000000").replace("#", ""),
+                    )
+                    url.searchParams.set("serveGradientTo", (settings.serveGradientTo || "#1e1e1e").replace("#", ""))
+                    url.searchParams.set(
+                      "pointsGradient",
+                      (settings.pointsGradient !== undefined ? settings.pointsGradient : false).toString(),
+                    )
+                    url.searchParams.set(
+                      "pointsGradientFrom",
+                      (settings.pointsGradientFrom || "#0369a1").replace("#", ""),
+                    )
+                    url.searchParams.set("pointsGradientTo", (settings.pointsGradientTo || "#0284c7").replace("#", ""))
+                    url.searchParams.set(
+                      "setsGradient",
+                      (settings.setsGradient !== undefined ? settings.setsGradient : false).toString(),
+                    )
+                    url.searchParams.set("setsGradientFrom", (settings.setsGradientFrom || "#ffffff").replace("#", ""))
+                    url.searchParams.set("setsGradientTo", (settings.setsGradientTo || "#f0f0f0").replace("#", ""))
+
+                    // Добавляем параметры для индикатора
+                    url.searchParams.set("indicatorBgColor", (settings.indicatorBgColor || "#7c2d12").replace("#", ""))
+                    url.searchParams.set(
+                      "indicatorTextColor",
+                      (settings.indicatorTextColor || "#ffffff").replace("#", ""),
+                    )
+                    url.searchParams.set(
+                      "indicatorGradient",
+                      (settings.indicatorGradient !== undefined ? settings.indicatorGradient : false).toString(),
+                    )
+                    url.searchParams.set(
+                      "indicatorGradientFrom",
+                      (settings.indicatorGradientFrom || "#7c2d12").replace("#", ""),
+                    )
+                    url.searchParams.set(
+                      "indicatorGradientTo",
+                      (settings.indicatorGradientTo || "#991b1b").replace("#", ""),
+                    )
+                  }
+
+                  // Добавляем параметры анимаций
+                  url.searchParams.set("animationType", settings.animationType || "fade")
+                  url.searchParams.set("animationDuration", (settings.animationDuration || 500).toString())
+
+                  window.open(url.toString(), "_blank")
+                } else {
+                  // Если настройки не найдены, открываем страницу без параметров
+                  window.open(`/vmix/${params.id}`, "_blank")
+                }
+              }}
               className="w-full text-sm"
               size="sm"
             >
