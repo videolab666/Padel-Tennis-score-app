@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import { useSearchParams } from "next/navigation"
 import { getMatch, subscribeToMatchUpdates } from "@/lib/match-storage"
 import { getTennisPointName } from "@/lib/tennis-utils"
@@ -347,6 +347,14 @@ export default function VmixPage({ params }: MatchParams) {
   const searchParams = useSearchParams()
   const [jsonOutput, setJsonOutput] = useState("")
   const [debugInfo, setDebugInfo] = useState("")
+
+  // Добавим новые состояния и refs для адаптивного размера шрифта
+  // Добавьте эти строки после объявления других состояний в компоненте VmixPage
+
+  const [namesFontSize, setNamesFontSize] = useState(1.4) // Начальный размер шрифта 1.4em
+  const teamANamesRef = useRef([])
+  const teamBNamesRef = useRef([])
+  const nameContainerRef = useRef(null)
 
   // Параметры отображения из URL
   const theme = searchParams.get("theme") || "default"
@@ -754,6 +762,58 @@ export default function VmixPage({ params }: MatchParams) {
     }
   }, [params.id, outputFormat, showDebug])
 
+  // Функция для проверки и адаптации размера шрифта
+  const adjustFontSize = useCallback(() => {
+    if (!nameContainerRef.current) return
+
+    const containerWidth = nameColumnWidth - 10 // Учитываем padding
+    const allRefs = [...teamANamesRef.current, ...teamBNamesRef.current].filter(Boolean)
+
+    if (allRefs.length === 0) return
+
+    // Начинаем с размера 1.4em
+    let newSize = 1.4
+    let allFit = false
+
+    // Уменьшаем размер шрифта, пока все имена не поместятся
+    while (!allFit && newSize > 0.7) {
+      // Минимальный размер 0.7em
+      allFit = true
+
+      // Устанавливаем новый размер для проверки
+      allRefs.forEach((ref) => {
+        if (ref) ref.style.fontSize = `${newSize}em`
+      })
+
+      // Проверяем, все ли имена помещаются
+      for (const ref of allRefs) {
+        if (ref && ref.scrollWidth > containerWidth) {
+          allFit = false
+          break
+        }
+      }
+
+      // Если не все помещаются, уменьшаем размер
+      if (!allFit) {
+        newSize -= 0.1
+      }
+    }
+
+    setNamesFontSize(newSize)
+  }, [nameColumnWidth])
+
+  // Адаптируем размер шрифта при изменении данных
+  useEffect(() => {
+    if (match) {
+      // Инициализируем refs для новых элементов
+      teamANamesRef.current = Array(match.teamA.players.length).fill(null)
+      teamBNamesRef.current = Array(match.teamB.players.length).fill(null)
+
+      // Даем время для рендеринга элементов
+      setTimeout(adjustFontSize, 0)
+    }
+  }, [match, adjustFontSize])
+
   // Получаем текущий счет в виде строки (0, 15, 30, 40, Ad)
   const getCurrentGameScore = (team) => {
     if (!match || !match.score || !match.score.currentSet) return ""
@@ -1020,6 +1080,7 @@ export default function VmixPage({ params }: MatchParams) {
           <div style={{ display: "flex", marginBottom: "1px" }}>
             {/* Имя первого игрока/команды */}
             <div
+              ref={nameContainerRef}
               style={{
                 color: theme === "transparent" ? textColor : "white",
                 padding: "1px",
@@ -1039,12 +1100,13 @@ export default function VmixPage({ params }: MatchParams) {
               <div style={{ display: "flex", flexDirection: "column", width: "100%", overflow: "hidden" }}>
                 <div style={{ display: "flex", alignItems: "center" }}>
                   <span
+                    ref={(el) => (teamANamesRef.current[0] = el)}
                     style={{
                       flex: 1,
                       whiteSpace: "nowrap",
                       overflow: "hidden",
                       textOverflow: "ellipsis",
-                      fontSize: "1.4em",
+                      fontSize: `${namesFontSize}em`,
                     }}
                   >
                     {match.teamA.players[0]?.name}
@@ -1053,12 +1115,13 @@ export default function VmixPage({ params }: MatchParams) {
                 {match.teamA.players.length > 1 && (
                   <div style={{ display: "flex", alignItems: "center" }}>
                     <span
+                      ref={(el) => (teamANamesRef.current[1] = el)}
                       style={{
                         flex: 1,
                         whiteSpace: "nowrap",
                         overflow: "hidden",
                         textOverflow: "ellipsis",
-                        fontSize: "1.4em",
+                        fontSize: `${namesFontSize}em`,
                       }}
                     >
                       {match.teamA.players[1]?.name}
@@ -1265,12 +1328,13 @@ export default function VmixPage({ params }: MatchParams) {
               <div style={{ display: "flex", flexDirection: "column", width: "100%", overflow: "hidden" }}>
                 <div style={{ display: "flex", alignItems: "center" }}>
                   <span
+                    ref={(el) => (teamBNamesRef.current[0] = el)}
                     style={{
                       flex: 1,
                       whiteSpace: "nowrap",
                       overflow: "hidden",
                       textOverflow: "ellipsis",
-                      fontSize: "1.4em",
+                      fontSize: `${namesFontSize}em`,
                     }}
                   >
                     {match.teamB.players[0]?.name}
@@ -1279,12 +1343,13 @@ export default function VmixPage({ params }: MatchParams) {
                 {match.teamB.players.length > 1 && (
                   <div style={{ display: "flex", alignItems: "center" }}>
                     <span
+                      ref={(el) => (teamBNamesRef.current[1] = el)}
                       style={{
                         flex: 1,
                         whiteSpace: "nowrap",
                         overflow: "hidden",
                         textOverflow: "ellipsis",
-                        fontSize: "1.4em",
+                        fontSize: `${namesFontSize}em`,
                       }}
                     >
                       {match.teamB.players[1]?.name}
