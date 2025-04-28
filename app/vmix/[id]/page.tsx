@@ -335,9 +335,9 @@ const getPlayerCountry = (team, playerIndex, matchData) => {
   return player?.country || null
 }
 
-// Изменяем функцию getPlayerCountry, чтобы она возвращала "---" вместо пустой строки
+// Изменяем функцию getPlayerCountry, чтобы она возвращала пробел вместо "---"
 const getPlayerCountryDisplay = (team, playerIndex, matchData) => {
-  return getPlayerCountry(team, playerIndex, matchData) || "---"
+  return getPlayerCountry(team, playerIndex, matchData) || " "
 }
 
 export default function VmixPage({ params }: MatchParams) {
