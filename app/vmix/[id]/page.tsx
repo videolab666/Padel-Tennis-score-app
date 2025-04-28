@@ -328,12 +328,16 @@ const getImportantPoint = (match) => {
   return { type: isTiebreak ? "TIEBREAK" : "GAME", team: null }
 }
 
-// Изменяем функцию getPlayerCountry, чтобы она возвращала пустую строку вместо "---"
 // Получаем страну игрока
-const getPlayerCountryDisplay = (team, playerIndex) => {
-  if (!match) return ""
+const getPlayerCountry = (team, playerIndex) => {
+  if (!match) return null
   const player = match[team]?.players[playerIndex]
-  return player?.country || ""
+  return player?.country || null
+}
+
+// Изменяем функцию getPlayerCountry, чтобы она возвращала "---" вместо пустой строки
+const getPlayerCountryDisplay = (team, playerIndex) => {
+  return getPlayerCountry(team, playerIndex) || "---"
 }
 
 export default function VmixPage({ params }: MatchParams) {
@@ -386,6 +390,12 @@ export default function VmixPage({ params }: MatchParams) {
   const setsGradient = searchParams.get("setsGradient") === "true"
   const setsGradientFrom = parseColorParam(searchParams.get("setsGradientFrom"), "#ffffff")
   const setsGradientTo = parseColorParam(searchParams.get("setsGradientTo"), "#f0f0f0")
+
+  // Обновляем параметры отображения из URL
+  const serveBgColor = parseColorParam(searchParams.get("serveBgColor"), "#000000")
+  const serveGradient = searchParams.get("serveGradient") === "true"
+  const serveGradientFrom = parseColorParam(searchParams.get("serveGradientFrom"), "#000000")
+  const serveGradientTo = parseColorParam(searchParams.get("serveGradientTo"), "#1e1e1e")
 
   // Загрузка сохраненных настроек из localStorage
   useEffect(() => {
@@ -774,10 +784,10 @@ export default function VmixPage({ params }: MatchParams) {
   }
 
   // Получаем страну игрока
-  const getPlayerCountryDisplay = (team, playerIndex) => {
-    if (!match) return ""
+  const getPlayerCountry = (team, playerIndex) => {
+    if (!match) return null
     const player = match[team]?.players[playerIndex]
-    return player?.country || ""
+    return player?.country || null
   }
 
   // Стили в зависимости от темы и параметров
@@ -1077,7 +1087,11 @@ export default function VmixPage({ params }: MatchParams) {
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  background: theme === "transparent" ? "transparent" : "#000000",
+                  ...(theme === "transparent"
+                    ? { background: "transparent" }
+                    : serveGradient
+                      ? getGradientStyle(true, serveGradientFrom, serveGradientTo)
+                      : { background: serveBgColor }),
                 }}
               >
                 <div
@@ -1273,7 +1287,11 @@ export default function VmixPage({ params }: MatchParams) {
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  background: theme === "transparent" ? "transparent" : "#000000",
+                  ...(theme === "transparent"
+                    ? { background: "transparent" }
+                    : serveGradient
+                      ? getGradientStyle(true, serveGradientFrom, serveGradientTo)
+                      : { background: serveBgColor }),
                 }}
               >
                 <div

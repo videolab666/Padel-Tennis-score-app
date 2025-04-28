@@ -30,6 +30,7 @@ export default function VmixSettingsPage({ params }) {
   const [showPoints, setShowPoints] = useState(true)
   const [showSets, setShowSets] = useState(true)
   const [showServer, setShowServer] = useState(true)
+  const [showCountry, setShowCountry] = useState(true)
   const [fontSize, setFontSize] = useState("normal")
   const [bgOpacity, setBgOpacity] = useState(0.5)
   const [textColor, setTextColor] = useState("#ffffff")
@@ -37,12 +38,20 @@ export default function VmixSettingsPage({ params }) {
 
   // Настройки цветов и градиентов
   const [namesBgColor, setNamesBgColor] = useState("#0369a1")
+  const [countryBgColor, setCountryBgColor] = useState("#0369a1")
+  const [serveBgColor, setServeBgColor] = useState("#000000")
   const [pointsBgColor, setPointsBgColor] = useState("#0369a1")
   const [setsBgColor, setSetsBgColor] = useState("#ffffff")
   const [setsTextColor, setSetsTextColor] = useState("#000000")
   const [namesGradient, setNamesGradient] = useState(false)
   const [namesGradientFrom, setNamesGradientFrom] = useState("#0369a1")
   const [namesGradientTo, setNamesGradientTo] = useState("#0284c7")
+  const [countryGradient, setCountryGradient] = useState(false)
+  const [countryGradientFrom, setCountryGradientFrom] = useState("#0369a1")
+  const [countryGradientTo, setCountryGradientTo] = useState("#0284c7")
+  const [serveGradient, setServeGradient] = useState(false)
+  const [serveGradientFrom, setServeGradientFrom] = useState("#000000")
+  const [serveGradientTo, setServeGradientTo] = useState("#1e1e1e")
   const [pointsGradient, setPointsGradient] = useState(false)
   const [pointsGradientFrom, setPointsGradientFrom] = useState("#0369a1")
   const [pointsGradientTo, setPointsGradientTo] = useState("#0284c7")
@@ -73,17 +82,26 @@ export default function VmixSettingsPage({ params }) {
         showPoints,
         showSets,
         showServer,
+        showCountry,
         fontSize,
         bgOpacity,
         textColor,
         accentColor,
         namesBgColor,
+        countryBgColor,
+        serveBgColor,
         pointsBgColor,
         setsBgColor,
         setsTextColor,
         namesGradient,
         namesGradientFrom,
         namesGradientTo,
+        countryGradient,
+        countryGradientFrom,
+        countryGradientTo,
+        serveGradient,
+        serveGradientFrom,
+        serveGradientTo,
         pointsGradient,
         pointsGradientFrom,
         pointsGradientTo,
@@ -129,12 +147,15 @@ export default function VmixSettingsPage({ params }) {
         setShowPoints(settings.showPoints !== undefined ? settings.showPoints : true)
         setShowSets(settings.showSets !== undefined ? settings.showSets : true)
         setShowServer(settings.showServer !== undefined ? settings.showServer : true)
+        setShowCountry(settings.showCountry !== undefined ? settings.showCountry : true)
         setFontSize(settings.fontSize || "normal")
         setBgOpacity(settings.bgOpacity !== undefined ? settings.bgOpacity : 0.5)
         setTextColor(settings.textColor || "#ffffff")
         setAccentColor(settings.accentColor || "#fbbf24")
 
         setNamesBgColor(settings.namesBgColor || "#0369a1")
+        setCountryBgColor(settings.countryBgColor || "#0369a1")
+        setServeBgColor(settings.serveBgColor || "#000000")
         setPointsBgColor(settings.pointsBgColor || "#0369a1")
         setSetsBgColor(settings.setsBgColor || "#ffffff")
         setSetsTextColor(settings.setsTextColor || "#000000")
@@ -142,6 +163,14 @@ export default function VmixSettingsPage({ params }) {
         setNamesGradient(settings.namesGradient !== undefined ? settings.namesGradient : false)
         setNamesGradientFrom(settings.namesGradientFrom || "#0369a1")
         setNamesGradientTo(settings.namesGradientTo || "#0284c7")
+
+        setCountryGradient(settings.countryGradient !== undefined ? settings.countryGradient : false)
+        setCountryGradientFrom(settings.countryGradientFrom || "#0369a1")
+        setCountryGradientTo(settings.countryGradientTo || "#0284c7")
+
+        setServeGradient(settings.serveGradient !== undefined ? settings.serveGradient : false)
+        setServeGradientFrom(settings.serveGradientFrom || "#000000")
+        setServeGradientTo(settings.serveGradientTo || "#1e1e1e")
 
         setPointsGradient(settings.pointsGradient !== undefined ? settings.pointsGradient : false)
         setPointsGradientFrom(settings.pointsGradientFrom || "#0369a1")
@@ -222,6 +251,7 @@ export default function VmixSettingsPage({ params }) {
     url.searchParams.set("showPoints", showPoints.toString())
     url.searchParams.set("showSets", showSets.toString())
     url.searchParams.set("showServer", showServer.toString())
+    url.searchParams.set("showCountry", showCountry.toString())
     url.searchParams.set("fontSize", fontSize)
     url.searchParams.set("bgOpacity", bgOpacity.toString())
     url.searchParams.set("textColor", formatColorForUrl(textColor))
@@ -230,12 +260,20 @@ export default function VmixSettingsPage({ params }) {
     // Добавляем параметры цветов и градиентов (только если тема не прозрачная)
     if (theme !== "transparent") {
       url.searchParams.set("namesBgColor", formatColorForUrl(namesBgColor))
+      url.searchParams.set("countryBgColor", formatColorForUrl(countryBgColor))
+      url.searchParams.set("serveBgColor", formatColorForUrl(serveBgColor))
       url.searchParams.set("pointsBgColor", formatColorForUrl(pointsBgColor))
       url.searchParams.set("setsBgColor", formatColorForUrl(setsBgColor))
       url.searchParams.set("setsTextColor", formatColorForUrl(setsTextColor))
       url.searchParams.set("namesGradient", namesGradient.toString())
       url.searchParams.set("namesGradientFrom", formatColorForUrl(namesGradientFrom))
       url.searchParams.set("namesGradientTo", formatColorForUrl(namesGradientTo))
+      url.searchParams.set("countryGradient", countryGradient.toString())
+      url.searchParams.set("countryGradientFrom", formatColorForUrl(countryGradientFrom))
+      url.searchParams.set("countryGradientTo", formatColorForUrl(countryGradientTo))
+      url.searchParams.set("serveGradient", serveGradient.toString())
+      url.searchParams.set("serveGradientFrom", formatColorForUrl(serveGradientFrom))
+      url.searchParams.set("serveGradientTo", formatColorForUrl(serveGradientTo))
       url.searchParams.set("pointsGradient", pointsGradient.toString())
       url.searchParams.set("pointsGradientFrom", formatColorForUrl(pointsGradientFrom))
       url.searchParams.set("pointsGradientTo", formatColorForUrl(pointsGradientTo))
@@ -474,6 +512,11 @@ export default function VmixSettingsPage({ params }) {
                       <Label htmlFor="showServer">Показывать подающего</Label>
                       <Switch id="showServer" checked={showServer} onCheckedChange={setShowServer} />
                     </div>
+
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="showCountry">Показывать страны</Label>
+                      <Switch id="showCountry" checked={showCountry} onCheckedChange={setShowCountry} />
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -644,6 +687,217 @@ export default function VmixSettingsPage({ params }) {
                           ></div>
                         </>
                       )}
+                    </div>
+
+                    {/* Страны игроков */}
+                    <div className="space-y-4 border-b pb-4">
+                      <h3 className="font-medium">Блок стран игроков</h3>
+                      <div className="space-y-2">
+                        <Label htmlFor="countryBgColor">Цвет фона стран игроков</Label>
+                        <div className="flex items-center space-x-2">
+                          <div
+                            className="w-6 h-6 rounded-full border"
+                            style={{ backgroundColor: countryBgColor }}
+                          ></div>
+                          <Input
+                            id="countryBgColor"
+                            type="color"
+                            value={countryBgColor}
+                            onChange={(e) => setCountryBgColor(e.target.value)}
+                            className="w-12 p-1 h-8"
+                          />
+                          <Input
+                            type="text"
+                            value={countryBgColor}
+                            onChange={(e) => setCountryBgColor(e.target.value)}
+                            className="flex-1"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="countryGradient">Использовать градиент для стран</Label>
+                        <Switch id="countryGradient" checked={countryGradient} onCheckedChange={setCountryGradient} />
+                      </div>
+
+                      {countryGradient && (
+                        <>
+                          <div className="space-y-2">
+                            <Label htmlFor="countryGradientFrom">Начальный цвет градиента стран</Label>
+                            <div className="flex items-center space-x-2">
+                              <div
+                                className="w-6 h-6 rounded-full border"
+                                style={{ backgroundColor: countryGradientFrom }}
+                              ></div>
+                              <Input
+                                id="countryGradientFrom"
+                                type="color"
+                                value={countryGradientFrom}
+                                onChange={(e) => setCountryGradientFrom(e.target.value)}
+                                className="w-12 p-1 h-8"
+                              />
+                              <Input
+                                type="text"
+                                value={countryGradientFrom}
+                                onChange={(e) => setCountryGradientFrom(e.target.value)}
+                                className="flex-1"
+                              />
+                            </div>
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label htmlFor="countryGradientTo">Конечный цвет градиента стран</Label>
+                            <div className="flex items-center space-x-2">
+                              <div
+                                className="w-6 h-6 rounded-full border"
+                                style={{ backgroundColor: countryGradientTo }}
+                              ></div>
+                              <Input
+                                id="countryGradientTo"
+                                type="color"
+                                value={countryGradientTo}
+                                onChange={(e) => setCountryGradientTo(e.target.value)}
+                                className="w-12 p-1 h-8"
+                              />
+                              <Input
+                                type="text"
+                                value={countryGradientTo}
+                                onChange={(e) => setCountryGradientTo(e.target.value)}
+                                className="flex-1"
+                              />
+                            </div>
+                          </div>
+
+                          <div
+                            className="h-8 rounded"
+                            style={{
+                              background: `linear-gradient(to bottom, ${countryGradientFrom}, ${countryGradientTo})`,
+                            }}
+                          ></div>
+                        </>
+                      )}
+                    </div>
+
+                    {/* Индикатор подачи */}
+                    <div className="space-y-4 border-b pb-4">
+                      <h3 className="font-medium">Блок индикатора подачи</h3>
+                      <div className="space-y-2">
+                        <Label htmlFor="serveBgColor">Цвет фона индикатора подачи</Label>
+                        <div className="flex items-center space-x-2">
+                          <div className="w-6 h-6 rounded-full border" style={{ backgroundColor: serveBgColor }}></div>
+                          <Input
+                            id="serveBgColor"
+                            type="color"
+                            value={serveBgColor}
+                            onChange={(e) => setServeBgColor(e.target.value)}
+                            className="w-12 p-1 h-8"
+                          />
+                          <Input
+                            type="text"
+                            value={serveBgColor}
+                            onChange={(e) => setServeBgColor(e.target.value)}
+                            className="flex-1"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="accentColor">Цвет индикатора подачи</Label>
+                        <div className="flex items-center space-x-2">
+                          <div className="w-6 h-6 rounded-full border" style={{ backgroundColor: accentColor }}></div>
+                          <Input
+                            id="accentColor"
+                            type="color"
+                            value={accentColor}
+                            onChange={(e) => setAccentColor(e.target.value)}
+                            className="w-12 p-1 h-8"
+                          />
+                          <Input
+                            type="text"
+                            value={accentColor}
+                            onChange={(e) => setAccentColor(e.target.value)}
+                            className="flex-1"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="serveGradient">Использовать градиент для фона индикатора подачи</Label>
+                        <Switch id="serveGradient" checked={serveGradient} onCheckedChange={setServeGradient} />
+                      </div>
+
+                      {serveGradient && (
+                        <>
+                          <div className="space-y-2">
+                            <Label htmlFor="serveGradientFrom">Начальный цвет градиента фона индикатора</Label>
+                            <div className="flex items-center space-x-2">
+                              <div
+                                className="w-6 h-6 rounded-full border"
+                                style={{ backgroundColor: serveGradientFrom }}
+                              ></div>
+                              <Input
+                                id="serveGradientFrom"
+                                type="color"
+                                value={serveGradientFrom}
+                                onChange={(e) => setServeGradientFrom(e.target.value)}
+                                className="w-12 p-1 h-8"
+                              />
+                              <Input
+                                type="text"
+                                value={serveGradientFrom}
+                                onChange={(e) => setServeGradientFrom(e.target.value)}
+                                className="flex-1"
+                              />
+                            </div>
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label htmlFor="serveGradientTo">Конечный цвет градиента фона индикатора</Label>
+                            <div className="flex items-center space-x-2">
+                              <div
+                                className="w-6 h-6 rounded-full border"
+                                style={{ backgroundColor: serveGradientTo }}
+                              ></div>
+                              <Input
+                                id="serveGradientTo"
+                                type="color"
+                                value={serveGradientTo}
+                                onChange={(e) => setServeGradientTo(e.target.value)}
+                                className="w-12 p-1 h-8"
+                              />
+                              <Input
+                                type="text"
+                                value={serveGradientTo}
+                                onChange={(e) => setServeGradientTo(e.target.value)}
+                                className="flex-1"
+                              />
+                            </div>
+                          </div>
+
+                          <div
+                            className="h-8 rounded"
+                            style={{
+                              background: `linear-gradient(to bottom, ${serveGradientFrom}, ${serveGradientTo})`,
+                            }}
+                          ></div>
+                        </>
+                      )}
+
+                      {/* Пример индикатора подачи */}
+                      <div className="mt-4 flex items-center space-x-2">
+                        <div
+                          className="w-8 h-8 rounded flex items-center justify-center"
+                          style={{
+                            ...(serveGradient
+                              ? { background: `linear-gradient(to bottom, ${serveGradientFrom}, ${serveGradientTo})` }
+                              : { background: serveBgColor }),
+                            color: accentColor,
+                          }}
+                        >
+                          <span style={{ fontSize: "2em", lineHeight: "0.5" }}>•</span>
+                        </div>
+                        <span className="text-sm">Пример индикатора подачи</span>
+                      </div>
                     </div>
 
                     {/* Текущий счет */}
