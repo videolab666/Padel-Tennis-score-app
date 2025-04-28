@@ -1022,7 +1022,7 @@ export default function VmixPage({ params }: MatchParams) {
             <div
               style={{
                 color: theme === "transparent" ? textColor : "white",
-                padding: "6px", // Было "10px"
+                padding: "1px",
                 flex: "0 0 auto",
                 width: `${nameColumnWidth}px`,
                 minWidth: `${nameColumnWidth}px`,
@@ -1044,7 +1044,7 @@ export default function VmixPage({ params }: MatchParams) {
                       whiteSpace: "nowrap",
                       overflow: "hidden",
                       textOverflow: "ellipsis",
-                      fontSize: "0.9em",
+                      fontSize: "1.8em",
                     }}
                   >
                     {match.teamA.players[0]?.name}
@@ -1058,7 +1058,7 @@ export default function VmixPage({ params }: MatchParams) {
                         whiteSpace: "nowrap",
                         overflow: "hidden",
                         textOverflow: "ellipsis",
-                        fontSize: "0.9em",
+                        fontSize: "1.8em",
                       }}
                     >
                       {match.teamA.players[1]?.name}
@@ -1073,7 +1073,7 @@ export default function VmixPage({ params }: MatchParams) {
               <div
                 style={{
                   color: theme === "transparent" ? textColor : "white",
-                  padding: "6px", // Было "10px"
+                  padding: "1px",
                   flex: "0 0 auto",
                   width: `${countryColumnWidth}px`,
                   minWidth: `${countryColumnWidth}px`,
@@ -1110,7 +1110,7 @@ export default function VmixPage({ params }: MatchParams) {
               <div
                 style={{
                   color: theme === "transparent" ? accentColor : accentColor,
-                  padding: "6px", // Было "10px"
+                  padding: "1px",
                   flex: "0 0 auto",
                   width: `${serveColumnWidth}px`,
                   minWidth: `${serveColumnWidth}px`,
@@ -1171,7 +1171,7 @@ export default function VmixPage({ params }: MatchParams) {
                           ? getGradientStyle(true, setsGradientFrom, setsGradientTo)
                           : { background: setsBgColor }),
                       color: theme === "transparent" ? textColor : setsTextColor,
-                      padding: "6px", // Было "10px"
+                      padding: "1px",
                       flex: "0 0 auto",
                       width: "40px",
                       minWidth: "40px",
@@ -1180,7 +1180,7 @@ export default function VmixPage({ params }: MatchParams) {
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      fontSize: "1.2em", // Было "1.5em"
+                      fontSize: "1.8em",
                     }}
                   >
                     {tiebreakScores[idx] ? formatSetScore(set.teamA, tiebreakScores[idx].teamA) : set.teamA}
@@ -1196,7 +1196,7 @@ export default function VmixPage({ params }: MatchParams) {
                           ? getGradientStyle(true, setsGradientFrom, setsGradientTo)
                           : { background: setsBgColor }),
                       color: theme === "transparent" ? textColor : setsTextColor,
-                      padding: "6px", // Было "10px"
+                      padding: "1px",
                       flex: "0 0 auto",
                       width: "40px",
                       minWidth: "40px",
@@ -1205,7 +1205,7 @@ export default function VmixPage({ params }: MatchParams) {
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      fontSize: "1.2em", // Было "1.5em"
+                      fontSize: "1.8em",
                     }}
                   >
                     {match.score.currentSet.teamA}
@@ -1219,7 +1219,7 @@ export default function VmixPage({ params }: MatchParams) {
               <div
                 style={{
                   color: theme === "transparent" ? textColor : "white",
-                  padding: "6px", // Было "10px"
+                  padding: "1px",
                   flex: "0 0 auto",
                   width: "60px",
                   minWidth: "60px",
@@ -1248,7 +1248,7 @@ export default function VmixPage({ params }: MatchParams) {
             <div
               style={{
                 color: theme === "transparent" ? textColor : "white",
-                padding: "6px", // Было "10px"
+                padding: "1px",
                 flex: "0 0 auto",
                 width: `${nameColumnWidth}px`,
                 minWidth: `${nameColumnWidth}px`,
@@ -1270,7 +1270,7 @@ export default function VmixPage({ params }: MatchParams) {
                       whiteSpace: "nowrap",
                       overflow: "hidden",
                       textOverflow: "ellipsis",
-                      fontSize: "0.9em",
+                      fontSize: "1.8em",
                     }}
                   >
                     {match.teamB.players[0]?.name}
@@ -1284,7 +1284,7 @@ export default function VmixPage({ params }: MatchParams) {
                         whiteSpace: "nowrap",
                         overflow: "hidden",
                         textOverflow: "ellipsis",
-                        fontSize: "0.9em",
+                        fontSize: "1.8em",
                       }}
                     >
                       {match.teamB.players[1]?.name}
@@ -1299,7 +1299,7 @@ export default function VmixPage({ params }: MatchParams) {
               <div
                 style={{
                   color: theme === "transparent" ? textColor : "white",
-                  padding: "6px", // Было "10px"
+                  padding: "1px",
                   flex: "0 0 auto",
                   width: `${countryColumnWidth}px`,
                   minWidth: `${countryColumnWidth}px`,
@@ -1336,7 +1336,7 @@ export default function VmixPage({ params }: MatchParams) {
               <div
                 style={{
                   color: theme === "transparent" ? accentColor : accentColor,
-                  padding: "6px", // Было "10px"
+                  padding: "1px",
                   flex: "0 0 auto",
                   width: `${serveColumnWidth}px`,
                   minWidth: `${serveColumnWidth}px`,
@@ -1397,7 +1397,7 @@ export default function VmixPage({ params }: MatchParams) {
                           ? getGradientStyle(true, setsGradientFrom, setsGradientTo)
                           : { background: setsBgColor }),
                       color: theme === "transparent" ? textColor : setsTextColor,
-                      padding: "6px", // Было "10px"
+                      padding: "1px",
                       flex: "0 0 auto",
                       width: "40px",
                       minWidth: "40px",
@@ -1406,7 +1406,7 @@ export default function VmixPage({ params }: MatchParams) {
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      fontSize: "1.2em", // Было "1.5em"
+                      fontSize: "1.8em",
                     }}
                   >
                     {tiebreakScores[idx] ? formatSetScore(set.teamB, tiebreakScores[idx].teamB) : set.teamB}
@@ -1423,7 +1423,7 @@ export default function VmixPage({ params }: MatchParams) {
                           ? getGradientStyle(true, setsGradientFrom, setsGradientTo)
                           : { background: setsBgColor }),
                       color: theme === "transparent" ? textColor : setsTextColor,
-                      padding: "6px", // Было "10px"
+                      padding: "1px",
                       flex: "0 0 auto",
                       width: "40px",
                       minWidth: "40px",
@@ -1432,7 +1432,7 @@ export default function VmixPage({ params }: MatchParams) {
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      fontSize: "1.2em", // Было "1.5em"
+                      fontSize: "1.8em",
                     }}
                   >
                     {match.score.currentSet.teamB}
@@ -1446,7 +1446,7 @@ export default function VmixPage({ params }: MatchParams) {
               <div
                 style={{
                   color: theme === "transparent" ? textColor : "white",
-                  padding: "6px", // Было "10px"
+                  padding: "1px",
                   flex: "0 0 auto",
                   width: "60px",
                   minWidth: "60px",
