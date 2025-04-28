@@ -358,7 +358,7 @@ export default function VmixPage({ params }: MatchParams) {
   const fontSize = searchParams.get("fontSize") || "normal"
   const bgOpacity = Number.parseFloat(searchParams.get("bgOpacity") || "0.5")
   const textColor = parseColorParam(searchParams.get("textColor"), "#ffffff")
-  const accentColor = parseColorParam(searchParams.get("accentColor"), "#fbbf24")
+  const accentColor = parseColorParam(searchParams.get("accentColor"), "#a4fb23") // Изменен цвет индикатора подачи
   const outputFormat = searchParams.get("format") || "html"
   const showDebug = searchParams.get("debug") === "true"
 
@@ -372,28 +372,28 @@ export default function VmixPage({ params }: MatchParams) {
   // Параметры для индикатора
   const indicatorBgColor = parseColorParam(searchParams.get("indicatorBgColor"), "#7c2d12")
   const indicatorTextColor = parseColorParam(searchParams.get("indicatorTextColor"), "#ffffff")
-  const indicatorGradient = searchParams.get("indicatorGradient") === "true"
+  const indicatorGradient = searchParams.get("indicatorGradient") === "true" || true // По умолчанию используем градиент
   const indicatorGradientFrom = parseColorParam(searchParams.get("indicatorGradientFrom"), "#7c2d12")
   const indicatorGradientTo = parseColorParam(searchParams.get("indicatorGradientTo"), "#991b1b")
 
-  // Параметры градиентов
-  const namesGradient = searchParams.get("namesGradient") === "true"
+  // Параметры градиентов - по умолчанию используем градиенты
+  const namesGradient = searchParams.get("namesGradient") === "true" || true
   const namesGradientFrom = parseColorParam(searchParams.get("namesGradientFrom"), "#0369a1")
   const namesGradientTo = parseColorParam(searchParams.get("namesGradientTo"), "#0284c7")
-  const countryGradient = searchParams.get("countryGradient") === "true" // Новый параметр для градиента страны
-  const countryGradientFrom = parseColorParam(searchParams.get("countryGradientFrom"), "#0369a1") // Новый параметр для начального цвета градиента страны
-  const countryGradientTo = parseColorParam(searchParams.get("countryGradientTo"), "#0284c7") // Новый параметр для конечного цвета градиента страны
-  const pointsGradient = searchParams.get("pointsGradient") === "true"
+  const countryGradient = searchParams.get("countryGradient") === "true" || true // По умолчанию используем градиент
+  const countryGradientFrom = parseColorParam(searchParams.get("countryGradientFrom"), "#0369a1") // Начальный цвет градиента стран
+  const countryGradientTo = parseColorParam(searchParams.get("countryGradientTo"), "#0284c7") // Конечный цвет градиента стран
+  const pointsGradient = searchParams.get("pointsGradient") === "true" || true // По умолчанию используем градиент
   const pointsGradientFrom = parseColorParam(searchParams.get("pointsGradientFrom"), "#0369a1")
   const pointsGradientTo = parseColorParam(searchParams.get("pointsGradientTo"), "#0284c7")
   // Параметры для градиента счета в сетах
-  const setsGradient = searchParams.get("setsGradient") === "true"
+  const setsGradient = searchParams.get("setsGradient") === "true" || true // По умолчанию используем градиент
   const setsGradientFrom = parseColorParam(searchParams.get("setsGradientFrom"), "#ffffff")
   const setsGradientTo = parseColorParam(searchParams.get("setsGradientTo"), "#f0f0f0")
 
   // Обновляем параметры отображения из URL
   const serveBgColor = parseColorParam(searchParams.get("serveBgColor"), "#000000")
-  const serveGradient = searchParams.get("serveGradient") === "true"
+  const serveGradient = searchParams.get("serveGradient") === "true" || true // По умолчанию используем градиент
   const serveGradientFrom = parseColorParam(searchParams.get("serveGradientFrom"), "#000000")
   const serveGradientTo = parseColorParam(searchParams.get("serveGradientTo"), "#1e1e1e")
 
@@ -783,18 +783,6 @@ export default function VmixPage({ params }: MatchParams) {
     )
   }
 
-  // Получаем страну игрока
-  const getPlayerCountry = (team, playerIndex, matchData) => {
-    if (!matchData) return null
-    const player = matchData[team]?.players[playerIndex]
-    return player?.country || null
-  }
-
-  // Изменяем функцию getPlayerCountry, чтобы она возвращала пробел вместо "---"
-  const getPlayerCountryDisplay = (team, playerIndex, matchData) => {
-    return getPlayerCountry(team, playerIndex, matchData) || " "
-  }
-
   // Стили в зависимости от темы и параметров
   const getStyles = () => {
     const fontSizeMap = {
@@ -1044,7 +1032,7 @@ export default function VmixPage({ params }: MatchParams) {
                       whiteSpace: "nowrap",
                       overflow: "hidden",
                       textOverflow: "ellipsis",
-                      fontSize: "1.4em",
+                      fontSize: "1.2em", // Изменено с 1.4em на 1.2em
                     }}
                   >
                     {match.teamA.players[0]?.name}
@@ -1058,7 +1046,7 @@ export default function VmixPage({ params }: MatchParams) {
                         whiteSpace: "nowrap",
                         overflow: "hidden",
                         textOverflow: "ellipsis",
-                        fontSize: "1.4em",
+                        fontSize: "1.2em", // Изменено с 1.4em на 1.2em
                       }}
                     >
                       {match.teamA.players[1]?.name}
@@ -1270,7 +1258,7 @@ export default function VmixPage({ params }: MatchParams) {
                       whiteSpace: "nowrap",
                       overflow: "hidden",
                       textOverflow: "ellipsis",
-                      fontSize: "1.4em",
+                      fontSize: "1.2em", // Изменено с 1.4em на 1.2em
                     }}
                   >
                     {match.teamB.players[0]?.name}
@@ -1284,7 +1272,7 @@ export default function VmixPage({ params }: MatchParams) {
                         whiteSpace: "nowrap",
                         overflow: "hidden",
                         textOverflow: "ellipsis",
-                        fontSize: "1.4em",
+                        fontSize: "1.2em", // Изменено с 1.4em на 1.2em
                       }}
                     >
                       {match.teamB.players[1]?.name}
