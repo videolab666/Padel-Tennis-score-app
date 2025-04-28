@@ -328,16 +328,16 @@ const getImportantPoint = (match) => {
   return { type: isTiebreak ? "TIEBREAK" : "GAME", team: null }
 }
 
-// Получаем страну игрока
-const getPlayerCountry = (team, playerIndex) => {
-  if (!match) return null
-  const player = match[team]?.players[playerIndex]
+// Получаем страну игрока - эта функция не должна использовать переменную match
+const getPlayerCountry = (team, playerIndex, matchData) => {
+  if (!matchData) return null
+  const player = matchData[team]?.players[playerIndex]
   return player?.country || null
 }
 
 // Изменяем функцию getPlayerCountry, чтобы она возвращала "---" вместо пустой строки
-const getPlayerCountryDisplay = (team, playerIndex) => {
-  return getPlayerCountry(team, playerIndex) || "---"
+const getPlayerCountryDisplay = (team, playerIndex, matchData) => {
+  return getPlayerCountry(team, playerIndex, matchData) || "---"
 }
 
 export default function VmixPage({ params }: MatchParams) {
@@ -784,9 +784,9 @@ export default function VmixPage({ params }: MatchParams) {
   }
 
   // Получаем страну игрока
-  const getPlayerCountry = (team, playerIndex) => {
-    if (!match) return null
-    const player = match[team]?.players[playerIndex]
+  const getPlayerCountry = (team, playerIndex, matchData) => {
+    if (!matchData) return null
+    const player = matchData[team]?.players[playerIndex]
     return player?.country || null
   }
 
@@ -1068,8 +1068,8 @@ export default function VmixPage({ params }: MatchParams) {
                 }}
               >
                 <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                  <div>{getPlayerCountryDisplay("teamA", 0)}</div>
-                  {match.teamA.players.length > 1 && <div>{getPlayerCountryDisplay("teamA", 1)}</div>}
+                  <div>{getPlayerCountryDisplay("teamA", 0, match)}</div>
+                  {match.teamA.players.length > 1 && <div>{getPlayerCountryDisplay("teamA", 1, match)}</div>}
                 </div>
               </div>
             )}
@@ -1268,8 +1268,8 @@ export default function VmixPage({ params }: MatchParams) {
                 }}
               >
                 <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                  <div>{getPlayerCountryDisplay("teamB", 0)}</div>
-                  {match.teamB.players.length > 1 && <div>{getPlayerCountryDisplay("teamB", 1)}</div>}
+                  <div>{getPlayerCountryDisplay("teamB", 0, match)}</div>
+                  {match.teamB.players.length > 1 && <div>{getPlayerCountryDisplay("teamB", 1, match)}</div>}
                 </div>
               </div>
             )}
