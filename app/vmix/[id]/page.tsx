@@ -445,7 +445,9 @@ export default function VmixPage({ params }: MatchParams) {
       }
     }
 
+    // Применяем окончательный размер
     setNamesFontSize(newSize)
+    console.log("Adjusted font size to:", newSize)
   }, [nameColumnWidth])
 
   // Загрузка сохраненных настроек из localStorage
@@ -576,13 +578,27 @@ export default function VmixPage({ params }: MatchParams) {
   useEffect(() => {
     if (match) {
       // Инициализируем refs для новых элементов
-      teamANamesRef.current = Array(match.teamA.players.length).fill(null)
-      teamBNamesRef.current = Array(match.teamB.players.length).fill(null)
+      teamANamesRef.current = Array(match.teamA?.players?.length || 0).fill(null)
+      teamBNamesRef.current = Array(match.teamB?.players?.length || 0).fill(null)
 
       // Даем время для рендеринга элементов
-      setTimeout(adjustFontSize, 0)
+      setTimeout(() => {
+        console.log("Running adjustFontSize after timeout")
+        adjustFontSize()
+      }, 100)
     }
   }, [match, adjustFontSize])
+
+  // Добавляем обработчик изменения размера окна
+  useEffect(() => {
+    const handleResize = () => {
+      console.log("Window resized, adjusting font size")
+      adjustFontSize()
+    }
+
+    window.addEventListener("resize", handleResize)
+    return () => window.removeEventListener("resize", handleResize)
+  }, [adjustFontSize])
 
   useEffect(() => {
     const loadMatch = async () => {
@@ -1088,14 +1104,15 @@ export default function VmixPage({ params }: MatchParams) {
                   <span
                     ref={(el) => (teamANamesRef.current[0] = el)}
                     style={{
-                      flex: 1,
+                      display: "block",
+                      width: "100%",
                       whiteSpace: "nowrap",
                       overflow: "hidden",
                       textOverflow: "ellipsis",
                       fontSize: `${namesFontSize}em`,
                     }}
                   >
-                    {match.teamA.players[0]?.name}
+                    {match.teamA.players[0]?.name || ""}
                   </span>
                 </div>
                 {match.teamA.players.length > 1 && (
@@ -1103,14 +1120,15 @@ export default function VmixPage({ params }: MatchParams) {
                     <span
                       ref={(el) => (teamANamesRef.current[1] = el)}
                       style={{
-                        flex: 1,
+                        display: "block",
+                        width: "100%",
                         whiteSpace: "nowrap",
                         overflow: "hidden",
                         textOverflow: "ellipsis",
                         fontSize: `${namesFontSize}em`,
                       }}
                     >
-                      {match.teamA.players[1]?.name}
+                      {match.teamA.players[1]?.name || ""}
                     </span>
                   </div>
                 )}
@@ -1316,14 +1334,15 @@ export default function VmixPage({ params }: MatchParams) {
                   <span
                     ref={(el) => (teamBNamesRef.current[0] = el)}
                     style={{
-                      flex: 1,
+                      display: "block",
+                      width: "100%",
                       whiteSpace: "nowrap",
                       overflow: "hidden",
                       textOverflow: "ellipsis",
                       fontSize: `${namesFontSize}em`,
                     }}
                   >
-                    {match.teamB.players[0]?.name}
+                    {match.teamB.players[0]?.name || ""}
                   </span>
                 </div>
                 {match.teamB.players.length > 1 && (
@@ -1331,14 +1350,15 @@ export default function VmixPage({ params }: MatchParams) {
                     <span
                       ref={(el) => (teamBNamesRef.current[1] = el)}
                       style={{
-                        flex: 1,
+                        display: "block",
+                        width: "100%",
                         whiteSpace: "nowrap",
                         overflow: "hidden",
                         textOverflow: "ellipsis",
                         fontSize: `${namesFontSize}em`,
                       }}
                     >
-                      {match.teamB.players[1]?.name}
+                      {match.teamB.players[1]?.name || ""}
                     </span>
                   </div>
                 )}
