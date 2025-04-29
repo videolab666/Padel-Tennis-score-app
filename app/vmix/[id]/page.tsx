@@ -347,6 +347,8 @@ export default function VmixPage({ params }: MatchParams) {
   const searchParams = useSearchParams()
   const [jsonOutput, setJsonOutput] = useState("")
   const [debugInfo, setDebugInfo] = useState("")
+  const [prevImportantPoint, setPrevImportantPoint] = useState({ type: null, team: null })
+  const [indicatorState, setIndicatorState] = useState("hidden") // "entering", "visible", "exiting", "hidden"
 
   // Параметры отображения из URL
   const theme = searchParams.get("theme") || "default"
@@ -759,6 +761,47 @@ export default function VmixPage({ params }: MatchParams) {
     }
   }, [params.id, outputFormat, showDebug])
 
+  // Эффект для отслеживания изменений важного момента и управления анимацией
+  useEffect(() => {
+    if (!match) return
+
+    const currentImportantPoint = getImportantPoint(match)
+
+    // Проверяем, действительно ли изменился тип важного момента
+    const currentType = currentImportantPoint.type
+    const prevType = prevImportantPoint.type
+
+    // Если тип не изменился, ничего не делаем
+    if (currentType === prevType) return
+
+    // Если появился важный момент
+    if (currentType && currentType !== "GAME" && (!prevType || prevType === "GAME")) {
+      setIndicatorState("entering")
+
+      // Через 1 секунду (длительность анимации) меняем состояние на "visible"
+      const timer = setTimeout(() => {
+        setIndicatorState("visible")
+      }, 1000)
+
+      return () => clearTimeout(timer)
+    }
+
+    // Если важный момент исчез
+    if ((!currentType || currentType === "GAME") && prevType && prevType !== "GAME") {
+      setIndicatorState("exiting")
+
+      // Через 1 секунду (длительность анимации) меняем состояние на "hidden"
+      const timer = setTimeout(() => {
+        setIndicatorState("hidden")
+      }, 1000)
+
+      return () => clearTimeout(timer)
+    }
+
+    // Обновляем предыдущее значение только если оно действительно изменилось
+    setPrevImportantPoint(currentImportantPoint)
+  }, [match, prevImportantPoint.type]) // Зависим только от match и prevImportantPoint.type
+
   // Получаем текущий счет в виде строки (0, 15, 30, 40, Ad)
   const getCurrentGameScore = (team) => {
     if (!match || !match.score || !match.score.currentSet) return ""
@@ -994,7 +1037,7 @@ export default function VmixPage({ params }: MatchParams) {
         
         @keyframes slideIn {
           from {
-            transform: translateY(-100%);
+            transform: translateY(100%);
             opacity: 0;
           }
           to {
@@ -1009,7 +1052,7 @@ export default function VmixPage({ params }: MatchParams) {
             opacity: 1;
           }
           to {
-            transform: translateY(-100%);
+            transform: translateY(100%);
             opacity: 0;
           }
         }
@@ -1034,6 +1077,8 @@ export default function VmixPage({ params }: MatchParams) {
           boxSizing: "border-box",
           display: "flex",
           flexDirection: "column",
+          position: "relative", // Добавляем позиционирование
+          zIndex: 2, // Устанавливаем z-index выше, чем у индикатора
         }}
         className={styles.container}
       >
@@ -1500,12 +1545,18 @@ export default function VmixPage({ params }: MatchParams) {
               height: "18px", // Увеличиваем высоту до 18px (было 7px)
               marginTop: "1px", // Небольшой отступ от таблицы счета
               justifyContent: "flex-end", // Выравниваем содержимое по правому краю
+              position: "relative", // Добавляем позиционирование
+              overflow: "hidden", // Скрываем выходящие за пределы элементы
             }}
           >
             {/* Показываем индикатор только если есть важное событие или идет тай-брейк */}
-            {importantPoint.type && importantPoint.type !== "GAME" && (
+            {((importantPoint.type && importantPoint.type !== "GAME") || indicatorState === "exiting") && (
               <div
-                className="indicator-animation-enter"
+                className={
+                  indicatorState === "entering" || indicatorState === "visible"
+                    ? "indicator-animation-enter"
+                    : "indicator-animation-exit"
+                }
                 style={{
                   color: theme === "transparent" ? accentColor : indicatorTextColor,
                   backgroundColor:
@@ -1520,9 +1571,15 @@ export default function VmixPage({ params }: MatchParams) {
                   fontSize: "0.8em", // Увеличиваем размер шрифта для большей высоты
                   textTransform: "uppercase",
                   letterSpacing: "0.5px",
+                  position: "absolute", // Абсолютное позиционирование
+                  bottom: 0, // Прикрепляем к нижней части контейнера
+                  right: 0, // Прикрепляем к правой части контейнера
+                  zIndex: 1, // Устанавливаем z-index ниже, чем у основного блока
                 }}
               >
-                {importantPoint.type}
+                {prevImportantPoint.type !== "GAME" && prevImportantPoint.type
+                  ? prevImportantPoint.type
+                  : importantPoint.type}
               </div>
             )}
           </div>
