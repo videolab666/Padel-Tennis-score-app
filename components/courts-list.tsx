@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { getOccupiedCourts, MAX_COURTS, getMatchByCourtNumber } from "@/lib/court-utils"
 import { Loader2, ExternalLink, Tv2, FileJson, Copy } from "lucide-react"
 import { toast } from "@/components/ui/use-toast"
+import { VmixButton } from "@/components/vmix-button"
 
 export function CourtsList() {
   const [occupiedCourts, setOccupiedCourts] = useState<Record<number, any>>({})
@@ -178,6 +179,17 @@ export function CourtsList() {
                       <Copy className="h-3.5 w-3.5 mr-1" />
                       URL
                     </Button>
+                    {match && (
+                      <div className="col-span-2 flex space-x-2">
+                        <Link href={`/court/${courtNumber}`} passHref>
+                          <Button variant="outline" size="sm" className="w-full">
+                            <ExternalLink className="h-3.5 w-3.5 mr-1" />
+                            Открыть
+                          </Button>
+                        </Link>
+                        <VmixButton matchId={match.id} courtNumber={courtNumber} size="sm" directLink={true} />
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>

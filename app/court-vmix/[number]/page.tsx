@@ -602,10 +602,22 @@ export default function CourtVmixPage({ params }: CourtParams) {
                 serving: matchData.currentServer && matchData.currentServer.team === "teamB",
                 countries: matchData.teamB.players.map((p) => p.country || "").filter(Boolean),
               },
+              teamA_serv_png:
+                matchData.currentServer && matchData.currentServer.team === "teamA"
+                  ? "serving.png"
+                  : "serving_blanc.png",
+              teamB_serv_png:
+                matchData.currentServer && matchData.currentServer.team === "teamB"
+                  ? "serving.png"
+                  : "serving_blanc.png",
+              currentSetNumber: matchData.score.sets ? matchData.score.sets.length + 1 : 1,
               isTiebreak: matchData.score.currentSet ? matchData.score.currentSet.isTiebreak : false,
               isCompleted: matchData.isCompleted || false,
               winner: matchData.winner || null,
               timestamp: new Date().toISOString(),
+              matchDuration: matchData.createdAt
+                ? Math.floor((new Date().getTime() - new Date(matchData.createdAt).getTime()) / 1000)
+                : 0,
             }
             setJsonOutput(JSON.stringify(vmixData, null, 2))
           }
@@ -672,10 +684,22 @@ export default function CourtVmixPage({ params }: CourtParams) {
                     serving: updatedMatch.currentServer && updatedMatch.currentServer.team === "teamB",
                     countries: updatedMatch.teamB.players.map((p) => p.country || "").filter(Boolean),
                   },
+                  teamA_serv_png:
+                    updatedMatch.currentServer && updatedMatch.currentServer.team === "teamA"
+                      ? "serving.png"
+                      : "serving_blanc.png",
+                  teamB_serv_png:
+                    updatedMatch.currentServer && updatedMatch.currentServer.team === "teamB"
+                      ? "serving.png"
+                      : "serving_blanc.png",
+                  currentSetNumber: updatedMatch.score.sets ? updatedMatch.score.sets.length + 1 : 1,
                   isTiebreak: updatedMatch.score.currentSet ? updatedMatch.score.currentSet.isTiebreak : false,
                   isCompleted: updatedMatch.isCompleted || false,
                   winner: updatedMatch.winner || null,
                   timestamp: new Date().toISOString(),
+                  matchDuration: updatedMatch.createdAt
+                    ? Math.floor((new Date().getTime() - new Date(updatedMatch.createdAt).getTime()) / 1000)
+                    : 0,
                 }
                 setJsonOutput(JSON.stringify(vmixData, null, 2))
               }
