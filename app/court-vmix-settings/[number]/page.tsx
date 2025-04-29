@@ -10,19 +10,19 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Slider } from "@/components/ui/slider"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { getMatch } from "@/lib/match-storage"
+import { getMatchByCourtNumber } from "@/lib/court-utils"
 import { logEvent } from "@/lib/error-logger"
-// Добавим импорт для иконки сохранения
 import { ArrowLeft, Copy, ExternalLink, Eye, Save, ArrowRight } from "lucide-react"
 import { toast } from "@/components/ui/use-toast"
 import { Separator } from "@/components/ui/separator"
 
-export default function VmixSettingsPage({ params }) {
+export default function CourtVmixSettingsPage({ params }) {
   const router = useRouter()
   const [match, setMatch] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
   const [copying, setCopying] = useState(false)
+  const courtNumber = Number.parseInt(params.number)
 
   // Настройки отображения
   const [theme, setTheme] = useState("custom")
@@ -69,9 +69,6 @@ export default function VmixSettingsPage({ params }) {
   const [indicatorGradient, setIndicatorGradient] = useState(true)
   const [indicatorGradientFrom, setIndicatorGradientFrom] = useState("#7c2d12")
   const [indicatorGradientTo, setIndicatorGradientTo] = useState("#991b1b")
-
-  // Добавим функцию сохранения настроек и загрузки сохраненных настроек
-  // Добавьте эти функции после объявления всех состояний (useState) и перед useEffect
 
   // Функция для сохранения настроек в localStorage
   const saveSettings = () => {
@@ -123,14 +120,14 @@ export default function VmixSettingsPage({ params }) {
         title: "Настройки сохранены",
         description: "Ваши настройки будут применены автоматически при следующем открытии",
       })
-      logEvent("info", "Настройки vMix сохранены", "vmix-settings-save")
+      logEvent("info", "Настройки vMix сохранены", "court-vmix-settings-save")
     } catch (error) {
       toast({
         title: "Ошибка",
         description: "Не удалось сохранить настройки",
         variant: "destructive",
       })
-      logEvent("error", "Ошибка при сохранении настроек vMix", "vmix-settings-save", error)
+      logEvent("error", "Ошибка при сохранении настроек vMix", "court-vmix-settings-save", error)
     }
   }
 
@@ -192,37 +189,34 @@ export default function VmixSettingsPage({ params }) {
         // Загружаем размер шрифта имен игроков
         setPlayerNamesFontSize(settings.playerNamesFontSize !== undefined ? settings.playerNamesFontSize : 1.2)
 
-        logEvent("info", "Загружены сохраненные настройки vMix", "vmix-settings-load")
+        logEvent("info", "Загружены сохраненные настройки vMix", "court-vmix-settings-load")
       }
     } catch (error) {
-      logEvent("error", "Ошибка при загрузке сохраненных настроек vMix", "vmix-settings-load", error)
+      logEvent("error", "Ошибка при загрузке сохраненных настроек vMix", "court-vmix-settings-load", error)
     }
   }
-
-  // Модифицируем существующий useEffect для загрузки сохраненных настроек
-  // Найдите существующий useEffect, который загружает матч, и добавьте вызов loadSavedSettings() в конце
 
   useEffect(() => {
     const loadMatch = async () => {
       try {
-        if (!params.id) {
-          setError("Некорректный ID матча")
+        if (isNaN(courtNumber) || courtNumber < 1 || courtNumber > 10) {
+          setError("Некорректный номер корта")
           setLoading(false)
           return
         }
 
-        const matchData = await getMatch(params.id)
+        const matchData = await getMatchByCourtNumber(courtNumber)
         if (matchData) {
           setMatch(matchData)
           setError("")
-          logEvent("info", `vMix настройки загружены для матча: ${params.id}`, "vmix-settings")
+          logEvent("info", `vMix настройки загружены для корта: ${courtNumber}`, "court-vmix-settings")
         } else {
-          setError("Матч не найден")
-          logEvent("error", `vMix настройки: матч не найден: ${params.id}`, "vmix-settings")
+          setError(`На корте ${courtNumber} нет активных матчей`)
+          logEvent("warn", `vMix настройки: на корте ${courtNumber} нет активных матчей`, "court-vmix-settings")
         }
       } catch (err) {
         setError("Ошибка загрузки матча")
-        logEvent("error", "Ошибка загрузки матча для vMix настроек", "vmix-settings", err)
+        logEvent("error", "Ошибка загрузки матча для vMix настроек корта", "court-vmix-settings", err)
       } finally {
         setLoading(false)
       }
@@ -231,7 +225,7 @@ export default function VmixSettingsPage({ params }) {
     loadMatch()
     // Загружаем сохраненные настройки после загрузки матча
     loadSavedSettings()
-  }, [params.id])
+  }, [courtNumber])
 
   const handleBack = () => {
     router.back()
@@ -243,67 +237,7 @@ export default function VmixSettingsPage({ params }) {
     return color.replace("#", "")
   }
 
-  const generateVmixUrl = () => {
-    const baseUrl = window.location.origin
-    const url = new URL(`${baseUrl}/vmix/${params.id}`)
-
-    // Добавляем основные параметры
-    url.searchParams.set("theme", theme)
-    url.searchParams.set("showNames", showNames.toString())
-    url.searchParams.set("showPoints", showPoints.toString())
-    url.searchParams.set("showSets", showSets.toString())
-    url.searchParams.set("showServer", showServer.toString())
-    url.searchParams.set("showCountry", showCountry.toString())
-    url.searchParams.set("fontSize", fontSize)
-    url.searchParams.set("bgOpacity", bgOpacity.toString())
-    url.searchParams.set("textColor", formatColorForUrl(textColor))
-    url.searchParams.set("accentColor", formatColorForUrl(accentColor))
-    url.searchParams.set("playerNamesFontSize", playerNamesFontSize.toString())
-
-    // Добавляем параметры цветов и градиентов (только если тема не прозрачная)
-    if (theme !== "transparent") {
-      url.searchParams.set("namesBgColor", formatColorForUrl(namesBgColor))
-      url.searchParams.set("countryBgColor", formatColorForUrl(countryBgColor))
-      url.searchParams.set("serveBgColor", formatColorForUrl(serveBgColor))
-      url.searchParams.set("pointsBgColor", formatColorForUrl(pointsBgColor))
-      url.searchParams.set("setsBgColor", formatColorForUrl(setsBgColor))
-      url.searchParams.set("setsTextColor", formatColorForUrl(setsTextColor))
-
-      // Явно передаем строковые значения "true" или "false" для булевых параметров
-      url.searchParams.set("namesGradient", namesGradient ? "true" : "false")
-      url.searchParams.set("namesGradientFrom", formatColorForUrl(namesGradientFrom))
-      url.searchParams.set("namesGradientTo", formatColorForUrl(namesGradientTo))
-      url.searchParams.set("countryGradient", countryGradient ? "true" : "false")
-      url.searchParams.set("countryGradientFrom", formatColorForUrl(countryGradientFrom))
-      url.searchParams.set("countryGradientTo", formatColorForUrl(countryGradientTo))
-      url.searchParams.set("serveGradient", serveGradient ? "true" : "false")
-      url.searchParams.set("serveGradientFrom", formatColorForUrl(serveGradientFrom))
-      url.searchParams.set("serveGradientTo", formatColorForUrl(serveGradientTo))
-      url.searchParams.set("pointsGradient", pointsGradient ? "true" : "false")
-      url.searchParams.set("pointsGradientFrom", formatColorForUrl(pointsGradientFrom))
-      url.searchParams.set("pointsGradientTo", formatColorForUrl(pointsGradientTo))
-      url.searchParams.set("setsGradient", setsGradient ? "true" : "false")
-      url.searchParams.set("setsGradientFrom", formatColorForUrl(setsGradientFrom))
-      url.searchParams.set("setsGradientTo", formatColorForUrl(setsGradientTo))
-
-      // Добавляем параметры для индикатора
-      url.searchParams.set("indicatorBgColor", formatColorForUrl(indicatorBgColor))
-      url.searchParams.set("indicatorTextColor", formatColorForUrl(indicatorTextColor))
-      url.searchParams.set("indicatorGradient", indicatorGradient ? "true" : "false")
-      url.searchParams.set("indicatorGradientFrom", formatColorForUrl(indicatorGradientFrom))
-      url.searchParams.set("indicatorGradientTo", formatColorForUrl(indicatorGradientTo))
-    }
-
-    return url.toString()
-  }
-
-  // Добавим функцию для генерации URL для страницы корта
-  // Добавьте эту функцию после функции generateVmixUrl()
-
   const generateCourtVmixUrl = () => {
-    // Получаем номер корта из матча
-    const courtNumber = match?.courtNumber || 1
-
     const baseUrl = window.location.origin
     const url = new URL(`${baseUrl}/court-vmix/${courtNumber}`)
 
@@ -357,46 +291,18 @@ export default function VmixSettingsPage({ params }) {
     return url.toString()
   }
 
-  // Добавим функции для работы с URL корта
-  const handleCopyCourtUrl = async () => {
+  const generateJsonUrl = () => {
+    const baseUrl = window.location.origin
+    return `${baseUrl}/api/court/${courtNumber}`
+  }
+
+  const handleCopyUrl = async () => {
     try {
       setCopying(true)
       await navigator.clipboard.writeText(generateCourtVmixUrl())
       toast({
         title: "URL скопирован",
         description: "URL для vMix корта скопирован в буфер обмена",
-      })
-    } catch (error) {
-      toast({
-        title: "Ошибка",
-        description: "Не удалось скопировать URL",
-        variant: "destructive",
-      })
-    } finally {
-      setCopying(false)
-    }
-  }
-
-  const handleOpenCourtVmix = () => {
-    window.open(generateCourtVmixUrl(), "_blank")
-  }
-
-  const handleOpenCourtVmixInCurrentWindow = () => {
-    router.push(generateCourtVmixUrl())
-  }
-
-  const generateJsonUrl = () => {
-    const baseUrl = window.location.origin
-    return `${baseUrl}/api/vmix/${params.id}`
-  }
-
-  const handleCopyUrl = async () => {
-    try {
-      setCopying(true)
-      await navigator.clipboard.writeText(generateVmixUrl())
-      toast({
-        title: "URL скопирован",
-        description: "URL для vMix скопирован в буфер обмена",
       })
     } catch (error) {
       toast({
@@ -429,16 +335,15 @@ export default function VmixSettingsPage({ params }) {
   }
 
   const handleOpenVmix = () => {
-    window.open(generateVmixUrl(), "_blank")
+    window.open(generateCourtVmixUrl(), "_blank")
   }
 
-  // Добавим новую функцию-обработчик после функции handleOpenVmix
   const handleOpenVmixInCurrentWindow = () => {
-    router.push(generateVmixUrl())
+    router.push(generateCourtVmixUrl())
   }
 
   const handlePreview = () => {
-    const previewUrl = generateVmixUrl()
+    const previewUrl = generateCourtVmixUrl()
     window.open(previewUrl, "vmix_preview", "width=800,height=400")
   }
 
@@ -455,34 +360,29 @@ export default function VmixSettingsPage({ params }) {
     )
   }
 
-  if (error) {
-    return (
-      <div className="container mx-auto p-4">
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-          <p>{error}</p>
-        </div>
-        <Button onClick={handleBack} className="mt-4">
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Назад
-        </Button>
-      </div>
-    )
-  }
-
   return (
     <div className="container mx-auto p-4">
       <Button onClick={handleBack} className="mb-4">
         <ArrowLeft className="mr-2 h-4 w-4" />
-        Назад к матчу
+        Назад
       </Button>
 
-      <h1 className="text-2xl font-bold mb-4">Настройки vMix для матча</h1>
+      <h1 className="text-2xl font-bold mb-4">Настройки vMix для корта {courtNumber}</h1>
 
-      {match && (
+      {error ? (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          <p>{error}</p>
+        </div>
+      ) : match ? (
         <div className="mb-4">
           <p className="font-medium">
-            {match.teamA.players.map((p) => p.name).join(" / ")} vs {match.teamB.players.map((p) => p.name).join(" / ")}
+            Матч на корте: {match.teamA.players.map((p) => p.name).join(" / ")} vs{" "}
+            {match.teamB.players.map((p) => p.name).join(" / ")}
           </p>
+        </div>
+      ) : (
+        <div className="mb-4">
+          <p className="font-medium">На корте {courtNumber} нет активных матчей</p>
         </div>
       )}
 
@@ -1340,44 +1240,6 @@ export default function VmixSettingsPage({ params }) {
                     <Save className="mr-2 h-4 w-4" />
                     Сохранить настройки
                   </Button>
-                  <Button onClick={handleOpenCourtVmix} className="w-full">
-                    <ExternalLink className="mr-2 h-4 w-4" />
-                    Открыть корт в новом окне
-                  </Button>
-                  <Button onClick={handleOpenCourtVmixInCurrentWindow} className="w-full">
-                    <ArrowRight className="mr-2 h-4 w-4" />
-                    Открыть корт в текущем окне
-                  </Button>
-                  <Button onClick={handleCopyCourtUrl} className="w-full" disabled={copying}>
-                    <Copy className="mr-2 h-4 w-4" />
-                    {copying ? "Копирование..." : "Скопировать URL корта"}
-                  </Button>
-                  <Separator className="my-4" />
-
-                  <div className="text-sm font-medium text-gray-500 mb-2">Действия для страницы корта:</div>
-
-                  {match && match.courtNumber ? (
-                    <>
-                      <Button onClick={handleOpenCourtVmix} className="w-full" variant="outline">
-                        <ExternalLink className="mr-2 h-4 w-4" />
-                        Открыть страницу корта {match.courtNumber} в новом окне
-                      </Button>
-
-                      <Button onClick={handleOpenCourtVmixInCurrentWindow} className="w-full" variant="outline">
-                        <ArrowRight className="mr-2 h-4 w-4" />
-                        Открыть страницу корта {match.courtNumber} в текущем окне
-                      </Button>
-
-                      <Button onClick={handleCopyCourtUrl} className="w-full" variant="outline" disabled={copying}>
-                        <Copy className="mr-2 h-4 w-4" />
-                        {copying ? "Копирование..." : `Скопировать URL страницы корта ${match.courtNumber}`}
-                      </Button>
-                    </>
-                  ) : (
-                    <div className="text-sm text-gray-400 italic p-2 text-center">
-                      Матч не назначен на корт. Назначьте матч на корт, чтобы использовать эти функции.
-                    </div>
-                  )}
                 </CardContent>
               </Card>
             </div>
@@ -1490,38 +1352,6 @@ export default function VmixSettingsPage({ params }) {
                     </li>
                   </ul>
                 </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Пример формата данных</Label>
-                <pre className="bg-gray-100 p-4 rounded-md text-sm overflow-auto">
-                  {`[
-  {
-    "match_id": "6dbff28b-8611-473c-a62d-22936df1ab31",
-    "teamA_name": "Игрок 1 / Игрок 2",
-    "teamA_score": 0,
-    "teamA_game_score": "0",
-    "teamA_current_set": 4,
-    "teamA_serving": "Да",
-    "teamB_name": "Игрок 3 / Игрок 4",
-    "teamB_score": 1,
-    "teamB_game_score": "0",
-    "teamB_current_set": 4,
-    "teamB_serving": "Нет",
-    "is_tiebreak": "Нет",
-    "is_completed": "Нет",
-    "winner": "",
-    "teamA_set1": 4,
-    "teamA_set2": "",
-    "teamA_set3": "",
-    "teamB_set1": 6,
-    "teamB_set2": "",
-    "teamB_set3": "",
-    "timestamp": "2025-04-22T18:54:21.069Z",
-    "update_time": "6:54:21 PM"
-  }
-]`}
-                </pre>
               </div>
             </CardContent>
             <CardFooter>

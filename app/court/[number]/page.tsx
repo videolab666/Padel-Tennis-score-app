@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { ArrowLeft, ExternalLink, Share2 } from "lucide-react"
+import { ArrowLeft, ExternalLink, Share2, Settings } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { getMatchByCourtNumber } from "@/lib/court-utils"
 import { FullScreenScoreboard } from "@/components/full-screen-scoreboard"
@@ -174,6 +174,15 @@ export default function CourtViewPage({ params }) {
               className="text-white border-gray-700 hover:bg-gray-800 bg-gray-800"
             >
               vMix корт
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="ml-2 text-white border-gray-700 hover:bg-gray-800 bg-gray-800"
+              onClick={() => router.push(`/court-vmix-settings/${params.number}`)}
+            >
+              <Settings className="mr-2 h-4 w-4" />
+              Настройки vMix
             </Button>
           </div>
         </div>
