@@ -522,7 +522,6 @@ export function ScoreBoard({ match, updateMatch }) {
 
       {allSets.length > 0 && (
         <div className="mt-4">
-          <h3 className="text-sm font-medium mb-2">Сеты</h3>
           <div className="grid grid-cols-[auto_1fr_1fr] gap-2 text-sm">
             <div></div>
             <div className="text-center font-medium">Команда A</div>
