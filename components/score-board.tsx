@@ -440,7 +440,7 @@ export function ScoreBoard({ match, updateMatch }) {
                   <span className="sr-only">Подача</span>
                 </Badge>
               )}
-              <p className="font-medium truncate text-sm sm:text-base">{player.name}</p>
+              <p className="font-medium truncate text-xs sm:text-base">{player.name}</p>
             </div>
           ))}
         </div>
@@ -453,7 +453,7 @@ export function ScoreBoard({ match, updateMatch }) {
           </div>
           {teamB.players.map((player, idx) => (
             <div key={idx} className="flex items-center">
-              <p className="font-medium truncate text-sm sm:text-base">{player.name}</p>
+              <p className="font-medium truncate text-xs sm:text-base">{player.name}</p>
               {isServing("teamB", idx) && (
                 <Badge
                   variant="outline"

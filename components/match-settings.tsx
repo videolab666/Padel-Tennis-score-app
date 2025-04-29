@@ -312,6 +312,7 @@ export function MatchSettings({ match, updateMatch }) {
               checked={tiebreakEnabled}
               onCheckedChange={setTiebreakEnabled}
               disabled={match.isCompleted}
+              className="data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-red-500"
             />
           </div>
 
@@ -363,6 +364,7 @@ export function MatchSettings({ match, updateMatch }) {
               checked={finalSetTiebreak}
               onCheckedChange={setFinalSetTiebreak}
               disabled={match.isCompleted}
+              className="data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-red-500"
             />
           </div>
 

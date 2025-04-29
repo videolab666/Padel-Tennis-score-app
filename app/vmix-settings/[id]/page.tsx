@@ -268,26 +268,28 @@ export default function VmixSettingsPage({ params }) {
       url.searchParams.set("pointsBgColor", formatColorForUrl(pointsBgColor))
       url.searchParams.set("setsBgColor", formatColorForUrl(setsBgColor))
       url.searchParams.set("setsTextColor", formatColorForUrl(setsTextColor))
-      url.searchParams.set("namesGradient", namesGradient.toString())
+
+      // Явно передаем строковые значения "true" или "false" для булевых параметров
+      url.searchParams.set("namesGradient", namesGradient ? "true" : "false")
       url.searchParams.set("namesGradientFrom", formatColorForUrl(namesGradientFrom))
       url.searchParams.set("namesGradientTo", formatColorForUrl(namesGradientTo))
-      url.searchParams.set("countryGradient", countryGradient.toString())
+      url.searchParams.set("countryGradient", countryGradient ? "true" : "false")
       url.searchParams.set("countryGradientFrom", formatColorForUrl(countryGradientFrom))
       url.searchParams.set("countryGradientTo", formatColorForUrl(countryGradientTo))
-      url.searchParams.set("serveGradient", serveGradient.toString())
+      url.searchParams.set("serveGradient", serveGradient ? "true" : "false")
       url.searchParams.set("serveGradientFrom", formatColorForUrl(serveGradientFrom))
       url.searchParams.set("serveGradientTo", formatColorForUrl(serveGradientTo))
-      url.searchParams.set("pointsGradient", pointsGradient.toString())
+      url.searchParams.set("pointsGradient", pointsGradient ? "true" : "false")
       url.searchParams.set("pointsGradientFrom", formatColorForUrl(pointsGradientFrom))
       url.searchParams.set("pointsGradientTo", formatColorForUrl(pointsGradientTo))
-      url.searchParams.set("setsGradient", setsGradient.toString())
+      url.searchParams.set("setsGradient", setsGradient ? "true" : "false")
       url.searchParams.set("setsGradientFrom", formatColorForUrl(setsGradientFrom))
       url.searchParams.set("setsGradientTo", formatColorForUrl(setsGradientTo))
 
       // Добавляем параметры для индикатора
       url.searchParams.set("indicatorBgColor", formatColorForUrl(indicatorBgColor))
       url.searchParams.set("indicatorTextColor", formatColorForUrl(indicatorTextColor))
-      url.searchParams.set("indicatorGradient", indicatorGradient.toString())
+      url.searchParams.set("indicatorGradient", indicatorGradient ? "true" : "false")
       url.searchParams.set("indicatorGradientFrom", formatColorForUrl(indicatorGradientFrom))
       url.searchParams.set("indicatorGradientTo", formatColorForUrl(indicatorGradientTo))
     }
@@ -511,27 +513,52 @@ export default function VmixSettingsPage({ params }) {
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <Label htmlFor="showNames">Показывать имена игроков</Label>
-                      <Switch id="showNames" checked={showNames} onCheckedChange={setShowNames} />
+                      <Switch
+                        id="showNames"
+                        checked={showNames}
+                        onCheckedChange={setShowNames}
+                        className="data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-red-500"
+                      />
                     </div>
 
                     <div className="flex items-center justify-between">
                       <Label htmlFor="showPoints">Показывать текущие очки</Label>
-                      <Switch id="showPoints" checked={showPoints} onCheckedChange={setShowPoints} />
+                      <Switch
+                        id="showPoints"
+                        checked={showPoints}
+                        onCheckedChange={setShowPoints}
+                        className="data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-red-500"
+                      />
                     </div>
 
                     <div className="flex items-center justify-between">
                       <Label htmlFor="showSets">Показывать счет по сетам</Label>
-                      <Switch id="showSets" checked={showSets} onCheckedChange={setShowSets} />
+                      <Switch
+                        id="showSets"
+                        checked={showSets}
+                        onCheckedChange={setShowSets}
+                        className="data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-red-500"
+                      />
                     </div>
 
                     <div className="flex items-center justify-between">
                       <Label htmlFor="showServer">Показывать подающего</Label>
-                      <Switch id="showServer" checked={showServer} onCheckedChange={setShowServer} />
+                      <Switch
+                        id="showServer"
+                        checked={showServer}
+                        onCheckedChange={setShowServer}
+                        className="data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-red-500"
+                      />
                     </div>
 
                     <div className="flex items-center justify-between">
                       <Label htmlFor="showCountry">Показывать страны</Label>
-                      <Switch id="showCountry" checked={showCountry} onCheckedChange={setShowCountry} />
+                      <Switch
+                        id="showCountry"
+                        checked={showCountry}
+                        onCheckedChange={setShowCountry}
+                        className="data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-red-500"
+                      />
                     </div>
                   </div>
                 </CardContent>
@@ -572,7 +599,12 @@ export default function VmixSettingsPage({ params }) {
 
                       <div className="flex items-center justify-between">
                         <Label htmlFor="namesGradient">Использовать градиент для имен</Label>
-                        <Switch id="namesGradient" checked={namesGradient} onCheckedChange={setNamesGradient} />
+                        <Switch
+                          id="namesGradient"
+                          checked={namesGradient}
+                          onCheckedChange={setNamesGradient}
+                          className="data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-red-500"
+                        />
                       </div>
 
                       {namesGradient && (
@@ -661,7 +693,12 @@ export default function VmixSettingsPage({ params }) {
 
                       <div className="flex items-center justify-between">
                         <Label htmlFor="countryGradient">Использовать градиент для стран</Label>
-                        <Switch id="countryGradient" checked={countryGradient} onCheckedChange={setCountryGradient} />
+                        <Switch
+                          id="countryGradient"
+                          checked={countryGradient}
+                          onCheckedChange={setCountryGradient}
+                          className="data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-red-500"
+                        />
                       </div>
 
                       {countryGradient && (
@@ -767,7 +804,12 @@ export default function VmixSettingsPage({ params }) {
 
                       <div className="flex items-center justify-between">
                         <Label htmlFor="serveGradient">Использовать градиент для фона индикатора подачи</Label>
-                        <Switch id="serveGradient" checked={serveGradient} onCheckedChange={setServeGradient} />
+                        <Switch
+                          id="serveGradient"
+                          checked={serveGradient}
+                          onCheckedChange={setServeGradient}
+                          className="data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-red-500"
+                        />
                       </div>
 
                       {serveGradient && (
@@ -838,7 +880,7 @@ export default function VmixSettingsPage({ params }) {
                             color: accentColor,
                           }}
                         >
-                          <span style={{ fontSize: "2em", lineHeight: "0.5" }}>•</span>
+                          <span style={{ fontSize: "2em", lineHeight: "0.5" }}>&bull;</span>
                         </div>
                         <span className="text-sm">Пример индикатора подачи</span>
                       </div>
@@ -869,7 +911,12 @@ export default function VmixSettingsPage({ params }) {
 
                       <div className="flex items-center justify-between">
                         <Label htmlFor="pointsGradient">Использовать градиент для счета</Label>
-                        <Switch id="pointsGradient" checked={pointsGradient} onCheckedChange={setPointsGradient} />
+                        <Switch
+                          id="pointsGradient"
+                          checked={pointsGradient}
+                          onCheckedChange={setPointsGradient}
+                          className="data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-red-500"
+                        />
                       </div>
 
                       {pointsGradient && (
@@ -975,7 +1022,12 @@ export default function VmixSettingsPage({ params }) {
 
                       <div className="flex items-center justify-between">
                         <Label htmlFor="setsGradient">Использовать градиент для счета в сетах</Label>
-                        <Switch id="setsGradient" checked={setsGradient} onCheckedChange={setSetsGradient} />
+                        <Switch
+                          id="setsGradient"
+                          checked={setsGradient}
+                          onCheckedChange={setSetsGradient}
+                          className="data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-red-500"
+                        />
                       </div>
 
                       {setsGradient && (
@@ -1091,6 +1143,7 @@ export default function VmixSettingsPage({ params }) {
                           id="indicatorGradient"
                           checked={indicatorGradient}
                           onCheckedChange={setIndicatorGradient}
+                          className="data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-red-500"
                         />
                       </div>
 

@@ -360,7 +360,11 @@ export default function NewMatchPage() {
 
             <div className="flex items-center justify-between">
               <Label>Тай-брейк</Label>
-              <Switch checked={tiebreakEnabled} onCheckedChange={setTiebreakEnabled} />
+              <Switch
+                checked={tiebreakEnabled}
+                onCheckedChange={setTiebreakEnabled}
+                className="data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-red-500"
+              />
             </div>
 
             {tiebreakEnabled && (
@@ -405,7 +409,11 @@ export default function NewMatchPage() {
 
             <div className="flex items-center justify-between">
               <Label>Тай-брейк в решающем сете</Label>
-              <Switch checked={finalSetTiebreak} onCheckedChange={setFinalSetTiebreak} />
+              <Switch
+                checked={finalSetTiebreak}
+                onCheckedChange={setFinalSetTiebreak}
+                className="data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-red-500"
+              />
             </div>
 
             <div className="space-y-2 border-t pt-4">

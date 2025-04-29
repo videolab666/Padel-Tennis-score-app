@@ -326,6 +326,7 @@ export function ScoreboardSettings({ settings, onSettingsChange }) {
                       id="show-court-sides"
                       checked={settings.showCourtSides}
                       onCheckedChange={(checked) => onSettingsChange({ ...settings, showCourtSides: checked })}
+                      className="data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-red-500"
                     />
                   </div>
 
@@ -335,6 +336,7 @@ export function ScoreboardSettings({ settings, onSettingsChange }) {
                       id="show-current-server"
                       checked={settings.showCurrentServer}
                       onCheckedChange={(checked) => onSettingsChange({ ...settings, showCurrentServer: checked })}
+                      className="data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-red-500"
                     />
                   </div>
 
@@ -344,6 +346,7 @@ export function ScoreboardSettings({ settings, onSettingsChange }) {
                       id="show-server-indicator"
                       checked={settings.showServerIndicator !== false}
                       onCheckedChange={(checked) => onSettingsChange({ ...settings, showServerIndicator: checked })}
+                      className="data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-red-500"
                     />
                   </div>
 
@@ -353,6 +356,7 @@ export function ScoreboardSettings({ settings, onSettingsChange }) {
                       id="show-sets-score"
                       checked={settings.showSetsScore}
                       onCheckedChange={(checked) => onSettingsChange({ ...settings, showSetsScore: checked })}
+                      className="data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-red-500"
                     />
                   </div>
                 </div>
@@ -366,6 +370,7 @@ export function ScoreboardSettings({ settings, onSettingsChange }) {
                       id="use-custom-sizes"
                       checked={settings.useCustomSizes !== false}
                       onCheckedChange={(checked) => onSettingsChange({ ...settings, useCustomSizes: checked })}
+                      className="data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-red-500"
                     />
                   </div>
 

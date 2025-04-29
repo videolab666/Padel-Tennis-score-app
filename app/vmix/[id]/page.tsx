@@ -365,7 +365,7 @@ export default function VmixPage({ params }: MatchParams) {
 
   // Цвета с правильной обработкой параметров
   const namesBgColor = parseColorParam(searchParams.get("namesBgColor"), "#0369a1")
-  const countryBgColor = parseColorParam(searchParams.get("countryBgColor"), "#0369a1") // Новый параметр для цвета фона страны
+  const countryBgColor = parseColorParam(searchParams.get("countryBgColor"), "#0369a1")
   const pointsBgColor = parseColorParam(searchParams.get("pointsBgColor"), "#0369a1")
   const setsBgColor = parseColorParam(searchParams.get("setsBgColor"), "#ffffff")
   const setsTextColor = parseColorParam(searchParams.get("setsTextColor"), "#000000")
@@ -373,28 +373,29 @@ export default function VmixPage({ params }: MatchParams) {
   // Параметры для индикатора
   const indicatorBgColor = parseColorParam(searchParams.get("indicatorBgColor"), "#7c2d12")
   const indicatorTextColor = parseColorParam(searchParams.get("indicatorTextColor"), "#ffffff")
-  const indicatorGradient = searchParams.get("indicatorGradient") === "true" || true // По умолчанию используем градиент
+  // Исправляем чтение булевых параметров
+  const indicatorGradient = searchParams.get("indicatorGradient") === "true"
   const indicatorGradientFrom = parseColorParam(searchParams.get("indicatorGradientFrom"), "#7c2d12")
   const indicatorGradientTo = parseColorParam(searchParams.get("indicatorGradientTo"), "#991b1b")
 
-  // Параметры градиентов - по умолчанию используем градиенты
-  const namesGradient = searchParams.get("namesGradient") === "true" || true
+  // Параметры градиентов - исправляем чтение булевых параметров
+  const namesGradient = searchParams.get("namesGradient") === "true"
   const namesGradientFrom = parseColorParam(searchParams.get("namesGradientFrom"), "#0369a1")
   const namesGradientTo = parseColorParam(searchParams.get("namesGradientTo"), "#0284c7")
-  const countryGradient = searchParams.get("countryGradient") === "true" || true // По умолчанию используем градиент
-  const countryGradientFrom = parseColorParam(searchParams.get("countryGradientFrom"), "#0369a1") // Начальный цвет градиента стран
-  const countryGradientTo = parseColorParam(searchParams.get("countryGradientTo"), "#0284c7") // Конечный цвет градиента стран
-  const pointsGradient = searchParams.get("pointsGradient") === "true" || true // По умолчанию используем градиент
+  const countryGradient = searchParams.get("countryGradient") === "true"
+  const countryGradientFrom = parseColorParam(searchParams.get("countryGradientFrom"), "#0369a1")
+  const countryGradientTo = parseColorParam(searchParams.get("countryGradientTo"), "#0284c7")
+  const pointsGradient = searchParams.get("pointsGradient") === "true"
   const pointsGradientFrom = parseColorParam(searchParams.get("pointsGradientFrom"), "#0369a1")
   const pointsGradientTo = parseColorParam(searchParams.get("pointsGradientTo"), "#0284c7")
   // Параметры для градиента счета в сетах
-  const setsGradient = searchParams.get("setsGradient") === "true" || true // По умолчанию используем градиент
+  const setsGradient = searchParams.get("setsGradient") === "true"
   const setsGradientFrom = parseColorParam(searchParams.get("setsGradientFrom"), "#ffffff")
   const setsGradientTo = parseColorParam(searchParams.get("setsGradientTo"), "#f0f0f0")
 
   // Обновляем параметры отображения из URL
   const serveBgColor = parseColorParam(searchParams.get("serveBgColor"), "#000000")
-  const serveGradient = searchParams.get("serveGradient") === "true" || true // По умолчанию используем градиент
+  const serveGradient = searchParams.get("serveGradient") === "true"
   const serveGradientFrom = parseColorParam(searchParams.get("serveGradientFrom"), "#000000")
   const serveGradientTo = parseColorParam(searchParams.get("serveGradientTo"), "#1e1e1e")
 
