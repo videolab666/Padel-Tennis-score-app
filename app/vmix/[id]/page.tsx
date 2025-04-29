@@ -991,6 +991,36 @@ export default function VmixPage({ params }: MatchParams) {
           height: 100%;
           width: 100%;
         }
+        
+        @keyframes slideIn {
+          from {
+            transform: translateY(-100%);
+            opacity: 0;
+          }
+          to {
+            transform: translateY(0);
+            opacity: 1;
+          }
+        }
+        
+        @keyframes slideOut {
+          from {
+            transform: translateY(0);
+            opacity: 1;
+          }
+          to {
+            transform: translateY(-100%);
+            opacity: 0;
+          }
+        }
+        
+        .indicator-animation-enter {
+          animation: slideIn 1s ease forwards;
+        }
+        
+        .indicator-animation-exit {
+          animation: slideOut 1s ease forwards;
+        }
       `}</style>
 
       <div
@@ -1475,6 +1505,7 @@ export default function VmixPage({ params }: MatchParams) {
             {/* Показываем индикатор только если есть важное событие или идет тай-брейк */}
             {importantPoint.type && importantPoint.type !== "GAME" && (
               <div
+                className="indicator-animation-enter"
                 style={{
                   color: theme === "transparent" ? accentColor : indicatorTextColor,
                   backgroundColor:

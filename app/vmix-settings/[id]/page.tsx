@@ -46,27 +46,27 @@ export default function VmixSettingsPage({ params }) {
   const [pointsBgColor, setPointsBgColor] = useState("#0369a1")
   const [setsBgColor, setSetsBgColor] = useState("#ffffff")
   const [setsTextColor, setSetsTextColor] = useState("#000000")
-  const [namesGradient, setNamesGradient] = useState(false)
+  const [namesGradient, setNamesGradient] = useState(true)
   const [namesGradientFrom, setNamesGradientFrom] = useState("#0369a1")
   const [namesGradientTo, setNamesGradientTo] = useState("#0284c7")
-  const [countryGradient, setCountryGradient] = useState(false)
+  const [countryGradient, setCountryGradient] = useState(true)
   const [countryGradientFrom, setCountryGradientFrom] = useState("#0369a1")
   const [countryGradientTo, setCountryGradientTo] = useState("#0284c7")
   const [serveGradient, setServeGradient] = useState(true)
   const [serveGradientFrom, setServeGradientFrom] = useState("#0369a1")
   const [serveGradientTo, setServeGradientTo] = useState("#0284c7")
-  const [pointsGradient, setPointsGradient] = useState(false)
+  const [pointsGradient, setPointsGradient] = useState(true)
 
   const [pointsGradientFrom, setPointsGradientFrom] = useState("#0369a1")
   const [pointsGradientTo, setPointsGradientTo] = useState("#0284c7")
-  const [setsGradient, setSetsGradient] = useState(false)
+  const [setsGradient, setSetsGradient] = useState(true)
   const [setsGradientFrom, setSetsGradientFrom] = useState("#ffffff")
   const [setsGradientTo, setSetsGradientTo] = useState("#f0f0f0")
 
   // Настройки для индикатора важных моментов
   const [indicatorBgColor, setIndicatorBgColor] = useState("#7c2d12")
   const [indicatorTextColor, setIndicatorTextColor] = useState("#ffffff")
-  const [indicatorGradient, setIndicatorGradient] = useState(false)
+  const [indicatorGradient, setIndicatorGradient] = useState(true)
   const [indicatorGradientFrom, setIndicatorGradientFrom] = useState("#7c2d12")
   const [indicatorGradientTo, setIndicatorGradientTo] = useState("#991b1b")
 
@@ -161,11 +161,11 @@ export default function VmixSettingsPage({ params }) {
         setSetsTextColor(settings.setsTextColor || "#000000")
 
         // Загружаем настройки градиентов
-        setNamesGradient(settings.namesGradient !== undefined ? settings.namesGradient : false)
+        setNamesGradient(settings.namesGradient !== undefined ? settings.namesGradient : true)
         setNamesGradientFrom(settings.namesGradientFrom || "#0369a1")
         setNamesGradientTo(settings.namesGradientTo || "#0284c7")
 
-        setCountryGradient(settings.countryGradient !== undefined ? settings.countryGradient : false)
+        setCountryGradient(settings.countryGradient !== undefined ? settings.countryGradient : true)
         setCountryGradientFrom(settings.countryGradientFrom || "#0369a1")
         setCountryGradientTo(settings.countryGradientTo || "#0284c7")
 
@@ -173,19 +173,19 @@ export default function VmixSettingsPage({ params }) {
         setServeGradientFrom(settings.serveGradientFrom || "#0369a1")
         setServeGradientTo(settings.serveGradientTo || "#0284c7")
 
-        setPointsGradient(settings.pointsGradient !== undefined ? settings.pointsGradient : false)
+        setPointsGradient(settings.pointsGradient !== undefined ? settings.pointsGradient : true)
 
         setPointsGradientFrom(settings.pointsGradientFrom || "#0369a1")
         setPointsGradientTo(settings.pointsGradientTo || "#0284c7")
 
-        setSetsGradient(settings.setsGradient !== undefined ? settings.setsGradient : false)
+        setSetsGradient(settings.setsGradient !== undefined ? settings.setsGradient : true)
         setSetsGradientFrom(settings.setsGradientFrom || "#ffffff")
         setSetsGradientTo(settings.setsGradientTo || "#f0f0f0")
 
         // Загружаем настройки индикатора
         setIndicatorBgColor(settings.indicatorBgColor || "#7c2d12")
         setIndicatorTextColor(settings.indicatorTextColor || "#ffffff")
-        setIndicatorGradient(settings.indicatorGradient !== undefined ? settings.indicatorGradient : false)
+        setIndicatorGradient(settings.indicatorGradient !== undefined ? settings.indicatorGradient : true)
         setIndicatorGradientFrom(settings.indicatorGradientFrom || "#7c2d12")
         setIndicatorGradientTo(settings.indicatorGradientTo || "#991b1b")
 
