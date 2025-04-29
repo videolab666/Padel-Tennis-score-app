@@ -87,7 +87,7 @@ export function MatchList() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-[2fr_1fr] gap-2 items-center">
+              <div className="grid grid-cols-[2fr_1fr] gap-2">
                 <div className="text-left">
                   <div className="mb-1">
                     {match.teamA.players.map((player, idx) => (
@@ -96,7 +96,8 @@ export function MatchList() {
                       </p>
                     ))}
                   </div>
-                  <div className="mt-1">
+                  <div className="h-px bg-gray-200 my-1.5 w-full"></div>
+                  <div>
                     {match.teamB.players.map((player, idx) => (
                       <p key={idx} className="text-xs sm:text-sm font-medium truncate">
                         {player.name}
@@ -104,8 +105,9 @@ export function MatchList() {
                     ))}
                   </div>
                 </div>
-                <div className="text-right font-bold text-base sm:text-xl">
-                  {match.score.teamA} - {match.score.teamB}
+                <div className="flex flex-col justify-between">
+                  <div className="text-right font-bold text-base sm:text-xl">{match.score.teamA}</div>
+                  <div className="text-right font-bold text-base sm:text-xl">{match.score.teamB}</div>
                 </div>
               </div>
             </CardContent>
