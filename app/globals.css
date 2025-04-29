@@ -112,3 +112,29 @@ body {
   background-color: #ef4444 !important;
   color: white !important;
 }
+
+/* Анимации для изменения счета */
+@keyframes score-change {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+    color: #16a34a;
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.score-change {
+  animation: score-change 0.5s ease;
+}
+
+/* Стили для адаптивного текста имен игроков */
+.player-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}

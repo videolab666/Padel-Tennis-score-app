@@ -3,7 +3,7 @@
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { getTennisPointName } from "@/lib/tennis-utils"
-import { useState, useEffect, useRef } from "react"
+import { useState } from "react"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,110 +19,6 @@ export function ScoreBoard({ match, updateMatch }) {
   const [showMatchEndDialog, setShowMatchEndDialog] = useState(false)
   const [pendingMatchUpdate, setPendingMatchUpdate] = useState(null)
   const [previousMatchState, setPreviousMatchState] = useState(null)
-
-  // Refs для контейнеров имен игроков
-  const teamAContainerRefs = useRef([])
-  const teamBContainerRefs = useRef([])
-  const teamANameRefs = useRef([])
-  const teamBNameRefs = useRef([])
-
-  // Заменим функцию adjustFontSize на более эффективную версию
-  // и добавим дополнительные проверки
-
-  const adjustFontSize = () => {
-    const adjustPlayerNameSize = (nameRef, containerRef) => {
-      if (!nameRef || !containerRef) return
-
-      const nameElement = nameRef
-      const containerElement = containerRef
-
-      // Сбрасываем стиль, чтобы получить реальную ширину текста
-      nameElement.style.fontSize = "16px" // Начинаем с 1rem = 16px
-
-      // Добавляем небольшой запас для надежности (5px)
-      const containerWidth = containerElement.clientWidth - 5
-
-      // Если текст не помещается, начинаем уменьшать размер шрифта
-      if (nameElement.scrollWidth > containerWidth) {
-        // Вычисляем коэффициент масштабирования
-        const scaleFactor = containerWidth / nameElement.scrollWidth
-        // Применяем масштабирование с ограничением минимального размера
-        const newSize = Math.max(8, Math.floor(16 * scaleFactor))
-        nameElement.style.fontSize = `${newSize}px`
-
-        // Дополнительная проверка после изменения размера
-        if (nameElement.scrollWidth > containerWidth) {
-          // Если все еще не помещается, уменьшаем еще на 1px
-          nameElement.style.fontSize = `${newSize - 1}px`
-        }
-      }
-    }
-
-    // Применяем к именам игроков команды A
-    if (match?.teamA?.players) {
-      match.teamA.players.forEach((_, idx) => {
-        if (teamANameRefs.current[idx] && teamAContainerRefs.current[idx]) {
-          adjustPlayerNameSize(teamANameRefs.current[idx], teamAContainerRefs.current[idx])
-        }
-      })
-    }
-
-    // Применяем к именам игроков команды B
-    if (match?.teamB?.players) {
-      match.teamB.players.forEach((_, idx) => {
-        if (teamBNameRefs.current[idx] && teamBContainerRefs.current[idx]) {
-          adjustPlayerNameSize(teamBNameRefs.current[idx], teamBContainerRefs.current[idx])
-        }
-      })
-    }
-  }
-
-  // Также обновим useEffect для более надежной работы
-  useEffect(() => {
-    if (!match) return
-
-    // Инициализируем массивы refs
-    teamAContainerRefs.current = Array(match.teamA.players.length)
-      .fill()
-      .map((_, i) => teamAContainerRefs.current[i] || null)
-    teamBContainerRefs.current = Array(match.teamB.players.length)
-      .fill()
-      .map((_, i) => teamBContainerRefs.current[i] || null)
-    teamANameRefs.current = Array(match.teamA.players.length)
-      .fill()
-      .map((_, i) => teamANameRefs.current[i] || null)
-    teamBNameRefs.current = Array(match.teamB.players.length)
-      .fill()
-      .map((_, i) => teamBNameRefs.current[i] || null)
-
-    // Настраиваем обработчик изменения размера окна с дебаунсингом
-    const handleResize = () => {
-      // Используем requestAnimationFrame для оптимизации производительности
-      window.requestAnimationFrame(() => {
-        adjustFontSize()
-      })
-    }
-
-    // Вызываем функцию сразу и при изменении размера окна
-    // Небольшая задержка для уверенности, что DOM полностью обновлен
-    setTimeout(adjustFontSize, 0)
-    window.addEventListener("resize", handleResize)
-
-    // Также вызываем при изменении ориентации устройства
-    window.addEventListener("orientationchange", handleResize)
-
-    return () => {
-      window.removeEventListener("resize", handleResize)
-      window.removeEventListener("orientationchange", handleResize)
-    }
-  }, [match])
-
-  // Также добавим дополнительный useEffect для повторной проверки после рендеринга
-  useEffect(() => {
-    // Повторная проверка через небольшой промежуток времени
-    const timer = setTimeout(adjustFontSize, 100)
-    return () => clearTimeout(timer)
-  }, [])
 
   if (!match) return null
 
@@ -529,55 +425,44 @@ export function ScoreBoard({ match, updateMatch }) {
         </AlertDialogContent>
       </AlertDialog>
 
-      <div className="grid grid-cols-[1fr_auto_1fr] gap-4 items-center">
-        <div className="text-right space-y-1">
+      <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-0 items-center w-full">
+        <div className="text-right space-y-1 pr-3 border-r border-gray-200">
           <div className="text-sm text-muted-foreground mb-1 text-right">
             {match.courtSides?.teamA === "left" ? "Левая сторона" : "Правая сторона"}
           </div>
           {teamA.players.map((player, idx) => (
-            <div
-              key={idx}
-              className="flex items-center justify-end"
-              ref={(el) => (teamAContainerRefs.current[idx] = el)}
-            >
+            <div key={idx} className="flex items-center justify-end w-full">
               {isServing("teamA", idx) && (
                 <Badge
                   variant="outline"
-                  className="mr-2 w-3 h-3 rounded-full bg-lime-400 border-lime-600 p-0 flex items-center justify-center"
+                  className="mr-2 w-3 h-3 rounded-full bg-lime-400 border-lime-600 p-0 flex items-center justify-center flex-shrink-0"
                 >
                   <span className="sr-only">Подача</span>
                 </Badge>
               )}
-              <p
-                className="font-medium truncate max-w-full"
-                ref={(el) => (teamANameRefs.current[idx] = el)}
-                style={{ fontSize: "1rem", maxWidth: "100%" }}
-              >
-                {player.name}
-              </p>
+              <div className="w-full overflow-hidden max-w-full">
+                <p className="font-medium text-right truncate text-[10px] sm:text-[14px] md:text-[16px]">
+                  {player.name}
+                </p>
+              </div>
             </div>
           ))}
         </div>
-        <div className="text-center font-bold text-xl sm:text-2xl opacity-80 px-2">
-          {match.score.teamA} - {match.score.teamB}
-        </div>
-        <div className="text-left space-y-1">
+        <div className="text-left space-y-1 pl-3">
           <div className="text-sm text-muted-foreground mb-1 text-left">
             {match.courtSides?.teamB === "left" ? "Левая сторона" : "Правая сторона"}
           </div>
           {teamB.players.map((player, idx) => (
-            <div key={idx} className="flex items-center" ref={(el) => (teamBContainerRefs.current[idx] = el)}>
-              <p
-                className="font-medium truncate max-w-full"
-                ref={(el) => (teamBNameRefs.current[idx] = el)}
-                style={{ fontSize: "1rem", maxWidth: "100%" }}
-              >
-                {player.name}
-              </p>
+            <div key={idx} className="flex items-center w-full">
+              <div className="w-full overflow-hidden max-w-full">
+                <p className="font-medium text-left truncate text-[10px] sm:text-[14px] md:text-[16px]">
+                  {player.name}
+                </p>
+              </div>
               {isServing("teamB", idx) && (
                 <Badge
                   variant="outline"
-                  className="ml-2 w-3 h-3 rounded-full bg-lime-400 border-lime-600 p-0 flex items-center justify-center"
+                  className="ml-2 w-3 h-3 rounded-full bg-lime-400 border-lime-600 p-0 flex items-center justify-center flex-shrink-0"
                 >
                   <span className="sr-only">Подача</span>
                 </Badge>

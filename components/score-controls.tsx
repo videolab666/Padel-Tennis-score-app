@@ -401,14 +401,18 @@ export function ScoreControls({ match, updateMatch }) {
 
     // Для одиночной игры просто возвращаем имя игрока
     if (match.format === "singles" || players.length === 1) {
-      return <div className="text-sm text-muted-foreground text-center">{players[0].name}</div>
+      return (
+        <div className="text-sm text-muted-foreground text-center w-full overflow-hidden truncate">
+          {players[0].name}
+        </div>
+      )
     }
 
     // Для парной игры отображаем каждое имя на отдельной строке
     return (
-      <div className="text-sm text-muted-foreground text-center">
-        <div>{players[0].name}</div>
-        <div>{players[1].name}</div>
+      <div className="text-sm text-muted-foreground text-center w-full">
+        <div className="truncate overflow-hidden">{players[0].name}</div>
+        <div className="truncate overflow-hidden">{players[1].name}</div>
       </div>
     )
   }
@@ -421,10 +425,10 @@ export function ScoreControls({ match, updateMatch }) {
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid grid-cols-2 gap-4">
-          <Card>
+          <Card className="w-full">
             <CardContent className="p-2 sm:p-4">
-              <div className="min-h-[60px] sm:min-h-[80px] flex flex-col justify-center">
-                <h3 className="text-sm sm:text-base font-medium text-center">
+              <div className="min-h-[60px] sm:min-h-[80px] flex flex-col justify-center w-full">
+                <h3 className="text-sm sm:text-base font-medium text-center w-full overflow-hidden truncate">
                   Команда A
                   <span className="ml-2 text-xs sm:text-sm text-muted-foreground">
                     ({match.courtSides?.teamA === "left" ? "Левая" : "Правая"})
@@ -454,10 +458,10 @@ export function ScoreControls({ match, updateMatch }) {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="w-full">
             <CardContent className="p-2 sm:p-4">
-              <div className="min-h-[60px] sm:min-h-[80px] flex flex-col justify-center">
-                <h3 className="text-sm sm:text-base font-medium text-center">
+              <div className="min-h-[60px] sm:min-h-[80px] flex flex-col justify-center w-full">
+                <h3 className="text-sm sm:text-base font-medium text-center w-full overflow-hidden truncate">
                   Команда B
                   <span className="ml-2 text-xs sm:text-sm text-muted-foreground">
                     ({match.courtSides?.teamB === "left" ? "Левая" : "Правая"})
