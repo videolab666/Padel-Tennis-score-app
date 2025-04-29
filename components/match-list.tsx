@@ -87,23 +87,25 @@ export function MatchList() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-[1fr_auto_1fr] gap-2 items-center">
+              <div className="grid grid-cols-[2fr_1fr] gap-2 items-center">
                 <div className="text-left">
-                  {match.teamA.players.map((player, idx) => (
-                    <p key={idx} className="text-xs sm:text-sm font-medium truncate">
-                      {player.name}
-                    </p>
-                  ))}
+                  <div className="mb-1">
+                    {match.teamA.players.map((player, idx) => (
+                      <p key={idx} className="text-xs sm:text-sm font-medium truncate">
+                        {player.name}
+                      </p>
+                    ))}
+                  </div>
+                  <div className="mt-1">
+                    {match.teamB.players.map((player, idx) => (
+                      <p key={idx} className="text-xs sm:text-sm font-medium truncate">
+                        {player.name}
+                      </p>
+                    ))}
+                  </div>
                 </div>
-                <div className="text-center font-bold text-base sm:text-xl">
+                <div className="text-right font-bold text-base sm:text-xl">
                   {match.score.teamA} - {match.score.teamB}
-                </div>
-                <div className="text-right">
-                  {match.teamB.players.map((player, idx) => (
-                    <p key={idx} className="text-xs sm:text-sm font-medium truncate">
-                      {player.name}
-                    </p>
-                  ))}
                 </div>
               </div>
             </CardContent>
