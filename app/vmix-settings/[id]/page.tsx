@@ -13,7 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { getMatch } from "@/lib/match-storage"
 import { logEvent } from "@/lib/error-logger"
 // Добавим импорт для иконки сохранения
-import { ArrowLeft, Copy, ExternalLink, Eye, Save } from "lucide-react"
+import { ArrowLeft, Copy, ExternalLink, Eye, Save, ArrowRight } from "lucide-react"
 import { toast } from "@/components/ui/use-toast"
 import { Separator } from "@/components/ui/separator"
 
@@ -340,6 +340,11 @@ export default function VmixSettingsPage({ params }) {
 
   const handleOpenVmix = () => {
     window.open(generateVmixUrl(), "_blank")
+  }
+
+  // Добавим новую функцию-обработчик после функции handleOpenVmix
+  const handleOpenVmixInCurrentWindow = () => {
+    router.push(generateVmixUrl())
   }
 
   const handlePreview = () => {
@@ -1181,6 +1186,10 @@ export default function VmixSettingsPage({ params }) {
                   <Button onClick={handleOpenVmix} className="w-full">
                     <ExternalLink className="mr-2 h-4 w-4" />
                     Открыть в новом окне
+                  </Button>
+                  <Button onClick={handleOpenVmixInCurrentWindow} className="w-full">
+                    <ArrowRight className="mr-2 h-4 w-4" />
+                    Открыть в текущем окне
                   </Button>
                   <Button onClick={handleCopyUrl} className="w-full" disabled={copying}>
                     <Copy className="mr-2 h-4 w-4" />

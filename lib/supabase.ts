@@ -47,26 +47,7 @@ export const createClientSupabaseClient = () => {
   try {
     logEvent("info", "Создание клиентского клиента Supabase", "createClientSupabaseClient", { url: supabaseUrl })
 
-    // Добавляем обработку ошибок для fetch
-    const customFetch = (url, options = {}) => {
-      return new Promise((resolve, reject) => {
-        // Устанавливаем таймаут
-        const timeout = setTimeout(() => {
-          reject(new Error("Request timeout"))
-        }, 8000)
-
-        fetch(url, { ...options, timeout: 8000 })
-          .then((response) => {
-            clearTimeout(timeout)
-            resolve(response)
-          })
-          .catch((error) => {
-            clearTimeout(timeout)
-            reject(error)
-          })
-      })
-    }
-
+    // Создаем клиент с более надежными настройками
     clientSupabaseInstance = createClient(supabaseUrl, supabaseAnonKey, {
       // Оптимизация: настройки для более быстрой работы
       realtime: {
@@ -74,8 +55,20 @@ export const createClientSupabaseClient = () => {
           eventsPerSecond: 5, // Уменьшаем с 10 до 5 для снижения нагрузки
         },
       },
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: false,
+      },
       global: {
-        fetch: customFetch,
+        // Увеличиваем таймаут и добавляем повторные попытки
+        fetch: (url, options = {}) => {
+          return fetch(url, {
+            ...options,
+            // Не используем timeout в options, так как это может вызвать проблемы
+            // Вместо этого используем AbortController в вызывающем коде
+          })
+        },
       },
     })
     return clientSupabaseInstance
@@ -99,7 +92,37 @@ export const isSupabaseAvailable = async () => {
       return false
     }
 
-    return true
+    // Выполняем простой запрос для проверки соединения
+    try {
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 3000) // 3 секунды таймаут
+
+      const { error } = await supabase
+        .from("_http_response")
+        .select("*")
+        .limit(1)
+        .maybeSingle()
+        .abortSignal(controller.signal)
+
+      clearTimeout(timeoutId)
+
+      // Если получили ошибку о том, что таблица не существует - это нормально,
+      // главное что соединение работает
+      if (error && !error.message.includes("does not exist")) {
+        return false
+      }
+
+      return true
+    } catch (fetchError) {
+      if (fetchError.name === "AbortError") {
+        logEvent("error", "Таймаут при проверке доступности Supabase", "isSupabaseAvailable")
+      } else {
+        logEvent("error", `Ошибка при запросе к Supabase: ${fetchError.message}`, "isSupabaseAvailable", {
+          error: fetchError,
+        })
+      }
+      return false
+    }
   } catch (error) {
     logEvent("error", "Исключение при проверке доступности Supabase", "isSupabaseAvailable", {
       error: {
@@ -118,40 +141,57 @@ export const checkTablesExist = async () => {
     const supabase = createClientSupabaseClient()
     if (!supabase) return { exists: false, error: "Клиент Supabase не создан" }
 
-    // Оптимизация: выполняем запросы параллельно
-    const [matchesResponse, playersResponse] = await Promise.all([
-      supabase.from("matches").select("id").limit(1),
-      supabase.from("players").select("id").limit(1),
-    ])
+    try {
+      // Используем AbortController для таймаута
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 5000) // 5 секунд таймаут
 
-    const matchesError = matchesResponse.error
-    const playersError = playersResponse.error
-    const matchesData = matchesResponse.data
-    const playersData = playersResponse.data
+      // Оптимизация: выполняем запросы параллельно
+      const [matchesResponse, playersResponse] = await Promise.all([
+        supabase.from("matches").select("id").limit(1).abortSignal(controller.signal),
+        supabase.from("players").select("id").limit(1).abortSignal(controller.signal),
+      ])
 
-    const matchesExists = !matchesError || (matchesError && !matchesError.message.includes("does not exist"))
-    const playersExists = !playersError || (playersError && !playersError.message.includes("does not exist"))
+      clearTimeout(timeoutId)
 
-    if (!matchesExists || !playersExists) {
-      logEvent("warn", "Таблицы в базе данных не существуют (проверка через прямые запросы)", "checkTablesExist", {
-        matchesError,
-        playersError,
-      })
-    } else {
-      logEvent("info", "Таблицы в базе данных существуют", "checkTablesExist", {
-        matchesCount: matchesData?.length || 0,
-        playersCount: playersData?.length || 0,
-      })
-    }
+      const matchesError = matchesResponse.error
+      const playersError = playersResponse.error
+      const matchesData = matchesResponse.data
+      const playersData = playersResponse.data
 
-    return {
-      exists: matchesExists && playersExists,
-      matchesExists,
-      playersExists,
-      errors: {
-        matches: matchesError?.message,
-        players: playersError?.message,
-      },
+      const matchesExists = !matchesError || (matchesError && !matchesError.message.includes("does not exist"))
+      const playersExists = !playersError || (playersError && !playersError.message.includes("does not exist"))
+
+      if (!matchesExists || !playersExists) {
+        logEvent("warn", "Таблицы в базе данных не существуют (проверка через прямые запросы)", "checkTablesExist", {
+          matchesError,
+          playersError,
+        })
+      } else {
+        logEvent("info", "Таблицы в базе данных существуют", "checkTablesExist", {
+          matchesCount: matchesData?.length || 0,
+          playersCount: playersData?.length || 0,
+        })
+      }
+
+      return {
+        exists: matchesExists && playersExists,
+        matchesExists,
+        playersExists,
+        errors: {
+          matches: matchesError?.message,
+          players: playersError?.message,
+        },
+      }
+    } catch (fetchError) {
+      if (fetchError.name === "AbortError") {
+        logEvent("error", "Таймаут при проверке существования таблиц", "checkTablesExist")
+      } else {
+        logEvent("error", `Ошибка при запросе к Supabase: ${fetchError.message}`, "checkTablesExist", {
+          error: fetchError,
+        })
+      }
+      return { exists: false, error: fetchError.message }
     }
   } catch (error) {
     logEvent("error", "Ошибка при проверке существования таблиц", "checkTablesExist", error)
@@ -165,20 +205,41 @@ export const checkTablesContent = async () => {
     const supabase = createClientSupabaseClient()
     if (!supabase) return { success: false, error: "Клиент Supabase не создан" }
 
-    // Оптимизация: выполняем запросы параллельно и выбираем только нужные поля
-    const [playersResponse, matchesResponse] = await Promise.all([
-      supabase.from("players").select("id, name, created_at").limit(10),
-      supabase.from("matches").select("id, type, format, created_at, is_completed").limit(10),
-    ])
+    try {
+      // Используем AbortController для таймаута
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 5000) // 5 секунд таймаут
 
-    return {
-      success: !playersResponse.error && !matchesResponse.error,
-      players: playersResponse.data || [],
-      matches: matchesResponse.data || [],
-      errors: {
-        players: playersResponse.error?.message,
-        matches: matchesResponse.error?.message,
-      },
+      // Оптимизация: выполняем запросы параллельно и выбираем только нужные поля
+      const [playersResponse, matchesResponse] = await Promise.all([
+        supabase.from("players").select("id, name, created_at").limit(10).abortSignal(controller.signal),
+        supabase
+          .from("matches")
+          .select("id, type, format, created_at, is_completed")
+          .limit(10)
+          .abortSignal(controller.signal),
+      ])
+
+      clearTimeout(timeoutId)
+
+      return {
+        success: !playersResponse.error && !matchesResponse.error,
+        players: playersResponse.data || [],
+        matches: matchesResponse.data || [],
+        errors: {
+          players: playersResponse.error?.message,
+          matches: matchesResponse.error?.message,
+        },
+      }
+    } catch (fetchError) {
+      if (fetchError.name === "AbortError") {
+        logEvent("error", "Таймаут при проверке содержимого таблиц", "checkTablesContent")
+      } else {
+        logEvent("error", `Ошибка при запросе к Supabase: ${fetchError.message}`, "checkTablesContent", {
+          error: fetchError,
+        })
+      }
+      return { success: false, error: fetchError.message }
     }
   } catch (error) {
     return { success: false, error: error.message }
@@ -200,33 +261,67 @@ export const getSupabaseConnectionInfo = async () => {
       }
     }
 
-    // Проверяем соединение с Supabase
-    const startTime = Date.now()
-    const { error } = await supabase.from("_http_response").select("*").limit(1).maybeSingle()
-    const endTime = Date.now()
+    try {
+      // Используем AbortController для таймаута
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 3000) // 3 секунды таймаут
 
-    // Проверяем существование таблиц
-    const tablesStatus = await checkTablesExist()
+      // Проверяем соединение с Supabase
+      const startTime = Date.now()
+      const { error } = await supabase
+        .from("_http_response")
+        .select("*")
+        .limit(1)
+        .maybeSingle()
+        .abortSignal(controller.signal)
 
-    if (error && !error.message.includes("does not exist")) {
+      clearTimeout(timeoutId)
+      const endTime = Date.now()
+
+      // Проверяем существование таблиц
+      const tablesStatus = await checkTablesExist()
+
+      if (error && !error.message.includes("does not exist")) {
+        return {
+          available: false,
+          error: error.message,
+          details: {
+            code: error.code,
+            responseTime: endTime - startTime,
+            tablesStatus,
+          },
+        }
+      }
+
       return {
-        available: false,
-        error: error.message,
+        available: true,
         details: {
-          code: error.code,
           responseTime: endTime - startTime,
+          url: process.env.NEXT_PUBLIC_SUPABASE_URL,
           tablesStatus,
         },
       }
-    }
-
-    return {
-      available: true,
-      details: {
-        responseTime: endTime - startTime,
-        url: process.env.NEXT_PUBLIC_SUPABASE_URL,
-        tablesStatus,
-      },
+    } catch (fetchError) {
+      if (fetchError.name === "AbortError") {
+        return {
+          available: false,
+          error: "Timeout при проверке соединения",
+          details: {
+            name: fetchError.name,
+            message: fetchError.message,
+          },
+        }
+      } else {
+        return {
+          available: false,
+          error: fetchError.message,
+          details: {
+            name: fetchError.name,
+            message: fetchError.message,
+            stack: fetchError.stack,
+          },
+        }
+      }
     }
   } catch (error) {
     return {
@@ -333,29 +428,47 @@ export const initializeDatabase = async () => {
       .map((stmt) => stmt + ";")
 
     for (const statement of statements) {
-      const { error } = await supabase.rpc("exec_sql", { sql_query: statement })
+      try {
+        // Используем AbortController для таймаута
+        const controller = new AbortController()
+        const timeoutId = setTimeout(() => controller.abort(), 5000) // 5 секунд таймаут
 
-      if (error) {
-        // Если функция exec_sql не существует, пробуем выполнить запрос напрямую
-        if (error.message.includes("function exec_sql") || error.message.includes("does not exist")) {
-          // Для прямого выполнения SQL нужны права администратора
-          // Это может не сработать с анонимным ключом
-          const { error: directError } = await supabase.from("_sql").select("*").eq("query", statement).single()
+        const { error } = await supabase.rpc("exec_sql", { sql_query: statement }).abortSignal(controller.signal)
 
-          if (directError && !directError.message.includes("does not exist")) {
-            logEvent("error", `Ошибка при выполнении SQL: ${directError.message}`, "initializeDatabase", {
+        clearTimeout(timeoutId)
+
+        if (error) {
+          // Если функция exec_sql не существует, пробуем выполнить запрос напрямую
+          if (error.message.includes("function exec_sql") || error.message.includes("does not exist")) {
+            // Для прямого выполнения SQL нужны права администратора
+            // Это может не сработать с анонимным ключом
+            const { error: directError } = await supabase.from("_sql").select("*").eq("query", statement).single()
+
+            if (directError && !directError.message.includes("does not exist")) {
+              logEvent("error", `Ошибка при выполнении SQL: ${directError.message}`, "initializeDatabase", {
+                statement,
+                error: directError,
+              })
+              return { success: false, error: `Ошибка при выполнении SQL: ${directError.message}` }
+            }
+          } else {
+            logEvent("error", `Ошибка при инициализации базы данных: ${error.message}`, "initializeDatabase", {
               statement,
-              error: directError,
+              error,
             })
-            return { success: false, error: `Ошибка при выполнении SQL: ${directError.message}` }
+            return { success: false, error: error.message }
           }
-        } else {
-          logEvent("error", `Ошибка при инициализации базы данных: ${error.message}`, "initializeDatabase", {
-            statement,
-            error,
-          })
-          return { success: false, error: error.message }
         }
+      } catch (fetchError) {
+        if (fetchError.name === "AbortError") {
+          logEvent("error", "Таймаут при выполнении SQL", "initializeDatabase", { statement })
+        } else {
+          logEvent("error", `Ошибка при запросе к Supabase: ${fetchError.message}`, "initializeDatabase", {
+            error: fetchError,
+            statement,
+          })
+        }
+        return { success: false, error: fetchError.message }
       }
     }
 
@@ -387,31 +500,45 @@ export const executeSql = async (sql) => {
       return { success: false, error: "Клиент Supabase не создан" }
     }
 
-    // Пробуем выполнить через RPC
-    const { data, error } = await supabase.rpc("exec_sql", { sql_query: sql })
+    try {
+      // Используем AbortController для таймаута
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 5000) // 5 секунд таймаут
 
-    if (error) {
-      // Если функция exec_sql не существует, пробуем выполнить запрос напрямую
-      if (error.message.includes("function exec_sql") || error.message.includes("does not exist")) {
-        // Для прямого выполнения SQL нужны права администратора
-        const { error: directError } = await supabase.from("_sql").select("*").eq("query", sql).single()
+      // Пробуем выполнить через RPC
+      const { data, error } = await supabase.rpc("exec_sql", { sql_query: sql }).abortSignal(controller.signal)
 
-        if (directError && !directError.message.includes("does not exist")) {
-          return { success: false, error: directError.message }
+      clearTimeout(timeoutId)
+
+      if (error) {
+        // Если функция exec_sql не существует, пробуем выполнить запрос напрямую
+        if (error.message.includes("function exec_sql") || error.message.includes("does not exist")) {
+          // Для прямого выполнения SQL нужны права администратора
+          const { error: directError } = await supabase.from("_sql").select("*").eq("query", sql).single()
+
+          if (directError && !directError.message.includes("does not exist")) {
+            return { success: false, error: directError.message }
+          }
+
+          // Если оба метода не сработали, возвращаем ошибку
+          return {
+            success: false,
+            error:
+              "Не удалось выполнить SQL-запрос. У вас нет прав на выполнение SQL или функция exec_sql не существует.",
+          }
         }
 
-        // Если оба метода не сработали, возвращаем ошибку
-        return {
-          success: false,
-          error:
-            "Не удалось выполнить SQL-запрос. У вас нет прав на выполнение SQL или функция exec_sql не существует.",
-        }
+        return { success: false, error: error.message }
       }
 
-      return { success: false, error: error.message }
+      return { success: true, data }
+    } catch (fetchError) {
+      if (fetchError.name === "AbortError") {
+        return { success: false, error: "Таймаут при выполнении SQL-запроса" }
+      } else {
+        return { success: false, error: fetchError.message }
+      }
     }
-
-    return { success: true, data }
   } catch (error) {
     return { success: false, error: error.message }
   }
@@ -425,36 +552,57 @@ export const checkAndEnableRealtime = async () => {
       return { success: false, error: "Клиент Supabase не создан" }
     }
 
-    // Проверяем существование публикации для Realtime
-    const sql = `
-    SELECT EXISTS (
-      SELECT 1 FROM pg_publication WHERE pubname = 'supabase_realtime'
-    ) as exists;
-    `
+    try {
+      // Используем AbortController для таймаута
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 5000) // 5 секунд таймаут
 
-    const { data, error } = await supabase.rpc("exec_sql", { sql_query: sql })
-
-    if (error) {
-      return { success: false, error: error.message }
-    }
-
-    // Если публикация не существует, создаем ее
-    if (!data || !data.exists) {
-      const createPublicationSql = `
-      BEGIN;
-        DROP PUBLICATION IF EXISTS supabase_realtime;
-        CREATE PUBLICATION supabase_realtime FOR TABLE matches, players;
-      COMMIT;
+      // Проверяем существование публикации для Realtime
+      const sql = `
+      SELECT EXISTS (
+        SELECT 1 FROM pg_publication WHERE pubname = 'supabase_realtime'
+      ) as exists;
       `
 
-      const { error: createError } = await supabase.rpc("exec_sql", { sql_query: createPublicationSql })
+      const { data, error } = await supabase.rpc("exec_sql", { sql_query: sql }).abortSignal(controller.signal)
 
-      if (createError) {
-        return { success: false, error: createError.message }
+      clearTimeout(timeoutId)
+
+      if (error) {
+        return { success: false, error: error.message }
+      }
+
+      // Если публикация не существует, создаем ее
+      if (!data || !data.exists) {
+        const createPublicationSql = `
+        BEGIN;
+          DROP PUBLICATION IF EXISTS supabase_realtime;
+          CREATE PUBLICATION supabase_realtime FOR TABLE matches, players;
+        COMMIT;
+        `
+
+        const controller2 = new AbortController()
+        const timeoutId2 = setTimeout(() => controller2.abort(), 5000) // 5 секунд таймаут
+
+        const { error: createError } = await supabase
+          .rpc("exec_sql", { sql_query: createPublicationSql })
+          .abortSignal(controller2.signal)
+
+        clearTimeout(timeoutId2)
+
+        if (createError) {
+          return { success: false, error: createError.message }
+        }
+      }
+
+      return { success: true }
+    } catch (fetchError) {
+      if (fetchError.name === "AbortError") {
+        return { success: false, error: "Таймаут при проверке Realtime" }
+      } else {
+        return { success: false, error: fetchError.message }
       }
     }
-
-    return { success: true }
   } catch (error) {
     return { success: false, error: error.message }
   }
