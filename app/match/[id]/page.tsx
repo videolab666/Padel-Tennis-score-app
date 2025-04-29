@@ -340,16 +340,7 @@ export default function MatchPage({ params }: MatchParams) {
               <Copy className="mr-2 h-4 w-4" />
               Код матча
             </Button>
-            <div className="flex space-x-2">
-              <VmixButton matchId={params.id} courtNumber={match?.courtNumber} className="w-full text-sm" size="sm" />
-              <VmixButton
-                matchId={params.id}
-                courtNumber={match?.courtNumber}
-                directLink={true}
-                className="w-full text-sm"
-                size="sm"
-              />
-            </div>
+            <VmixButton matchId={params.id} courtNumber={match?.courtNumber} className="w-full text-sm" size="sm" />
             {match?.courtNumber && (
               <Button
                 variant="outline"

@@ -11,6 +11,7 @@ interface VmixButtonProps {
   className?: string
   size?: "default" | "sm" | "lg" | "icon"
   directLink?: boolean // Добавим опцию для прямого перехода на страницу vMix
+  openInCurrentWindow?: boolean // Добавляем новый параметр для открытия в текущем окне
 }
 
 // Функция для загрузки настроек из localStorage
@@ -197,6 +198,7 @@ export function VmixButton({
   className = "",
   size = "default",
   directLink = false,
+  openInCurrentWindow = false, // Добавляем новый параметр со значением по умолчанию
 }: VmixButtonProps) {
   const router = useRouter()
 
@@ -207,10 +209,24 @@ export function VmixButton({
 
       if (courtNumber) {
         // Если указан номер корта, открываем страницу корта
-        window.open(generateCourtVmixUrl(courtNumber, settings), "_blank")
+        const url = generateCourtVmixUrl(courtNumber, settings)
+
+        // Если нужно открыть в текущем окне, используем router.push
+        if (openInCurrentWindow) {
+          router.push(url)
+        } else {
+          window.open(url, "_blank")
+        }
       } else {
         // Иначе открываем страницу матча
-        window.open(generateVmixUrl(matchId, settings), "_blank")
+        const url = generateVmixUrl(matchId, settings)
+
+        // Если нужно открыть в текущем окне, используем router.push
+        if (openInCurrentWindow) {
+          router.push(url)
+        } else {
+          window.open(url, "_blank")
+        }
       }
     } else {
       // Иначе перенаправляем на страницу настроек vMix
