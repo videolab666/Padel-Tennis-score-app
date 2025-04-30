@@ -186,6 +186,73 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
     return tiebreakScores
   }
 
+  // Определяем важные события (game point, set point, match point)
+  const getImportantEvent = () => {
+    if (!match || !match.score || !match.score.currentSet) return null
+
+    const currentSet = match.score.currentSet
+    const setsWonA = (match.score.sets || []).filter((set) => set.teamA > set.teamB).length
+    const setsWonB = (match.score.sets || []).filter((set) => set.teamB > set.teamA).length
+    const setsToWin = match.bestOf === 3 ? 2 : 3
+
+    // Проверка на match point
+    if (
+      (setsWonA === setsToWin - 1 && currentSet.teamA > currentSet.teamB) ||
+      (setsWonB === setsToWin - 1 && currentSet.teamB > currentSet.teamA)
+    ) {
+      if (
+        (currentSet.teamA >= 5 && currentSet.teamA - currentSet.teamB >= 1) ||
+        (currentSet.teamB >= 5 && currentSet.teamB - currentSet.teamA >= 1) ||
+        (currentSet.isTiebreak &&
+          ((currentSet.currentGame.teamA >= 6 && currentSet.currentGame.teamA - currentSet.currentGame.teamB >= 1) ||
+            (currentSet.currentGame.teamB >= 6 && currentSet.currentGame.teamB - currentSet.currentGame.teamA >= 1)))
+      ) {
+        return "МАТЧ ПОЙНТ"
+      }
+    }
+
+    // Проверка на set point
+    if (!currentSet.isTiebreak) {
+      if (
+        (currentSet.teamA >= 5 &&
+          currentSet.teamA - currentSet.teamB >= 1 &&
+          currentSet.currentGame.teamA === 40 &&
+          currentSet.currentGame.teamB !== 40) ||
+        (currentSet.teamB >= 5 &&
+          currentSet.teamB - currentSet.teamA >= 1 &&
+          currentSet.currentGame.teamB === 40 &&
+          currentSet.currentGame.teamA !== 40) ||
+        (currentSet.teamA >= 5 && currentSet.teamA - currentSet.teamB >= 1 && currentSet.currentGame.teamA === "Ad") ||
+        (currentSet.teamB >= 5 && currentSet.teamB - currentSet.teamA >= 1 && currentSet.currentGame.teamB === "Ad")
+      ) {
+        return "СЕТ ПОЙНТ"
+      }
+    } else if (
+      (currentSet.currentGame.teamA >= 6 && currentSet.currentGame.teamA - currentSet.currentGame.teamB >= 1) ||
+      (currentSet.currentGame.teamB >= 6 && currentSet.currentGame.teamB - currentSet.currentGame.teamA >= 1)
+    ) {
+      return "СЕТ ПОЙНТ"
+    }
+
+    // Проверка на game point
+    if (!currentSet.isTiebreak) {
+      if (
+        (currentSet.currentGame.teamA === 40 &&
+          currentSet.currentGame.teamB !== 40 &&
+          currentSet.currentGame.teamB !== "Ad") ||
+        (currentSet.currentGame.teamB === 40 &&
+          currentSet.currentGame.teamA !== 40 &&
+          currentSet.currentGame.teamA !== "Ad") ||
+        currentSet.currentGame.teamA === "Ad" ||
+        currentSet.currentGame.teamB === "Ad"
+      ) {
+        return "ГЕЙМ ПОЙНТ"
+      }
+    }
+
+    return null
+  }
+
   // Получаем стиль градиента для фона
   const getGradientStyle = (useGradient, fromColor, toColor) => {
     if (!useGradient) return {}
@@ -236,7 +303,7 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
 
         .fullscreen-container {
           display: grid;
-          grid-template-rows: auto 1fr;
+          grid-template-rows: auto 1fr auto;
           height: 100vh;
           width: 100vw;
           overflow: hidden;
@@ -246,10 +313,11 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
           display: flex;
           justify-content: space-between;
           align-items: center;
-          padding: 0.5vh 2vw;
+          padding: 0.5vh 1vw;
           background-color: rgba(0, 0, 0, 0.8);
           color: white;
           border-bottom: 1px solid #333;
+          max-height: 5vh;
         }
 
         .scoreboard {
@@ -257,14 +325,14 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
           grid-template-rows: 1fr 1fr;
           height: 100%;
           width: 100%;
-          gap: 0.5vh;
+          gap: 3px;
         }
 
         .team-row {
           display: grid;
           grid-template-columns: ${showNames ? "5fr " : ""}${showCountry ? "1fr " : ""}${showServer ? "0.5fr " : ""}${showSets ? `repeat(${(match.score.sets?.length || 0) + (match.score.currentSet ? 1 : 0)}, 1fr) ` : ""}${showPoints ? "1.5fr" : ""};
           height: 100%;
-          gap: 0.5vh;
+          gap: 3px;
         }
 
         .cell {
@@ -279,7 +347,7 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
           display: flex;
           flex-direction: column;
           justify-content: center;
-          padding: 1vh 2vw;
+          padding: 3px;
         }
 
         .player-name {
@@ -312,12 +380,25 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
 
         .set-cell {
           font-weight: bold;
-          font-size: 5vh;
+          font-size: 7.5vh; /* Увеличено в 1.5 раза */
         }
 
         .points-cell {
           font-weight: bold;
-          font-size: 8vh;
+          font-size: 16vh; /* Увеличено в 2 раза */
+        }
+
+        .important-event {
+          background-color: #ff0000;
+          color: white;
+          font-weight: bold;
+          text-align: center;
+          padding: 3px;
+          font-size: 4vh;
+          max-height: 6vh;
+          display: flex;
+          align-items: center;
+          justify-content: center;
         }
 
         /* Responsive font sizes */
@@ -329,10 +410,13 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
             font-size: 4vh;
           }
           .set-cell {
-            font-size: 4vh;
+            font-size: 6vh; /* Увеличено в 1.5 раза */
           }
           .points-cell {
-            font-size: 6vh;
+            font-size: 12vh; /* Увеличено в 2 раза */
+          }
+          .important-event {
+            font-size: 3vh;
           }
         }
 
@@ -344,10 +428,13 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
             font-size: 5vh;
           }
           .set-cell {
-            font-size: 5vh;
+            font-size: 7.5vh; /* Увеличено в 1.5 раза */
           }
           .points-cell {
-            font-size: 7vh;
+            font-size: 14vh; /* Увеличено в 2 раза */
+          }
+          .important-event {
+            font-size: 3.5vh;
           }
         }
 
@@ -359,10 +446,13 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
             font-size: 6vh;
           }
           .set-cell {
-            font-size: 6vh;
+            font-size: 9vh; /* Увеличено в 1.5 раза */
           }
           .points-cell {
-            font-size: 9vh;
+            font-size: 18vh; /* Увеличено в 2 раза */
+          }
+          .important-event {
+            font-size: 4vh;
           }
         }
       `}</style>
@@ -621,6 +711,9 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
             )}
           </div>
         </div>
+
+        {/* Строка важных событий */}
+        {getImportantEvent() && <div className="important-event">{getImportantEvent()}</div>}
       </div>
     </>
   )
