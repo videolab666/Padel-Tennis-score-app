@@ -89,17 +89,17 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
       const textElement = cell.firstChild
       if (!textElement) return
 
-      // Сбрасываем размер шрифта
-      textElement.style.fontSize = "100%"
+      // Начинаем с большого размера шрифта
+      textElement.style.fontSize = '1000%'
 
       // Постепенно уменьшаем размер шрифта, пока он не поместится
-      let fontSize = 100
+      let fontSize = 1000
       while (
         (textElement.offsetWidth > container.offsetWidth * 0.9 ||
           textElement.offsetHeight > container.offsetHeight * 0.9) &&
         fontSize > 10
       ) {
-        fontSize -= 5
+        fontSize -= 10
         textElement.style.fontSize = `${fontSize}%`
       }
     })
@@ -111,15 +111,15 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
       const textElement = cell.firstChild
       if (!textElement) return
 
-      textElement.style.fontSize = "100%"
+      textElement.style.fontSize = '800%'
 
-      let fontSize = 100
+      let fontSize = 800
       while (
         (textElement.offsetWidth > container.offsetWidth * 0.9 ||
           textElement.offsetHeight > container.offsetHeight * 0.9) &&
         fontSize > 10
       ) {
-        fontSize -= 5
+        fontSize -= 10
         textElement.style.fontSize = `${fontSize}%`
       }
     })
@@ -129,11 +129,11 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
       if (!cell) return
       const nameElements = cell.querySelectorAll(".player-name")
       nameElements.forEach((nameEl) => {
-        nameEl.style.fontSize = "100%"
+        nameEl.style.fontSize = '500%'
 
-        let fontSize = 100
-        while (nameEl.scrollWidth > nameEl.offsetWidth && fontSize > 10) {
-          fontSize -= 5
+        let fontSize = 500
+        while (nameEl.scrollWidth > nameEl.offsetWidth * 0.95 && fontSize > 10) {
+          fontSize -= 10
           nameEl.style.fontSize = `${fontSize}%`
         }
       })
@@ -146,15 +146,14 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
       const container = indicator.parentElement
       if (!container) return
 
-      indicator.style.fontSize = "100%"
+      indicator.style.fontSize = '1000%'
 
-      let fontSize = 100
+      let fontSize = 1000
       while (
-        (indicator.offsetWidth > container.offsetWidth * 0.9 ||
-          indicator.offsetHeight > container.offsetHeight * 0.9) &&
+        (indicator.offsetWidth > container.offsetWidth * 0.9) &&
         fontSize > 10
       ) {
-        fontSize -= 5
+        fontSize -= 10
         indicator.style.fontSize = `${fontSize}%`
       }
     })
@@ -164,17 +163,16 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
       const container = importantEventRef.current
       const textElement = container.firstChild
       if (textElement) {
-        textElement.style.fontSize = "100%"
+        textElement.style.fontSize = '500%'
 
-        let fontSize = 100
+        let fontSize = 500
         while (
           (textElement.offsetWidth > container.offsetWidth * 0.9 ||
-            textElement.offsetHeight > container.offsetHeight * 0.9) &&
-          fontSize > 10
-        ) {
-          fontSize -= 5
-          textElement.style.fontSize = `${fontSize}%`
-        }
+          textElement.offsetHeight > container.offsetHeight * 0.9) &&
+        fontSize > 10
+      ) {
+        fontSize -= 10
+        textElement.style.fontSize = `${fontSize}%`
       }
     }
   }
@@ -498,7 +496,7 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
           font-weight: bold;
           width: 100%;
           text-align: left;
-          font-size: 100%;
+          font-size: 500%;
         }
 
         .server-cell {
@@ -510,19 +508,19 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
         }
 
         .server-indicator {
-          font-size: 100%;
+          font-size: 1000%;
           line-height: 1;
         }
 
         .set-cell {
           font-weight: bold;
-          font-size: 100%;
+          font-size: 800%;
           overflow: hidden;
         }
 
         .points-cell {
           font-weight: bold;
-          font-size: 100%;
+          font-size: 1000%;
           overflow: hidden;
         }
 
@@ -532,7 +530,7 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
           font-weight: bold;
           text-align: center;
           padding: 3px;
-          font-size: 100%;
+          font-size: 500%;
           max-height: 6vh;
           min-height: 3vh;
           display: flex;
