@@ -90,7 +90,7 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
       if (!textElement) return
 
       // Начинаем с большого размера шрифта
-      textElement.style.fontSize = '1000%'
+      textElement.style.fontSize = "1000%"
 
       // Постепенно уменьшаем размер шрифта, пока он не поместится
       let fontSize = 1000
@@ -111,7 +111,7 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
       const textElement = cell.firstChild
       if (!textElement) return
 
-      textElement.style.fontSize = '800%'
+      textElement.style.fontSize = "800%"
 
       let fontSize = 800
       while (
@@ -129,7 +129,7 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
       if (!cell) return
       const nameElements = cell.querySelectorAll(".player-name")
       nameElements.forEach((nameEl) => {
-        nameEl.style.fontSize = '500%'
+        nameEl.style.fontSize = "500%"
 
         let fontSize = 500
         while (nameEl.scrollWidth > nameEl.offsetWidth * 0.95 && fontSize > 10) {
@@ -146,13 +146,10 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
       const container = indicator.parentElement
       if (!container) return
 
-      indicator.style.fontSize = '1000%'
+      indicator.style.fontSize = "1000%"
 
       let fontSize = 1000
-      while (
-        (indicator.offsetWidth > container.offsetWidth * 0.9) &&
-        fontSize > 10
-      ) {
+      while (indicator.offsetWidth > container.offsetWidth * 0.9 && fontSize > 10) {
         fontSize -= 10
         indicator.style.fontSize = `${fontSize}%`
       }
@@ -163,16 +160,17 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
       const container = importantEventRef.current
       const textElement = container.firstChild
       if (textElement) {
-        textElement.style.fontSize = '500%'
+        textElement.style.fontSize = "500%"
 
         let fontSize = 500
         while (
           (textElement.offsetWidth > container.offsetWidth * 0.9 ||
-          textElement.offsetHeight > container.offsetHeight * 0.9) &&
-        fontSize > 10
-      ) {
-        fontSize -= 10
-        textElement.style.fontSize = `${fontSize}%`
+            textElement.offsetHeight > container.offsetHeight * 0.9) &&
+          fontSize > 10
+        ) {
+          fontSize -= 10
+          textElement.style.fontSize = `${fontSize}%`
+        }
       }
     }
   }
