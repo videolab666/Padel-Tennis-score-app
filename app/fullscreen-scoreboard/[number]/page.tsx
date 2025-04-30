@@ -359,13 +359,6 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
           text-align: left;
         }
 
-        .country-cell {
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
-        }
-
         .server-cell {
           display: flex;
           flex-direction: column;
@@ -374,18 +367,18 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
         }
 
         .server-indicator {
-          font-size: 5vh;
+          font-size: 15vh; /* Увеличено в 3 раза */
           line-height: 1;
         }
 
         .set-cell {
           font-weight: bold;
-          font-size: 7.5vh; /* Увеличено в 1.5 раза */
+          font-size: 10vh; /* Увеличено в 2 раза */
         }
 
         .points-cell {
           font-weight: bold;
-          font-size: 16vh; /* Увеличено в 2 раза */
+          font-size: 32vh; /* Увеличено в 4 раза (2 раза от предыдущего увеличенного) */
         }
 
         .important-event {
@@ -399,21 +392,22 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
           display: flex;
           align-items: center;
           justify-content: center;
+          transition: opacity 0.5s ease; /* Добавлен плавный переход */
         }
 
         /* Responsive font sizes */
         @media (max-width: 768px) {
           .player-name {
-            font-size: 3vh;
+            font-size: 6vh; /* Увеличено в 2 раза */
           }
           .server-indicator {
-            font-size: 4vh;
+            font-size: 12vh; /* Увеличено в 3 раза */
           }
           .set-cell {
-            font-size: 6vh; /* Увеличено в 1.5 раза */
+            font-size: 8vh; /* Увеличено в 2 раза */
           }
           .points-cell {
-            font-size: 12vh; /* Увеличено в 2 раза */
+            font-size: 24vh; /* Увеличено в 4 раза (2 раза от предыдущего увеличенного) */
           }
           .important-event {
             font-size: 3vh;
@@ -422,16 +416,16 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
 
         @media (min-width: 769px) and (max-width: 1200px) {
           .player-name {
-            font-size: 4vh;
+            font-size: 8vh; /* Увеличено в 2 раза */
           }
           .server-indicator {
-            font-size: 5vh;
+            font-size: 15vh; /* Увеличено в 3 раза */
           }
           .set-cell {
-            font-size: 7.5vh; /* Увеличено в 1.5 раза */
+            font-size: 10vh; /* Увеличено в 2 раза */
           }
           .points-cell {
-            font-size: 14vh; /* Увеличено в 2 раза */
+            font-size: 28vh; /* Увеличено в 4 раза (2 раза от предыдущего увеличенного) */
           }
           .important-event {
             font-size: 3.5vh;
@@ -440,16 +434,16 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
 
         @media (min-width: 1201px) {
           .player-name {
-            font-size: 5vh;
+            font-size: 10vh; /* Увеличено в 2 раза */
           }
           .server-indicator {
-            font-size: 6vh;
+            font-size: 18vh; /* Увеличено в 3 раза */
           }
           .set-cell {
-            font-size: 9vh; /* Увеличено в 1.5 раза */
+            font-size: 12vh; /* Увеличено в 2 раза */
           }
           .points-cell {
-            font-size: 18vh; /* Увеличено в 2 раза */
+            font-size: 36vh; /* Увеличено в 4 раза (2 раза от предыдущего увеличенного) */
           }
           .important-event {
             font-size: 4vh;
@@ -712,8 +706,10 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
           </div>
         </div>
 
-        {/* Строка важных событий */}
-        {getImportantEvent() && <div className="important-event">{getImportantEvent()}</div>}
+        {/* Строка важных событий - всегда видима, но прозрачна когда нет событий */}
+        <div className="important-event" style={{ opacity: getImportantEvent() ? 1 : 0 }}>
+          {getImportantEvent() || "ИГРА"}
+        </div>
       </div>
     </>
   )
