@@ -468,6 +468,13 @@ export default function CourtVmixPage({ params }: CourtParams) {
           if (settings.animationDuration !== undefined)
             newParams.set("animationDuration", settings.animationDuration.toString())
 
+          // Проверяем, что параметры индикатора подач правильно добавляются в URL
+          if (settings.serveBgColor) newParams.set("serveBgColor", settings.serveBgColor.replace("#", ""))
+          if (settings.serveGradient !== undefined) newParams.set("serveGradient", settings.serveGradient.toString())
+          if (settings.serveGradientFrom)
+            newParams.set("serveGradientFrom", settings.serveGradientFrom.replace("#", ""))
+          if (settings.serveGradientTo) newParams.set("serveGradientTo", settings.serveGradientTo.replace("#", ""))
+
           const newUrl = `${window.location.pathname}?${newParams.toString()}`
           window.history.replaceState({}, "", newUrl)
         }
@@ -482,16 +489,16 @@ export default function CourtVmixPage({ params }: CourtParams) {
     console.log("Параметры отображения корта:", {
       theme,
       namesBgColor,
-      countryBgColor, // Новый параметр
+      countryBgColor,
       pointsBgColor,
       setsBgColor,
       setsTextColor,
       namesGradient,
       namesGradientFrom,
       namesGradientTo,
-      countryGradient, // Новый параметр
-      countryGradientFrom, // Новый параметр
-      countryGradientTo, // Новый параметр
+      countryGradient,
+      countryGradientFrom,
+      countryGradientTo,
       pointsGradient,
       pointsGradientFrom,
       pointsGradientTo,
@@ -503,20 +510,25 @@ export default function CourtVmixPage({ params }: CourtParams) {
       indicatorGradient,
       indicatorGradientFrom,
       indicatorGradientTo,
+      // Добавляем параметры индикатора подач для отладки
+      serveBgColor,
+      serveGradient,
+      serveGradientFrom,
+      serveGradientTo,
     })
   }, [
     theme,
     namesBgColor,
-    countryBgColor, // Новый параметр
+    countryBgColor,
     pointsBgColor,
     setsBgColor,
     setsTextColor,
     namesGradient,
     namesGradientFrom,
     namesGradientTo,
-    countryGradient, // Новый параметр
-    countryGradientFrom, // Новый параметр
-    countryGradientTo, // Новый параметр
+    countryGradient,
+    countryGradientFrom,
+    countryGradientTo,
     pointsGradient,
     pointsGradientFrom,
     pointsGradientTo,
@@ -528,6 +540,11 @@ export default function CourtVmixPage({ params }: CourtParams) {
     indicatorGradient,
     indicatorGradientFrom,
     indicatorGradientTo,
+    // Добавляем параметры индикатора подач в зависимость
+    serveBgColor,
+    serveGradient,
+    serveGradientFrom,
+    serveGradientTo,
   ])
 
   useEffect(() => {
@@ -667,7 +684,7 @@ export default function CourtVmixPage({ params }: CourtParams) {
                         ? updatedMatch.score.currentSet.currentGame.teamB
                         : getTennisPointName(updatedMatch.score.currentSet.currentGame.teamB)
                       : "0",
-                    sets: updatedMatch.score.sets ? updatedMatch.score.sets.map((set) => set.teamB) : [],
+                    sets: updatedMatch.score.sets ? matchData.score.sets.map((set) => set.teamB) : [],
                     currentSet: updatedMatch.score.currentSet ? updatedMatch.score.currentSet.teamB : 0,
                     serving: updatedMatch.currentServer && updatedMatch.currentServer.team === "teamB",
                     countries: updatedMatch.teamB.players.map((p) => p.country || "").filter(Boolean),

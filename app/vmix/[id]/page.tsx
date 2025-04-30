@@ -466,6 +466,13 @@ export default function VmixPage({ params }: MatchParams) {
           if (settings.animationDuration !== undefined)
             newParams.set("animationDuration", settings.animationDuration.toString())
 
+          // Добавляем параметры для индикатора подач
+          if (settings.serveBgColor) newParams.set("serveBgColor", settings.serveBgColor.replace("#", ""))
+          if (settings.serveGradient !== undefined) newParams.set("serveGradient", settings.serveGradient.toString())
+          if (settings.serveGradientFrom)
+            newParams.set("serveGradientFrom", settings.serveGradientFrom.replace("#", ""))
+          if (settings.serveGradientTo) newParams.set("serveGradientTo", settings.serveGradientTo.replace("#", ""))
+
           const newUrl = `${window.location.pathname}?${newParams.toString()}`
           window.history.replaceState({}, "", newUrl)
         }
@@ -480,16 +487,16 @@ export default function VmixPage({ params }: MatchParams) {
     console.log("Параметры отображения:", {
       theme,
       namesBgColor,
-      countryBgColor, // Новый параметр
+      countryBgColor,
       pointsBgColor,
       setsBgColor,
       setsTextColor,
       namesGradient,
       namesGradientFrom,
       namesGradientTo,
-      countryGradient, // Новый параметр
-      countryGradientFrom, // Новый параметр
-      countryGradientTo, // Новый параметр
+      countryGradient,
+      countryGradientFrom,
+      countryGradientTo,
       pointsGradient,
       pointsGradientFrom,
       pointsGradientTo,
@@ -501,20 +508,25 @@ export default function VmixPage({ params }: MatchParams) {
       indicatorGradient,
       indicatorGradientFrom,
       indicatorGradientTo,
+      // Добавляем параметры индикатора подач для отладки
+      serveBgColor,
+      serveGradient,
+      serveGradientFrom,
+      serveGradientTo,
     })
   }, [
     theme,
     namesBgColor,
-    countryBgColor, // Новый параметр
+    countryBgColor,
     pointsBgColor,
     setsBgColor,
     setsTextColor,
     namesGradient,
     namesGradientFrom,
     namesGradientTo,
-    countryGradient, // Новый параметр
-    countryGradientFrom, // Новый параметр
-    countryGradientTo, // Новый параметр
+    countryGradient,
+    countryGradientFrom,
+    countryGradientTo,
     pointsGradient,
     pointsGradientFrom,
     pointsGradientTo,
@@ -526,6 +538,11 @@ export default function VmixPage({ params }: MatchParams) {
     indicatorGradient,
     indicatorGradientFrom,
     indicatorGradientTo,
+    // Добавляем параметры индикатора подач в зависимости
+    serveBgColor,
+    serveGradient,
+    serveGradientFrom,
+    serveGradientTo,
   ])
 
   useEffect(() => {

@@ -1,189 +1,98 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import Link from "next/link"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { getOccupiedCourts, MAX_COURTS, getMatchByCourtNumber } from "@/lib/court-utils"
-import { Loader2, ExternalLink, Tv2, FileJson, Copy } from "lucide-react"
-import { toast } from "@/components/ui/use-toast"
+import { Loader2, RefreshCw } from "lucide-react"
+import { getOccupiedCourts, MAX_COURTS } from "@/lib/court-utils"
+import { VmixButton } from "@/components/vmix-button"
+import { FullscreenButton } from "@/components/fullscreen-button"
+import { logEvent } from "@/lib/error-logger"
 
 export function CourtsList() {
-  const [occupiedCourts, setOccupiedCourts] = useState<Record<number, any>>({})
+  const [occupiedCourts, setOccupiedCourts] = useState<number[]>([])
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [refreshing, setRefreshing] = useState(false)
 
-  const loadCourtsStatus = async () => {
+  // Загрузка списка занятых кортов
+  const loadOccupiedCourts = async () => {
     try {
       setLoading(true)
-      // Получаем список занятых кортов
       const courts = await getOccupiedCourts()
-
-      // Если список пуст, просто завершаем загрузку
-      if (!courts || courts.length === 0) {
-        setOccupiedCourts({})
-        setLoading(false)
-        return
-      }
-
-      // Для каждого занятого корта получаем информацию о матче
-      const courtsInfo: Record<number, any> = {}
-      for (const courtNumber of courts) {
-        try {
-          const match = await getMatchByCourtNumber(courtNumber)
-          if (match) {
-            courtsInfo[courtNumber] = match
-          }
-        } catch (matchError) {
-          console.error(`Ошибка при загрузке матча для корта ${courtNumber}:`, matchError)
-          // Продолжаем с другими кортами
-        }
-      }
-
-      setOccupiedCourts(courtsInfo)
+      setOccupiedCourts(courts)
+      logEvent("info", "Список занятых кортов загружен", "courts-list", { courts })
     } catch (error) {
-      console.error("Ошибка при загрузке статуса кортов:", error)
-      toast({
-        title: "Ошибка соединения",
-        description: "Не удалось загрузить статус кортов. Проверьте соединение с интернетом.",
-        variant: "destructive",
-      })
+      console.error("Ошибка при загрузке занятых кортов:", error)
+      logEvent("error", "Ошибка при загрузке занятых кортов", "courts-list", error)
     } finally {
       setLoading(false)
     }
   }
 
-  useEffect(() => {
-    loadCourtsStatus()
-
-    // Обновляем статус кортов каждые 30 секунд
-    const interval = setInterval(loadCourtsStatus, 30000)
-
-    return () => clearInterval(interval)
-  }, [])
-
-  const handleCopyJsonUrl = async (courtNumber: number) => {
+  // Обновление списка кортов
+  const handleRefresh = async () => {
     try {
-      const jsonUrl = `${window.location.origin}/api/court/${courtNumber}`
-      await navigator.clipboard.writeText(jsonUrl)
-      toast({
-        title: "URL скопирован",
-        description: `URL для JSON API корта ${courtNumber} скопирован в буфер обмена`,
-      })
-    } catch (error) {
-      toast({
-        title: "Ошибка",
-        description: "Не удалось скопировать URL",
-        variant: "destructive",
-      })
+      setRefreshing(true)
+      await loadOccupiedCourts()
+    } finally {
+      setRefreshing(false)
     }
   }
 
-  if (loading) {
-    return (
-      <div className="text-center py-4 text-muted-foreground">
-        <Loader2 className="h-6 w-6 animate-spin mx-auto mb-2" />
-        Загрузка статуса кортов...
-      </div>
-    )
-  }
+  // Загрузка при монтировании компонента
+  useEffect(() => {
+    loadOccupiedCourts()
+  }, [])
 
-  if (error) {
-    return (
-      <div className="text-center py-4 text-destructive">
-        <p className="mb-2">{error}</p>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => {
-            setError(null)
-            loadCourtsStatus()
-          }}
-        >
-          Повторить попытку
-        </Button>
-      </div>
-    )
+  // Проверка, занят ли корт
+  const isCourtOccupied = (courtNumber) => {
+    return occupiedCourts.includes(courtNumber)
   }
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Статус кортов</CardTitle>
-        <CardDescription>Текущие матчи на кортах</CardDescription>
+      <CardHeader className="flex flex-row items-center justify-between pb-2">
+        <div>
+          <CardTitle>Статус кортов</CardTitle>
+          <CardDescription>Информация о занятых кортах</CardDescription>
+        </div>
+        <Button variant="outline" size="sm" onClick={handleRefresh} disabled={refreshing}>
+          {refreshing ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+          <span className="sr-only">Обновить</span>
+        </Button>
       </CardHeader>
       <CardContent>
-        {/* Изменяем расположение кортов для десктопной версии */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {Array.from({ length: MAX_COURTS }, (_, i) => i + 1).map((courtNumber) => {
-            const match = occupiedCourts[courtNumber]
-
-            return (
-              <Card key={courtNumber} className={`${match ? "border-blue-300" : ""}`}>
-                <CardContent className="p-4">
-                  <div className="flex justify-between items-center mb-3">
-                    <Badge variant={match ? "default" : "outline"} className="mb-0">
-                      Корт {courtNumber}
-                    </Badge>
-                    <Badge
-                      variant={match ? "default" : "outline"}
-                      className={match ? "bg-blue-100 text-blue-800" : "bg-green-100 text-green-800"}
-                    >
-                      {match ? "Занят" : "Свободен"}
-                    </Badge>
-                  </div>
-
-                  {match ? (
-                    <div className="mb-3">
-                      <div className="text-sm font-medium">{match.teamA.players.map((p) => p.name).join(" / ")}</div>
-                      <div className="text-xs text-muted-foreground">vs</div>
-                      <div className="text-sm font-medium">{match.teamB.players.map((p) => p.name).join(" / ")}</div>
-                      <div className="text-lg font-bold mt-1 text-center">
-                        {match.score.teamA} - {match.score.teamB}
+        {loading ? (
+          <div className="flex justify-center py-4">
+            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+            {Array.from({ length: MAX_COURTS }, (_, i) => i + 1).map((courtNumber) => {
+              const occupied = isCourtOccupied(courtNumber)
+              return (
+                <div
+                  key={courtNumber}
+                  className={`p-3 rounded-lg border ${
+                    occupied ? "bg-green-50 border-green-200" : "bg-gray-50 border-gray-200"
+                  }`}
+                >
+                  <div className="flex flex-col items-center gap-2">
+                    <div className="text-lg font-medium">Корт {courtNumber}</div>
+                    <Badge variant={occupied ? "success" : "outline"}>{occupied ? "Занят" : "Свободен"}</Badge>
+                    {occupied && (
+                      <div className="flex flex-col gap-1 w-full mt-1">
+                        <VmixButton courtNumber={courtNumber} directLink={true} size="sm" className="w-full" />
+                        <FullscreenButton courtNumber={courtNumber} size="sm" className="w-full" />
                       </div>
-                    </div>
-                  ) : (
-                    <div className="text-center text-muted-foreground text-sm mb-3">Нет активных матчей</div>
-                  )}
-
-                  <div className="grid grid-cols-2 gap-2">
-                    <Link href={`/court/${courtNumber}`} passHref>
-                      <Button variant="outline" size="sm" className="w-full">
-                        <ExternalLink className="h-3.5 w-3.5 mr-1" />
-                        Счет
-                      </Button>
-                    </Link>
-                    <Link href={`/court-vmix/${courtNumber}`} target="_blank" passHref>
-                      <Button variant="outline" size="sm" className="w-full">
-                        <Tv2 className="h-3.5 w-3.5 mr-1" />
-                        vMix
-                      </Button>
-                    </Link>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="w-full"
-                      onClick={() => window.open(`/api/court/${courtNumber}`, "_blank")}
-                    >
-                      <FileJson className="h-3.5 w-3.5 mr-1" />
-                      JSON
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="w-full"
-                      onClick={() => handleCopyJsonUrl(courtNumber)}
-                    >
-                      <Copy className="h-3.5 w-3.5 mr-1" />
-                      URL
-                    </Button>
+                    )}
                   </div>
-                </CardContent>
-              </Card>
-            )
-          })}
-        </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
       </CardContent>
     </Card>
   )
