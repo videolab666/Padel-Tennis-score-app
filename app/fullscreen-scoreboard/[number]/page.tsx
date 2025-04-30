@@ -33,6 +33,13 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
   const [error, setError] = useState("")
   const searchParams = useSearchParams()
   const containerRef = useRef(null)
+  const scoreboardRef = useRef(null)
+  const pointsCellsRef = useRef([])
+  const setCellsRef = useRef([])
+  const nameCellsRef = useRef([])
+  const serverIndicatorsRef = useRef([])
+  const importantEventRef = useRef(null)
+
   const courtNumber = Number.parseInt(params.number)
 
   // Параметры отображения из URL
@@ -70,6 +77,107 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
   const serveGradient = searchParams.get("serveGradient") === "true"
   const serveGradientFrom = parseColorParam(searchParams.get("serveGradientFrom"), "#000000")
   const serveGradientTo = parseColorParam(searchParams.get("serveGradientTo"), "#1e1e1e")
+
+  // Функция для автоматического масштабирования текста
+  const fitTextToContainer = () => {
+    if (!match) return
+
+    // Масштабирование текста в ячейках счета
+    pointsCellsRef.current.forEach((cell) => {
+      if (!cell) return
+      const container = cell
+      const textElement = cell.firstChild
+      if (!textElement) return
+
+      // Сбрасываем размер шрифта
+      textElement.style.fontSize = "100%"
+
+      // Постепенно уменьшаем размер шрифта, пока он не поместится
+      let fontSize = 100
+      while (
+        (textElement.offsetWidth > container.offsetWidth * 0.9 ||
+          textElement.offsetHeight > container.offsetHeight * 0.9) &&
+        fontSize > 10
+      ) {
+        fontSize -= 5
+        textElement.style.fontSize = `${fontSize}%`
+      }
+    })
+
+    // Масштабирование текста в ячейках сетов
+    setCellsRef.current.forEach((cell) => {
+      if (!cell) return
+      const container = cell
+      const textElement = cell.firstChild
+      if (!textElement) return
+
+      textElement.style.fontSize = "100%"
+
+      let fontSize = 100
+      while (
+        (textElement.offsetWidth > container.offsetWidth * 0.9 ||
+          textElement.offsetHeight > container.offsetHeight * 0.9) &&
+        fontSize > 10
+      ) {
+        fontSize -= 5
+        textElement.style.fontSize = `${fontSize}%`
+      }
+    })
+
+    // Масштабирование имен игроков
+    nameCellsRef.current.forEach((cell) => {
+      if (!cell) return
+      const nameElements = cell.querySelectorAll(".player-name")
+      nameElements.forEach((nameEl) => {
+        nameEl.style.fontSize = "100%"
+
+        let fontSize = 100
+        while (nameEl.scrollWidth > nameEl.offsetWidth && fontSize > 10) {
+          fontSize -= 5
+          nameEl.style.fontSize = `${fontSize}%`
+        }
+      })
+    })
+
+    // Масштабирование индикаторов подачи
+    serverIndicatorsRef.current.forEach((indicator) => {
+      if (!indicator || indicator.style.visibility === "hidden") return
+
+      const container = indicator.parentElement
+      if (!container) return
+
+      indicator.style.fontSize = "100%"
+
+      let fontSize = 100
+      while (
+        (indicator.offsetWidth > container.offsetWidth * 0.9 ||
+          indicator.offsetHeight > container.offsetHeight * 0.9) &&
+        fontSize > 10
+      ) {
+        fontSize -= 5
+        indicator.style.fontSize = `${fontSize}%`
+      }
+    })
+
+    // Масштабирование строки важных событий
+    if (importantEventRef.current) {
+      const container = importantEventRef.current
+      const textElement = container.firstChild
+      if (textElement) {
+        textElement.style.fontSize = "100%"
+
+        let fontSize = 100
+        while (
+          (textElement.offsetWidth > container.offsetWidth * 0.9 ||
+            textElement.offsetHeight > container.offsetHeight * 0.9) &&
+          fontSize > 10
+        ) {
+          fontSize -= 5
+          textElement.style.fontSize = `${fontSize}%`
+        }
+      }
+    }
+  }
 
   // Загрузка матча
   useEffect(() => {
@@ -139,6 +247,29 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
 
     loadMatch()
   }, [courtNumber])
+
+  // Эффект для масштабирования текста при изменении размера окна или данных матча
+  useEffect(() => {
+    if (!match) return
+
+    // Инициализация масштабирования после рендеринга
+    const timer = setTimeout(() => {
+      fitTextToContainer()
+    }, 100)
+
+    // Обработчик изменения размера окна
+    const handleResize = () => {
+      fitTextToContainer()
+    }
+
+    window.addEventListener("resize", handleResize)
+
+    // Очистка
+    return () => {
+      clearTimeout(timer)
+      window.removeEventListener("resize", handleResize)
+    }
+  }, [match])
 
   // Получаем текущий счет в виде строки (0, 15, 30, 40, Ad)
   const getCurrentGameScore = (team) => {
@@ -284,6 +415,12 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
 
   const tiebreakScores = getTiebreakScores()
 
+  // Сбрасываем ссылки на элементы
+  pointsCellsRef.current = []
+  setCellsRef.current = []
+  nameCellsRef.current = []
+  serverIndicatorsRef.current = []
+
   return (
     <>
       <style jsx global>{`
@@ -318,6 +455,7 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
           color: white;
           border-bottom: 1px solid #333;
           max-height: 5vh;
+          min-height: 2vh;
         }
 
         .scoreboard {
@@ -326,6 +464,7 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
           height: 100%;
           width: 100%;
           gap: 3px;
+          overflow: hidden;
         }
 
         .team-row {
@@ -333,6 +472,7 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
           grid-template-columns: ${showNames ? "5fr " : ""}${showCountry ? "1fr " : ""}${showServer ? "0.5fr " : ""}${showSets ? `repeat(${(match.score.sets?.length || 0) + (match.score.currentSet ? 1 : 0)}, 1fr) ` : ""}${showPoints ? "1.5fr" : ""};
           height: 100%;
           gap: 3px;
+          overflow: hidden;
         }
 
         .cell {
@@ -348,6 +488,7 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
           flex-direction: column;
           justify-content: center;
           padding: 3px;
+          overflow: hidden;
         }
 
         .player-name {
@@ -357,6 +498,7 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
           font-weight: bold;
           width: 100%;
           text-align: left;
+          font-size: 100%;
         }
 
         .server-cell {
@@ -364,21 +506,24 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
           flex-direction: column;
           justify-content: space-around;
           align-items: center;
+          overflow: hidden;
         }
 
         .server-indicator {
-          font-size: 15vh; /* Увеличено в 3 раза */
+          font-size: 100%;
           line-height: 1;
         }
 
         .set-cell {
           font-weight: bold;
-          font-size: 10vh; /* Увеличено в 2 раза */
+          font-size: 100%;
+          overflow: hidden;
         }
 
         .points-cell {
           font-weight: bold;
-          font-size: 32vh; /* Увеличено в 4 раза (2 раза от предыдущего увеличенного) */
+          font-size: 100%;
+          overflow: hidden;
         }
 
         .important-event {
@@ -387,67 +532,21 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
           font-weight: bold;
           text-align: center;
           padding: 3px;
-          font-size: 4vh;
+          font-size: 100%;
           max-height: 6vh;
+          min-height: 3vh;
           display: flex;
           align-items: center;
           justify-content: center;
-          transition: opacity 0.5s ease; /* Добавлен плавный переход */
+          transition: opacity 0.5s ease;
+          overflow: hidden;
         }
 
-        /* Responsive font sizes */
-        @media (max-width: 768px) {
-          .player-name {
-            font-size: 6vh; /* Увеличено в 2 раза */
-          }
-          .server-indicator {
-            font-size: 12vh; /* Увеличено в 3 раза */
-          }
-          .set-cell {
-            font-size: 8vh; /* Увеличено в 2 раза */
-          }
-          .points-cell {
-            font-size: 24vh; /* Увеличено в 4 раза (2 раза от предыдущего увеличенного) */
-          }
-          .important-event {
-            font-size: 3vh;
-          }
-        }
-
-        @media (min-width: 769px) and (max-width: 1200px) {
-          .player-name {
-            font-size: 8vh; /* Увеличено в 2 раза */
-          }
-          .server-indicator {
-            font-size: 15vh; /* Увеличено в 3 раза */
-          }
-          .set-cell {
-            font-size: 10vh; /* Увеличено в 2 раза */
-          }
-          .points-cell {
-            font-size: 28vh; /* Увеличено в 4 раза (2 раза от предыдущего увеличенного) */
-          }
-          .important-event {
-            font-size: 3.5vh;
-          }
-        }
-
-        @media (min-width: 1201px) {
-          .player-name {
-            font-size: 10vh; /* Увеличено в 2 раза */
-          }
-          .server-indicator {
-            font-size: 18vh; /* Увеличено в 3 раза */
-          }
-          .set-cell {
-            font-size: 12vh; /* Увеличено в 2 раза */
-          }
-          .points-cell {
-            font-size: 36vh; /* Увеличено в 4 раза (2 раза от предыдущего увеличенного) */
-          }
-          .important-event {
-            font-size: 4vh;
-          }
+        .fit-text {
+          display: inline-block;
+          white-space: nowrap;
+          max-width: 100%;
+          max-height: 100%;
         }
       `}</style>
 
@@ -462,12 +561,13 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
           </div>
         </div>
 
-        <div className="scoreboard">
+        <div className="scoreboard" ref={scoreboardRef}>
           {/* Команда A */}
           <div className="team-row">
             {showNames && (
               <div
                 className="cell names-cell"
+                ref={(el) => nameCellsRef.current.push(el)}
                 style={{
                   color: theme === "transparent" ? textColor : "white",
                   ...(theme === "transparent"
@@ -524,6 +624,7 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
                   <div
                     key={idx}
                     className="server-indicator"
+                    ref={(el) => serverIndicatorsRef.current.push(el)}
                     style={{ visibility: isServing("teamA", idx) ? "visible" : "hidden" }}
                   >
                     •
@@ -538,6 +639,7 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
                 <div
                   key={idx}
                   className="cell set-cell"
+                  ref={(el) => setCellsRef.current.push(el)}
                   style={{
                     ...(theme === "transparent"
                       ? { background: "transparent" }
@@ -547,13 +649,16 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
                     color: theme === "transparent" ? textColor : setsTextColor,
                   }}
                 >
-                  {tiebreakScores[idx] ? formatSetScore(set.teamA, tiebreakScores[idx].teamA) : set.teamA}
+                  <div className="fit-text">
+                    {tiebreakScores[idx] ? formatSetScore(set.teamA, tiebreakScores[idx].teamA) : set.teamA}
+                  </div>
                 </div>
               ))}
 
             {showSets && match.score.currentSet && (
               <div
                 className="cell set-cell"
+                ref={(el) => setCellsRef.current.push(el)}
                 style={{
                   ...(theme === "transparent"
                     ? { background: "transparent" }
@@ -563,13 +668,14 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
                   color: theme === "transparent" ? textColor : setsTextColor,
                 }}
               >
-                {match.score.currentSet.teamA}
+                <div className="fit-text">{match.score.currentSet.teamA}</div>
               </div>
             )}
 
             {showPoints && match.score.currentSet && (
               <div
                 className="cell points-cell"
+                ref={(el) => pointsCellsRef.current.push(el)}
                 style={{
                   color: theme === "transparent" ? textColor : "white",
                   ...(theme === "transparent"
@@ -579,7 +685,7 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
                       : { background: pointsBgColor }),
                 }}
               >
-                {getCurrentGameScore("teamA")}
+                <div className="fit-text">{getCurrentGameScore("teamA")}</div>
               </div>
             )}
           </div>
@@ -589,6 +695,7 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
             {showNames && (
               <div
                 className="cell names-cell"
+                ref={(el) => nameCellsRef.current.push(el)}
                 style={{
                   color: theme === "transparent" ? textColor : "white",
                   ...(theme === "transparent"
@@ -645,6 +752,7 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
                   <div
                     key={idx}
                     className="server-indicator"
+                    ref={(el) => serverIndicatorsRef.current.push(el)}
                     style={{ visibility: isServing("teamB", idx) ? "visible" : "hidden" }}
                   >
                     •
@@ -659,6 +767,7 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
                 <div
                   key={idx}
                   className="cell set-cell"
+                  ref={(el) => setCellsRef.current.push(el)}
                   style={{
                     ...(theme === "transparent"
                       ? { background: "transparent" }
@@ -668,13 +777,16 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
                     color: theme === "transparent" ? textColor : setsTextColor,
                   }}
                 >
-                  {tiebreakScores[idx] ? formatSetScore(set.teamB, tiebreakScores[idx].teamB) : set.teamB}
+                  <div className="fit-text">
+                    {tiebreakScores[idx] ? formatSetScore(set.teamB, tiebreakScores[idx].teamB) : set.teamB}
+                  </div>
                 </div>
               ))}
 
             {showSets && match.score.currentSet && (
               <div
                 className="cell set-cell"
+                ref={(el) => setCellsRef.current.push(el)}
                 style={{
                   ...(theme === "transparent"
                     ? { background: "transparent" }
@@ -684,13 +796,14 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
                   color: theme === "transparent" ? textColor : setsTextColor,
                 }}
               >
-                {match.score.currentSet.teamB}
+                <div className="fit-text">{match.score.currentSet.teamB}</div>
               </div>
             )}
 
             {showPoints && match.score.currentSet && (
               <div
                 className="cell points-cell"
+                ref={(el) => pointsCellsRef.current.push(el)}
                 style={{
                   color: theme === "transparent" ? textColor : "white",
                   ...(theme === "transparent"
@@ -700,15 +813,15 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
                       : { background: pointsBgColor }),
                 }}
               >
-                {getCurrentGameScore("teamB")}
+                <div className="fit-text">{getCurrentGameScore("teamB")}</div>
               </div>
             )}
           </div>
         </div>
 
         {/* Строка важных событий - всегда видима, но прозрачна когда нет событий */}
-        <div className="important-event" style={{ opacity: getImportantEvent() ? 1 : 0 }}>
-          {getImportantEvent() || "ИГРА"}
+        <div className="important-event" ref={importantEventRef} style={{ opacity: getImportantEvent() ? 1 : 0 }}>
+          <div className="fit-text">{getImportantEvent() || "ИГРА"}</div>
         </div>
       </div>
     </>
