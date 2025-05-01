@@ -325,14 +325,14 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
           grid-template-rows: 1fr 1fr;
           height: 100%;
           width: 100%;
-          gap: 3px;
+          gap: 2px;
         }
 
         .team-row {
           display: grid;
           grid-template-columns: ${showNames ? "5fr " : ""}${showCountry ? "1fr " : ""}${showServer ? "0.5fr " : ""}${showSets ? `repeat(${(match.score.sets?.length || 0) + (match.score.currentSet ? 1 : 0)}, 1fr) ` : ""}${showPoints ? "1.5fr" : ""};
           height: 100%;
-          gap: 3px;
+          gap: 2px;
         }
 
         .cell {
@@ -341,6 +341,7 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
           justify-content: center;
           overflow: hidden;
           position: relative;
+          padding: 0;
         }
 
         .player-name-container {
@@ -349,13 +350,19 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
           display: flex;
           flex-direction: column;
           justify-content: center;
+          position: relative;
+          z-index: 1;
         }
 
         .player-divider {
           height: 1px;
           background-color: rgba(192, 192, 192, 0.5);
           width: 100%;
-          margin: 2px 0;
+          position: absolute;
+          left: 0;
+          top: 50%;
+          transform: translateY(-50%);
+          margin: 0;
         }
 
         .names-cell {
@@ -364,6 +371,7 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
           justify-content: space-around;
           padding: 3px;
           height: 100%;
+          position: relative;
         }
 
         .player-name {
@@ -373,7 +381,7 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
           font-weight: bold;
           width: 100%;
           text-align: left;
-          font-size: clamp(1vh, 5vh, 10vh); /* Автоматическое масштабирование шрифта если не помещается */
+          font-size: clamp(1.9vh, 9.5vh, 19vh); /* Увеличено в 1.9 раза */
           line-height: 1.1;
           display: -webkit-box;
           -webkit-line-clamp: ${match.format === "doubles" ? "2" : "3"}; /* Ограничение количества строк */
@@ -385,11 +393,15 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
           flex-direction: column;
           justify-content: space-around;
           align-items: center;
+          padding: 0;
+          margin: 0;
         }
 
         .server-indicator {
           font-size: 15vh; /* Увеличено в 3 раза */
           line-height: 1;
+          padding: 0;
+          margin: 0;
         }
 
         .set-cell {
@@ -500,11 +512,9 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
                     <div className="player-name" title={player.name}>
                       {player.name}
                     </div>
-                    {idx < match.teamA.players.length - 1 && match.format === "doubles" && (
-                      <div className="player-divider"></div>
-                    )}
                   </div>
                 ))}
+                {match.format === "doubles" && <div className="player-divider"></div>}
               </div>
             )}
 
@@ -602,7 +612,18 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
                       : { background: pointsBgColor }),
                 }}
               >
-                <span style={{ width: "100%", textAlign: "center" }}>{getCurrentGameScore("teamA")}</span>
+                <span
+                  style={{
+                    width: "100%",
+                    textAlign: "center",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    height: "100%",
+                  }}
+                >
+                  {getCurrentGameScore("teamA")}
+                </span>
               </div>
             )}
           </div>
@@ -626,11 +647,9 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
                     <div className="player-name" title={player.name}>
                       {player.name}
                     </div>
-                    {idx < match.teamB.players.length - 1 && match.format === "doubles" && (
-                      <div className="player-divider"></div>
-                    )}
                   </div>
                 ))}
+                {match.format === "doubles" && <div className="player-divider"></div>}
               </div>
             )}
 
@@ -728,7 +747,18 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
                       : { background: pointsBgColor }),
                 }}
               >
-                <span style={{ width: "100%", textAlign: "center" }}>{getCurrentGameScore("teamB")}</span>
+                <span
+                  style={{
+                    width: "100%",
+                    textAlign: "center",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    height: "100%",
+                  }}
+                >
+                  {getCurrentGameScore("teamB")}
+                </span>
               </div>
             )}
           </div>
