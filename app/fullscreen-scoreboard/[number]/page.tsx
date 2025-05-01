@@ -345,8 +345,10 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
 
         .player-name-container {
           width: 100%;
+          height: ${match.format === "doubles" ? "50%" : "100%"};
           display: flex;
           flex-direction: column;
+          justify-content: center;
         }
 
         .player-divider {
@@ -365,20 +367,17 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
         }
 
         .player-name {
-          white-space: nowrap;
+          white-space: normal;
           overflow: hidden;
-          text-overflow: ellipsis;
+          word-wrap: break-word;
           font-weight: bold;
           width: 100%;
           text-align: left;
-          font-size: clamp(1vh, 5vh, 10vh); /* Автоматическое масштабирование шрифта */
-        }
-
-        .player-divider {
-          height: 1px;
-          background-color: rgba(192, 192, 192, 0.5);
-          width: 100%;
-          margin: 2px 0;
+          font-size: clamp(1vh, 5vh, 10vh); /* Автоматическое масштабирование шрифта если не помещается */
+          line-height: 1.1;
+          display: -webkit-box;
+          -webkit-line-clamp: ${match.format === "doubles" ? "2" : "3"}; /* Ограничение количества строк */
+          -webkit-box-orient: vertical;
         }
 
         .server-cell {
