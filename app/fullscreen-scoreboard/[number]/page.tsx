@@ -6,6 +6,7 @@ import { getMatchByCourtNumber } from "@/lib/court-utils"
 import { getTennisPointName } from "@/lib/tennis-utils"
 import { logEvent } from "@/lib/error-logger"
 import { subscribeToMatchUpdates } from "@/lib/match-storage"
+import { Maximize2, Minimize2 } from "lucide-react"
 
 type FullscreenScoreboardParams = {
   params: {
@@ -31,6 +32,7 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
   const [match, setMatch] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
+  const [isFullscreen, setIsFullscreen] = useState(false)
   const searchParams = useSearchParams()
   const containerRef = useRef(null)
   const courtNumber = Number.parseInt(params.number)
@@ -70,6 +72,47 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
   const serveGradient = searchParams.get("serveGradient") === "true"
   const serveGradientFrom = parseColorParam(searchParams.get("serveGradientFrom"), "#000000")
   const serveGradientTo = parseColorParam(searchParams.get("serveGradientTo"), "#1e1e1e")
+
+  // Функция для переключения полноэкранного режима
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      // Входим в полноэкранный режим
+      if (containerRef.current?.requestFullscreen) {
+        containerRef.current
+          .requestFullscreen()
+          .then(() => {
+            setIsFullscreen(true)
+          })
+          .catch((err) => {
+            console.error(`Ошибка при переходе в полноэкранный режим: ${err.message}`)
+          })
+      }
+    } else {
+      // Выходим из полноэкранного режима
+      if (document.exitFullscreen) {
+        document
+          .exitFullscreen()
+          .then(() => {
+            setIsFullscreen(false)
+          })
+          .catch((err) => {
+            console.error(`Ошибка при выходе из полноэкранного режима: ${err.message}`)
+          })
+      }
+    }
+  }
+
+  // Слушаем изменения состояния полноэкранного режима
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement)
+    }
+
+    document.addEventListener("fullscreenchange", handleFullscreenChange)
+    return () => {
+      document.removeEventListener("fullscreenchange", handleFullscreenChange)
+    }
+  }, [])
 
   // Загрузка матча
   useEffect(() => {
@@ -320,6 +363,24 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
           max-height: 5vh;
         }
 
+        .fullscreen-button {
+          background: rgba(255, 255, 255, 0.2);
+          border: none;
+          border-radius: 4px;
+          color: white;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 4px;
+          margin-left: 10px;
+          transition: background 0.2s;
+        }
+
+        .fullscreen-button:hover {
+          background: rgba(255, 255, 255, 0.3);
+        }
+
         .scoreboard {
           display: grid;
           grid-template-rows: 1fr 1fr;
@@ -487,8 +548,17 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
             {match.type === "tennis" ? "Теннис" : "Падел"} -{" "}
             {match.format === "singles" ? "Одиночная игра" : "Парная игра"}
           </div>
-          <div className="text-xl">
-            Корт {courtNumber} - {new Date().toLocaleTimeString()}
+          <div className="flex items-center">
+            <div className="text-xl">
+              Корт {courtNumber} - {new Date().toLocaleTimeString()}
+            </div>
+            <button
+              className="fullscreen-button"
+              onClick={toggleFullscreen}
+              title={isFullscreen ? "Выйти из полноэкранного режима" : "Перейти в полноэкранный режим"}
+            >
+              {isFullscreen ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
+            </button>
           </div>
         </div>
 
@@ -620,6 +690,7 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
                     justifyContent: "center",
                     alignItems: "center",
                     height: "100%",
+                    fontSize: "0.9em", // Уменьшено на 10% от родительского размера
                   }}
                 >
                   {getCurrentGameScore("teamA")}
@@ -755,6 +826,7 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
                     justifyContent: "center",
                     alignItems: "center",
                     height: "100%",
+                    fontSize: "0.9em", // Уменьшено на 10% от родительского размера
                   }}
                 >
                   {getCurrentGameScore("teamB")}
