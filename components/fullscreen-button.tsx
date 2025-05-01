@@ -96,6 +96,7 @@ const generateFullscreenUrl = (courtNumber, settings) => {
 export function FullscreenButton({ courtNumber, className = "", size = "default" }: FullscreenButtonProps) {
   const router = useRouter()
 
+  // Изменяем функцию handleClick, чтобы она переходила в текущем окне вместо открытия нового
   const handleClick = () => {
     if (!courtNumber) return
 
@@ -105,8 +106,8 @@ export function FullscreenButton({ courtNumber, className = "", size = "default"
     // Генерируем URL с настройками
     const url = generateFullscreenUrl(courtNumber, settings)
 
-    // Открываем в новом окне
-    window.open(url, "_blank")
+    // Переходим в текущем окне вместо открытия нового
+    router.push(url)
   }
 
   if (!courtNumber) return null
