@@ -330,7 +330,7 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
 
         .team-row {
           display: grid;
-          grid-template-columns: ${showNames ? "5fr " : ""}${showCountry ? "1fr " : ""}${showServer ? "0.5fr " : ""}${showSets ? `repeat(${(match.score.sets?.length || 0) + (match.score.currentSet ? 1 : 0)}, 1fr) ` : ""}${showPoints ? "1.5fr" : ""};
+          grid-template-columns: ${showNames ? "5fr " : ""}${showCountry ? "1fr " : ""}${showServer ? "0.5fr " : ""}${showSets ? `repeat(${(match.score.sets?.length || 0) + (match.score.currentSet ? 1 : 0)}, 0.7fr) ` : ""}${showPoints ? "1.5fr" : ""};
           height: 100%;
           gap: 3px;
         }
@@ -343,20 +343,41 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
           position: relative;
         }
 
+        .player-name-container {
+          width: 100%;
+          display: flex;
+          flex-direction: column;
+        }
+
+        .player-divider {
+          height: 1px;
+          background-color: rgba(192, 192, 192, 0.5);
+          width: 100%;
+          margin: 2px 0;
+        }
+
         .names-cell {
           display: flex;
           flex-direction: column;
-          justify-content: center;
+          justify-content: space-around;
           padding: 3px;
         }
 
         .player-name {
-          white-space: nowrap;
+          white-space: normal;
           overflow: hidden;
           text-overflow: ellipsis;
           font-weight: bold;
           width: 100%;
           text-align: left;
+          word-break: break-word;
+        }
+
+        .player-divider {
+          height: 1px;
+          background-color: rgba(192, 192, 192, 0.5);
+          width: 100%;
+          margin: 2px 0;
         }
 
         .server-cell {
@@ -378,7 +399,7 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
 
         .points-cell {
           font-weight: bold;
-          font-size: 32vh; /* Увеличено в 4 раза (2 раза от предыдущего увеличенного) */
+          font-size: 19.2vh; /* Уменьшено на 40% от 32vh */
         }
 
         .important-event {
@@ -407,7 +428,7 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
             font-size: 8vh; /* Увеличено в 2 раза */
           }
           .points-cell {
-            font-size: 24vh; /* Увеличено в 4 раза (2 раза от предыдущего увеличенного) */
+            font-size: 14.4vh; /* Уменьшено на 40% от 24vh */
           }
           .important-event {
             font-size: 3vh;
@@ -425,7 +446,7 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
             font-size: 10vh; /* Увеличено в 2 раза */
           }
           .points-cell {
-            font-size: 28vh; /* Увеличено в 4 раза (2 раза от предыдущего увеличенного) */
+            font-size: 16.8vh; /* Уменьшено на 40% от 28vh */
           }
           .important-event {
             font-size: 3.5vh;
@@ -443,7 +464,7 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
             font-size: 12vh; /* Увеличено в 2 раза */
           }
           .points-cell {
-            font-size: 36vh; /* Увеличено в 4 раза (2 раза от предыдущего увеличенного) */
+            font-size: 21.6vh; /* Уменьшено на 40% от 36vh */
           }
           .important-event {
             font-size: 4vh;
@@ -478,8 +499,11 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
                 }}
               >
                 {match.teamA.players.map((player, idx) => (
-                  <div key={idx} className="player-name">
-                    {player.name}
+                  <div key={idx} className="player-name-container">
+                    <div className="player-name">{player.name}</div>
+                    {idx < match.teamA.players.length - 1 && match.format === "doubles" && (
+                      <div className="player-divider"></div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -599,8 +623,11 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
                 }}
               >
                 {match.teamB.players.map((player, idx) => (
-                  <div key={idx} className="player-name">
-                    {player.name}
+                  <div key={idx} className="player-name-container">
+                    <div className="player-name">{player.name}</div>
+                    {idx < match.teamB.players.length - 1 && match.format === "doubles" && (
+                      <div className="player-divider"></div>
+                    )}
                   </div>
                 ))}
               </div>
