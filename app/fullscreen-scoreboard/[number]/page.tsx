@@ -400,6 +400,12 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
         .points-cell {
           font-weight: bold;
           font-size: 19.2vh; /* Уменьшено на 40% от 32vh */
+          width: 100%;
+          text-align: center;
+          display: flex;
+          justify-content: space-between;
+          padding: 0 2vw; /* Добавляем отступы по бокам */
+          letter-spacing: -0.02em; /* Небольшое уменьшение расстояния между буквами */
         }
 
         .important-event {
@@ -596,7 +602,7 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
                       : { background: pointsBgColor }),
                 }}
               >
-                {getCurrentGameScore("teamA")}
+                <span style={{ width: "100%", textAlign: "center" }}>{getCurrentGameScore("teamA")}</span>
               </div>
             )}
           </div>
@@ -722,7 +728,7 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
                       : { background: pointsBgColor }),
                 }}
               >
-                {getCurrentGameScore("teamB")}
+                <span style={{ width: "100%", textAlign: "center" }}>{getCurrentGameScore("teamB")}</span>
               </div>
             )}
           </div>
