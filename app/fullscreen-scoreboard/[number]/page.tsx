@@ -330,7 +330,7 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
 
         .team-row {
           display: grid;
-          grid-template-columns: ${showNames ? "5fr " : ""}${showCountry ? "1fr " : ""}${showServer ? "0.5fr " : ""}${showSets ? `repeat(${(match.score.sets?.length || 0) + (match.score.currentSet ? 1 : 0)}, 0.7fr) ` : ""}${showPoints ? "1.5fr" : ""};
+          grid-template-columns: ${showNames ? "5fr " : ""}${showCountry ? "1fr " : ""}${showServer ? "0.5fr " : ""}${showSets ? `repeat(${(match.score.sets?.length || 0) + (match.score.currentSet ? 1 : 0)}, 1fr) ` : ""}${showPoints ? "1.5fr" : ""};
           height: 100%;
           gap: 3px;
         }
@@ -361,16 +361,17 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
           flex-direction: column;
           justify-content: space-around;
           padding: 3px;
+          height: 100%;
         }
 
         .player-name {
-          white-space: normal;
+          white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
           font-weight: bold;
           width: 100%;
           text-align: left;
-          word-break: break-word;
+          font-size: clamp(1vh, 5vh, 10vh); /* Автоматическое масштабирование шрифта */
         }
 
         .player-divider {
@@ -418,9 +419,6 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
 
         /* Responsive font sizes */
         @media (max-width: 768px) {
-          .player-name {
-            font-size: 6vh; /* Увеличено в 2 раза */
-          }
           .server-indicator {
             font-size: 12vh; /* Увеличено в 3 раза */
           }
@@ -436,9 +434,6 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
         }
 
         @media (min-width: 769px) and (max-width: 1200px) {
-          .player-name {
-            font-size: 8vh; /* Увеличено в 2 раза */
-          }
           .server-indicator {
             font-size: 15vh; /* Увеличено в 3 раза */
           }
@@ -454,9 +449,6 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
         }
 
         @media (min-width: 1201px) {
-          .player-name {
-            font-size: 10vh; /* Увеличено в 2 раза */
-          }
           .server-indicator {
             font-size: 18vh; /* Увеличено в 3 раза */
           }
@@ -500,7 +492,9 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
               >
                 {match.teamA.players.map((player, idx) => (
                   <div key={idx} className="player-name-container">
-                    <div className="player-name">{player.name}</div>
+                    <div className="player-name" title={player.name}>
+                      {player.name}
+                    </div>
                     {idx < match.teamA.players.length - 1 && match.format === "doubles" && (
                       <div className="player-divider"></div>
                     )}
@@ -624,7 +618,9 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
               >
                 {match.teamB.players.map((player, idx) => (
                   <div key={idx} className="player-name-container">
-                    <div className="player-name">{player.name}</div>
+                    <div className="player-name" title={player.name}>
+                      {player.name}
+                    </div>
                     {idx < match.teamB.players.length - 1 && match.format === "doubles" && (
                       <div className="player-divider"></div>
                     )}
