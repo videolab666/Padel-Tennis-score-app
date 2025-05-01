@@ -6,8 +6,10 @@ import { useRouter } from "next/navigation"
 
 interface FullscreenButtonProps {
   courtNumber: number | null
+  matchId?: string
   className?: string
   size?: "default" | "sm" | "lg" | "icon"
+  iconClassName?: string
 }
 
 // Функция для загрузки настроек из localStorage
@@ -45,8 +47,14 @@ const generateFullscreenUrl = (courtNumber, settings) => {
   url.searchParams.set("showSets", (settings.showSets !== undefined ? settings.showSets : true).toString())
   url.searchParams.set("showServer", (settings.showServer !== undefined ? settings.showServer : true).toString())
   url.searchParams.set("showCountry", (settings.showCountry !== undefined ? settings.showCountry : true).toString())
+  url.searchParams.set("fontSize", settings.fontSize || "normal")
+  url.searchParams.set("bgOpacity", (settings.bgOpacity !== undefined ? settings.bgOpacity : 0.5).toString())
   url.searchParams.set("textColor", formatColorForUrl(settings.textColor || "#ffffff"))
   url.searchParams.set("accentColor", formatColorForUrl(settings.accentColor || "#fbbf24"))
+  url.searchParams.set(
+    "playerNamesFontSize",
+    (settings.playerNamesFontSize !== undefined ? settings.playerNamesFontSize : 1.2).toString(),
+  )
 
   // Добавляем параметры цветов и градиентов (только если тема не прозрачная)
   if (settings.theme !== "transparent") {
@@ -88,12 +96,34 @@ const generateFullscreenUrl = (courtNumber, settings) => {
     )
     url.searchParams.set("setsGradientFrom", formatColorForUrl(settings.setsGradientFrom || "#ffffff"))
     url.searchParams.set("setsGradientTo", formatColorForUrl(settings.setsGradientTo || "#f0f0f0"))
+
+    // Добавляем параметры для индикатора
+    url.searchParams.set("indicatorBgColor", formatColorForUrl(settings.indicatorBgColor || "#7c2d12"))
+    url.searchParams.set("indicatorTextColor", formatColorForUrl(settings.indicatorTextColor || "#ffffff"))
+    url.searchParams.set(
+      "indicatorGradient",
+      (settings.indicatorGradient !== undefined ? settings.indicatorGradient : true) ? "true" : "false",
+    )
+    url.searchParams.set("indicatorGradientFrom", formatColorForUrl(settings.indicatorGradientFrom || "#7c2d12"))
+    url.searchParams.set("indicatorGradientTo", formatColorForUrl(settings.indicatorGradientTo || "#991b1b"))
   }
 
   return url.toString()
 }
 
-export function FullscreenButton({ courtNumber, className = "", size = "default" }: FullscreenButtonProps) {
+export function FullscreenButton({
+  courtNumber,
+  matchId,
+  size = "default",
+  className = "",
+  iconClassName = "",
+}: {
+  courtNumber?: number
+  matchId?: string
+  size?: "default" | "sm" | "lg"
+  className?: string
+  iconClassName?: string
+}) {
   const router = useRouter()
 
   // Изменяем функцию handleClick, чтобы она переходила в текущем окне вместо открытия нового
@@ -101,7 +131,50 @@ export function FullscreenButton({ courtNumber, className = "", size = "default"
     if (!courtNumber) return
 
     // Загружаем настройки из localStorage
-    const settings = loadVmixSettings()
+    let settings = loadVmixSettings()
+
+    // Если настройки не найдены, создаем настройки по умолчанию
+    if (!settings) {
+      settings = {
+        theme: "custom",
+        showNames: true,
+        showPoints: true,
+        showSets: true,
+        showServer: true,
+        showCountry: true,
+        fontSize: "normal",
+        bgOpacity: 0.5,
+        textColor: "#ffffff",
+        accentColor: "#fbbf24",
+        playerNamesFontSize: 1.2,
+        namesBgColor: "#0369a1",
+        countryBgColor: "#0369a1",
+        serveBgColor: "#000000",
+        pointsBgColor: "#0369a1",
+        setsBgColor: "#ffffff",
+        setsTextColor: "#000000",
+        namesGradient: true,
+        namesGradientFrom: "#0369a1",
+        namesGradientTo: "#0284c7",
+        countryGradient: true,
+        countryGradientFrom: "#0369a1",
+        countryGradientTo: "#0284c7",
+        serveGradient: true,
+        serveGradientFrom: "#0369a1",
+        serveGradientTo: "#0284c7",
+        pointsGradient: true,
+        pointsGradientFrom: "#0369a1",
+        pointsGradientTo: "#0284c7",
+        setsGradient: true,
+        setsGradientFrom: "#ffffff",
+        setsGradientTo: "#f0f0f0",
+        indicatorBgColor: "#7c2d12",
+        indicatorTextColor: "#ffffff",
+        indicatorGradient: true,
+        indicatorGradientFrom: "#7c2d12",
+        indicatorGradientTo: "#991b1b",
+      }
+    }
 
     // Генерируем URL с настройками
     const url = generateFullscreenUrl(courtNumber, settings)
@@ -113,8 +186,8 @@ export function FullscreenButton({ courtNumber, className = "", size = "default"
   if (!courtNumber) return null
 
   return (
-    <Button variant="outline" onClick={handleClick} className={className} size={size}>
-      <Maximize2 className="mr-2 h-4 w-4" />
+    <Button variant="outline" size={size} className={className} onClick={handleClick}>
+      <Maximize2 className={`h-4 w-4 ${iconClassName}`} />
       Полный экран
     </Button>
   )

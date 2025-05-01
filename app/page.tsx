@@ -84,7 +84,7 @@ export default function HomePage() {
         <CardContent>
           <div className="space-y-4">
             <Link href="/join-match">
-              <Button className="w-full">Присоединиться по коду</Button>
+              <Button className="w-full">Присоединиться по цифровому коду</Button>
             </Link>
           </div>
         </CardContent>

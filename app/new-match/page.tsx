@@ -180,8 +180,17 @@ export default function NewMatchPage() {
     }
 
     // Создание объекта матча
+    const generateNumericId = () => {
+      // Генерируем 11-значный цифровой код
+      let numericId = ""
+      for (let i = 0; i < 11; i++) {
+        numericId += Math.floor(Math.random() * 10).toString()
+      }
+      return numericId
+    }
+
     const match = {
-      id: uuidv4(),
+      id: generateNumericId(),
       type: matchType,
       format: matchFormat,
       createdAt: new Date().toISOString(),

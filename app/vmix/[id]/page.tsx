@@ -1130,6 +1130,7 @@ export default function VmixPage({ params }: MatchParams) {
                       overflow: "hidden",
                       textOverflow: "ellipsis",
                       fontSize: `${playerNamesFontSize}em`,
+                      padding: "7px",
                     }}
                   >
                     {match.teamA.players[0]?.name}
@@ -1144,6 +1145,7 @@ export default function VmixPage({ params }: MatchParams) {
                         overflow: "hidden",
                         textOverflow: "ellipsis",
                         fontSize: `${playerNamesFontSize}em`,
+                        padding: "7px",
                       }}
                     >
                       {match.teamA.players[1]?.name}
@@ -1356,6 +1358,7 @@ export default function VmixPage({ params }: MatchParams) {
                       overflow: "hidden",
                       textOverflow: "ellipsis",
                       fontSize: `${playerNamesFontSize}em`,
+                      padding: "7px",
                     }}
                   >
                     {match.teamB.players[0]?.name}
@@ -1370,6 +1373,7 @@ export default function VmixPage({ params }: MatchParams) {
                         overflow: "hidden",
                         textOverflow: "ellipsis",
                         fontSize: `${playerNamesFontSize}em`,
+                        padding: "7px",
                       }}
                     >
                       {match.teamB.players[1]?.name}

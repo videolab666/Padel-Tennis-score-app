@@ -83,8 +83,26 @@ export function CourtsList() {
                     <Badge variant={occupied ? "success" : "outline"}>{occupied ? "Занят" : "Свободен"}</Badge>
                     {occupied && (
                       <div className="flex flex-col gap-1 w-full mt-1">
-                        <VmixButton courtNumber={courtNumber} directLink={true} size="sm" className="w-full" />
-                        <FullscreenButton courtNumber={courtNumber} size="sm" className="w-full" />
+                        <VmixButton
+                          courtNumber={courtNumber}
+                          directLink={true}
+                          size="sm"
+                          className="w-full text-xs"
+                          iconClassName="mr-1"
+                        />
+                        <VmixButton
+                          courtNumber={courtNumber}
+                          directLink={false}
+                          size="sm"
+                          className="w-full text-xs"
+                          iconClassName="mr-1"
+                        />
+                        <FullscreenButton
+                          courtNumber={courtNumber}
+                          size="sm"
+                          className="w-full text-xs"
+                          iconClassName="mr-1"
+                        />
                       </div>
                     )}
                   </div>

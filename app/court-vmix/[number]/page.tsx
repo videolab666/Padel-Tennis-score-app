@@ -1081,6 +1081,7 @@ export default function CourtVmixPage({ params }: CourtParams) {
                       overflow: "hidden",
                       textOverflow: "ellipsis",
                       fontSize: `${playerNamesFontSize}em`,
+                      paddingLeft: "10px", // Добавляем отступ слева
                     }}
                   >
                     {match.teamA.players[0]?.name}
@@ -1095,6 +1096,7 @@ export default function CourtVmixPage({ params }: CourtParams) {
                         overflow: "hidden",
                         textOverflow: "ellipsis",
                         fontSize: `${playerNamesFontSize}em`,
+                        paddingLeft: "10px", // Добавляем отступ слева
                       }}
                     >
                       {match.teamA.players[1]?.name}
@@ -1307,6 +1309,7 @@ export default function CourtVmixPage({ params }: CourtParams) {
                       overflow: "hidden",
                       textOverflow: "ellipsis",
                       fontSize: `${playerNamesFontSize}em`,
+                      paddingLeft: "10px", // Добавляем отступ слева
                     }}
                   >
                     {match.teamB.players[0]?.name}
@@ -1321,6 +1324,7 @@ export default function CourtVmixPage({ params }: CourtParams) {
                         overflow: "hidden",
                         textOverflow: "ellipsis",
                         fontSize: `${playerNamesFontSize}em`,
+                        paddingLeft: "10px", // Добавляем отступ слева
                       }}
                     >
                       {match.teamB.players[1]?.name}

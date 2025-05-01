@@ -250,7 +250,7 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
           ((currentSet.currentGame.teamA >= 6 && currentSet.currentGame.teamA - currentSet.currentGame.teamB >= 1) ||
             (currentSet.currentGame.teamB >= 6 && currentSet.currentGame.teamB - currentSet.currentGame.teamA >= 1)))
       ) {
-        return "МАТЧ ПОЙНТ"
+        return "MATCH POINT"
       }
     }
 
@@ -268,13 +268,13 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
         (currentSet.teamA >= 5 && currentSet.teamA - currentSet.teamB >= 1 && currentSet.currentGame.teamA === "Ad") ||
         (currentSet.teamB >= 5 && currentSet.teamB - currentSet.teamA >= 1 && currentSet.currentGame.teamB === "Ad")
       ) {
-        return "СЕТ ПОЙНТ"
+        return "SET POINT"
       }
     } else if (
       (currentSet.currentGame.teamA >= 6 && currentSet.currentGame.teamA - currentSet.currentGame.teamB >= 1) ||
       (currentSet.currentGame.teamB >= 6 && currentSet.currentGame.teamB - currentSet.currentGame.teamA >= 1)
     ) {
-      return "СЕТ ПОЙНТ"
+      return "SET POINT"
     }
 
     // Проверка на game point
@@ -289,8 +289,13 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
         currentSet.currentGame.teamA === "Ad" ||
         currentSet.currentGame.teamB === "Ad"
       ) {
-        return "ГЕЙМ ПОЙНТ"
+        return "GAME POINT"
       }
+    }
+
+    // Проверка на тайбрейк (самый низкий приоритет)
+    if (currentSet.isTiebreak) {
+      return "TIE BREAK"
     }
 
     return null
@@ -330,7 +335,8 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
   return (
     <>
       <style jsx global>{`
-        html, body {
+        html,
+        body {
           margin: 0;
           padding: 0;
           height: 100%;
@@ -838,7 +844,7 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
 
         {/* Строка важных событий - всегда видима, но прозрачна когда нет событий */}
         <div className="important-event" style={{ opacity: getImportantEvent() ? 1 : 0 }}>
-          {getImportantEvent() || "ИГРА"}
+          {getImportantEvent() || "PLAY"}
         </div>
       </div>
     </>

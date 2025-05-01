@@ -483,7 +483,7 @@ export function MatchSettings({ match, updateMatch }) {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="p-2 bg-blue-50 border border-blue-200 rounded-md text-sm text-center">
-            Код матча: <span className="font-bold">{match.id}</span>
+            Код матча: <span className="font-bold">{match.code || match.id}</span>
           </div>
 
           <div className="space-y-4">

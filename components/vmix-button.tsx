@@ -1,7 +1,7 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { ExternalLink } from "lucide-react"
+import { MonitorPlay } from "lucide-react"
 import { useRouter } from "next/navigation"
 
 // Обновим интерфейс пропсов:
@@ -12,6 +12,7 @@ interface VmixButtonProps {
   size?: "default" | "sm" | "lg" | "icon"
   directLink?: boolean // Добавим опцию для прямого перехода на страницу vMix
   openInCurrentWindow?: boolean // Добавляем новый параметр для открытия в текущем окне
+  iconClassName?: string
 }
 
 // Функция для загрузки настроек из localStorage
@@ -193,12 +194,13 @@ const generateCourtVmixUrl = (courtNumber, settings) => {
 
 // Обновим функцию компонента, чтобы она загружала настройки из localStorage
 export function VmixButton({
-  matchId,
   courtNumber,
-  className = "",
-  size = "default",
+  matchId,
   directLink = false,
-  openInCurrentWindow = false, // Добавляем новый параметр со значением по умолчанию
+  size = "default",
+  className = "",
+  iconClassName = "",
+  openInCurrentWindow = false,
 }: VmixButtonProps) {
   const router = useRouter()
 
@@ -239,9 +241,9 @@ export function VmixButton({
   }
 
   return (
-    <Button variant="outline" onClick={handleClick} className={className} size={size}>
-      <ExternalLink className="mr-2 h-4 w-4" />
-      {directLink ? "Открыть vMix" : "vMix настройки"}
+    <Button variant="outline" size={size} className={className} onClick={handleClick}>
+      <MonitorPlay className={`h-4 w-4 ${iconClassName}`} />
+      {directLink ? "vMix overlay" : "vMix настройки"}
     </Button>
   )
 }

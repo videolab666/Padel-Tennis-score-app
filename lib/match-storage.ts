@@ -2,6 +2,7 @@
 import { compressToUTF16, decompressFromUTF16 } from "lz-string"
 import { createClientSupabaseClient, checkAndEnableRealtime } from "./supabase"
 import { logEvent } from "./error-logger"
+import { v4 as uuidv4 } from "uuid"
 
 // Максимальное количество хранимых матчей в локальном хранилище
 const MAX_MATCHES = 10
@@ -77,10 +78,11 @@ const safeSetItem = (key, value) => {
   }
 }
 
-// Обновим функцию transformMatchForSupabase, добавив поле court_number
+// Изменим функцию transformMatchForSupabase, чтобы не отправлять поле code в Supabase
 const transformMatchForSupabase = (match) => {
   return {
     id: match.id,
+    // Удаляем поле code, так как такого столбца нет в Supabase
     type: match.type,
     format: match.format,
     created_at: match.createdAt,
@@ -97,10 +99,11 @@ const transformMatchForSupabase = (match) => {
   }
 }
 
-// Обновим функцию transformMatchFromSupabase, добавив поле courtNumber
+// Обновим функцию transformMatchFromSupabase, добавив поле code
 const transformMatchFromSupabase = (match) => {
   return {
     id: match.id,
+    code: match.code,
     type: match.type,
     format: match.format,
     createdAt: match.created_at,
@@ -161,6 +164,7 @@ export const getMatches = async () => {
 
             return {
               id: match.id,
+              code: match.code,
               type: match.type,
               format: match.format,
               createdAt: match.created_at,
@@ -201,19 +205,19 @@ export const getMatches = async () => {
   }
 }
 
-// Получение конкретного матча по ID с использованием кэша
-export const getMatch = async (id) => {
+// Изменим функцию getMatch, чтобы не искать по коду в Supabase
+export const getMatch = async (idOrCode) => {
   if (typeof window === "undefined") return null
 
   try {
-    logEvent("info", `Получение матча по ID: ${id}`, "getMatch")
+    logEvent("info", `Получение матча по ID/коду: ${idOrCode}`, "getMatch")
 
     // Проверяем кэш
-    if (matchCache.has(id)) {
-      const { data, timestamp } = matchCache.get(id)
+    if (matchCache.has(idOrCode)) {
+      const { data, timestamp } = matchCache.get(idOrCode)
       // Если кэш не устарел
       if (Date.now() - timestamp < CACHE_TTL) {
-        logEvent("debug", `Матч ${id} получен из кэша`, "getMatch")
+        logEvent("debug", `Матч ${idOrCode} получен из кэша`, "getMatch")
         return data
       }
     }
@@ -228,83 +232,105 @@ export const getMatch = async (id) => {
       if (tablesStatus.exists) {
         logEvent("debug", "Supabase доступен, получаем матч из базы данных", "getMatch")
         const supabase = createClientSupabaseClient()
-        const { data, error, status } = await supabase.from("matches").select("*").eq("id", id).single()
 
-        if (error) {
-          logEvent("error", `Ошибка при получении матча из Supabase: ${error.message}`, "getMatch", {
-            error,
-            status,
-            matchId: id,
-          })
-        } else if (data) {
-          logEvent("info", "Матч успешно получен из Supabase", "getMatch", { matchId: id })
-          // Преобразуем данные из Supabase
-          const match = transformMatchFromSupabase(data)
+        // Проверяем, похоже ли idOrCode на UUID
+        const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
-          // Убедимся, что структура матча полная
-          if (!match.score.sets) {
-            match.score.sets = []
-            logEvent("warn", "Инициализирован пустой массив sets для матча из Supabase", "getMatch", { matchId: id })
-          }
+        // Если это UUID, ищем по ID в Supabase
+        if (uuidPattern.test(idOrCode)) {
+          const { data, error, status } = await supabase.from("matches").select("*").eq("id", idOrCode).single()
 
-          // Загружаем информацию о странах игроков
-          try {
-            // Собираем ID всех игроков из матча
-            const playerIds = [...match.teamA.players.map((p) => p.id), ...match.teamB.players.map((p) => p.id)].filter(
-              (id, index, self) => self.indexOf(id) === index,
-            ) // Убираем дубликаты
-
-            if (playerIds.length > 0) {
-              // Получаем информацию о странах игроков
-              const { data: playersData, error: playersError } = await supabase
-                .from("players")
-                .select("id, country")
-                .in("id", playerIds)
-
-              if (!playersError && playersData) {
-                // Создаем карту игрок ID -> страна
-                const playerCountryMap = {}
-                playersData.forEach((player) => {
-                  if (player.country) {
-                    playerCountryMap[player.id] = player.country
-                  }
-                })
-
-                // Обновляем информацию о странах в объекте матча
-                match.teamA.players.forEach((player) => {
-                  if (playerCountryMap[player.id]) {
-                    player.country = playerCountryMap[player.id]
-                  }
-                })
-
-                match.teamB.players.forEach((player) => {
-                  if (playerCountryMap[player.id]) {
-                    player.country = playerCountryMap[player.id]
-                  }
-                })
-
-                logEvent("info", "Информация о странах игроков успешно загружена", "getMatch", { matchId: id })
-              } else {
-                logEvent("warn", "Не удалось загрузить информацию о странах игроков", "getMatch", {
-                  matchId: id,
-                  error: playersError,
-                })
-              }
-            }
-          } catch (countryError) {
-            logEvent("error", "Ошибка при загрузке информации о странах игроков", "getMatch", {
-              error: countryError,
-              matchId: id,
+          if (error) {
+            logEvent("error", `Ошибка при получении матча из Supabase: ${error.message}`, "getMatch", {
+              error,
+              status,
+              matchIdOrCode: idOrCode,
             })
+          } else if (data) {
+            logEvent("info", "Матч успешно получен из Supabase", "getMatch", { matchIdOrCode: idOrCode })
+            // Преобразуем данные из Supabase
+            const match = transformMatchFromSupabase(data)
+
+            // Добавляем код для локального использования, если его нет
+            if (!match.code) {
+              match.code = generateNumericCode()
+            }
+
+            // Убедимся, что структура матча полная
+            if (!match.score.sets) {
+              match.score.sets = []
+              logEvent("warn", "Инициализирован пустой массив sets для матча из Supabase", "getMatch", {
+                matchIdOrCode: idOrCode,
+              })
+            }
+
+            // Загружаем информацию о странах игроков
+            try {
+              // Собираем ID всех игроков из матча
+              const playerIds = [
+                ...match.teamA.players.map((p) => p.id),
+                ...match.teamB.players.map((p) => p.id),
+              ].filter((id, index, self) => self.indexOf(id) === index) // Убираем дубликаты
+
+              if (playerIds.length > 0) {
+                // Получаем информацию о странах игроков
+                const { data: playersData, error: playersError } = await supabase
+                  .from("players")
+                  .select("id, country")
+                  .in("id", playerIds)
+
+                if (!playersError && playersData) {
+                  // Создаем карту игрок ID -> страна
+                  const playerCountryMap = {}
+                  playersData.forEach((player) => {
+                    if (player.country) {
+                      playerCountryMap[player.id] = player.country
+                    }
+                  })
+
+                  // Обновляем информацию о странах в объекте матча
+                  match.teamA.players.forEach((player) => {
+                    if (playerCountryMap[player.id]) {
+                      player.country = playerCountryMap[player.id]
+                    }
+                  })
+
+                  match.teamB.players.forEach((player) => {
+                    if (playerCountryMap[player.id]) {
+                      player.country = playerCountryMap[player.id]
+                    }
+                  })
+
+                  logEvent("info", "Информация о странах игроков успешно загружена", "getMatch", {
+                    matchIdOrCode: idOrCode,
+                  })
+                } else {
+                  logEvent("warn", "Не удалось загрузить информацию о странах игроков", "getMatch", {
+                    matchIdOrCode: idOrCode,
+                    error: playersError,
+                  })
+                }
+              }
+            } catch (countryError) {
+              logEvent("error", "Ошибка при загрузке информации о странах игроков", "getMatch", {
+                error: countryError,
+                matchIdOrCode: idOrCode,
+              })
+            }
+
+            // Сохраняем в кэш по ID и по коду
+            matchCache.set(match.id, { data: match, timestamp: Date.now() })
+            if (match.code) {
+              matchCache.set(match.code, { data: match, timestamp: Date.now() })
+            }
+
+            return match
+          } else {
+            logEvent("warn", "Матч не найден в Supabase", "getMatch", { matchIdOrCode: idOrCode })
           }
-
-          // Сохраняем в кэш
-          matchCache.set(id, { data: match, timestamp: Date.now() })
-
-          return match
-        } else {
-          logEvent("warn", "Матч не найден в Supabase", "getMatch", { matchId: id })
         }
+        // Если это не UUID, то это цифровой код, и мы не можем искать по нему в Supabase
+        // Продолжаем поиск в локальном хранилище
       } else {
         logEvent("warn", "Таблицы в Supabase не существуют, используем локальное хранилище", "getMatch")
       }
@@ -313,39 +339,61 @@ export const getMatch = async (id) => {
     }
 
     // Если Supabase недоступен или матч не найден, используем локальное хранилище
-    const singleMatchKey = `match_${id}`
+    // Сначала проверяем, есть ли матч с таким ID или кодом
+    const singleMatchKey = `match_${idOrCode}`
     const match = safeGetItem(singleMatchKey, null)
 
     if (match) {
-      logEvent("info", "Матч найден в локальном хранилище", "getMatch", { matchId: id, source: "direct" })
+      logEvent("info", "Матч найден в локальном хранилище", "getMatch", { matchIdOrCode: idOrCode, source: "direct" })
       // Убедимся, что структура матча полная
       if (!match.score.sets) {
         match.score.sets = []
-        logEvent("warn", "Инициализирован пустой массив sets для матча из localStorage", "getMatch", { matchId: id })
+        logEvent("warn", "Инициализирован пустой массив sets для матча из localStorage", "getMatch", {
+          matchIdOrCode: idOrCode,
+        })
       }
 
       // Сохраняем в кэш
-      matchCache.set(id, { data: match, timestamp: Date.now() })
+      matchCache.set(idOrCode, { data: match, timestamp: Date.now() })
+      if (match.id !== idOrCode && match.id) {
+        matchCache.set(match.id, { data: match, timestamp: Date.now() })
+      }
+      if (match.code && match.code !== idOrCode) {
+        matchCache.set(match.code, { data: match, timestamp: Date.now() })
+      }
 
       return match
     }
 
-    // Если нет, ищем в общем списке
+    // Если нет, ищем в общем списке по ID или коду
     const matches = safeGetItem("tennis_padel_matches", [])
-    const foundMatch = matches.find((match) => match.id === id) || null
+    const foundMatch = matches.find((m) => m.id === idOrCode || m.code === idOrCode) || null
 
     if (foundMatch) {
-      logEvent("info", "Матч найден в общем списке локального хранилища", "getMatch", { matchId: id, source: "list" })
+      logEvent("info", "Матч найден в общем списке локального хранилища", "getMatch", {
+        matchIdOrCode: idOrCode,
+        source: "list",
+      })
       // Убедимся, что структура матча полная
       if (!foundMatch.score.sets) {
         foundMatch.score.sets = []
-        logEvent("warn", "Инициализирован пустой массив sets для матча из списка", "getMatch", { matchId: id })
+        logEvent("warn", "Инициализирован пустой массив sets для матча из списка", "getMatch", {
+          matchIdOrCode: idOrCode,
+        })
       }
 
       // Сохраняем в кэш
-      matchCache.set(id, { data: foundMatch, timestamp: Date.now() })
+      matchCache.set(idOrCode, { data: foundMatch, timestamp: Date.now() })
+      if (foundMatch.id !== idOrCode && foundMatch.id) {
+        matchCache.set(foundMatch.id, { data: foundMatch, timestamp: Date.now() })
+      }
+      if (foundMatch.code && foundMatch.code !== idOrCode) {
+        matchCache.set(foundMatch.code, { data: foundMatch, timestamp: Date.now() })
+      }
     } else {
-      logEvent("warn", "Матч не найден ни в Supabase, ни в локальном хранилище", "getMatch", { matchId: id })
+      logEvent("warn", "Матч не найден ни в Supabase, ни в локальном хранилище", "getMatch", {
+        matchIdOrCode: idOrCode,
+      })
     }
 
     return foundMatch
@@ -356,7 +404,7 @@ export const getMatch = async (id) => {
         message: error.message,
         stack: error.stack,
       },
-      matchId: id,
+      matchIdOrCode: idOrCode,
     })
     return null
   }
@@ -385,6 +433,9 @@ const cleanupStorage = () => {
       const deletedMatches = matches.slice(MAX_MATCHES)
       deletedMatches.forEach((match) => {
         localStorage.removeItem(`match_${match.id}`)
+        if (match.code) {
+          localStorage.removeItem(`match_${match.code}`)
+        }
         logEvent("debug", `Удален старый матч из localStorage: ${match.id}`, "cleanupStorage")
       })
     }
@@ -394,6 +445,15 @@ const cleanupStorage = () => {
     logEvent("error", "Ошибка при очистке хранилища", "cleanupStorage", error)
     return false
   }
+}
+
+// Генерация 11-значного цифрового кода
+const generateNumericCode = () => {
+  let numericCode = ""
+  for (let i = 0; i < 11; i++) {
+    numericCode += Math.floor(Math.random() * 10).toString()
+  }
+  return numericCode
 }
 
 // Создание нового матча
@@ -412,6 +472,25 @@ export const createMatch = async (match) => {
       logEvent("debug", "Инициализирован пустой массив sets для нового матча", "createMatch")
     }
 
+    // Создаем новый матч с UUID для Supabase и цифровым кодом для пользователей
+    const newMatch = {
+      id: uuidv4(), // UUID для Supabase
+      code: generateNumericCode(), // 11-значный цифровой код для пользователей
+      type: match.type,
+      format: match.format,
+      createdAt: match.createdAt,
+      settings: match.settings,
+      teamA: match.teamA,
+      teamB: match.teamB,
+      score: match.score,
+      currentServer: match.currentServer,
+      courtSides: match.courtSides,
+      shouldChangeSides: match.shouldChangeSides,
+      isCompleted: match.isCompleted,
+      winner: match.winner || null,
+      courtNumber: match.courtNumber,
+    }
+
     // Проверяем доступность Supabase
     const supabaseAvailable = await isSupabaseAvailable()
 
@@ -425,7 +504,7 @@ export const createMatch = async (match) => {
 
         logEvent("debug", "Supabase доступен, сохраняем матч в базу данных", "createMatch")
         const supabase = createClientSupabaseClient()
-        const transformedMatch = transformMatchForSupabase(match)
+        const transformedMatch = transformMatchForSupabase(newMatch)
         const { error, status, statusText } = await supabase.from("matches").insert(transformedMatch)
 
         if (error) {
@@ -433,13 +512,18 @@ export const createMatch = async (match) => {
             error,
             status,
             statusText,
-            matchId: match.id,
+            matchId: newMatch.id,
+            matchCode: newMatch.code,
           })
         } else {
-          logEvent("info", "Матч успешно сохранен в Supabase", "createMatch", { matchId: match.id })
+          logEvent("info", "Матч успешно сохранен в Supabase", "createMatch", {
+            matchId: newMatch.id,
+            matchCode: newMatch.code,
+          })
 
-          // Добавляем в кэш
-          matchCache.set(match.id, { data: match, timestamp: Date.now() })
+          // Добавляем в кэш по ID и коду
+          matchCache.set(newMatch.id, { data: newMatch, timestamp: Date.now() })
+          matchCache.set(newMatch.code, { data: newMatch, timestamp: Date.now() })
         }
       } else {
         logEvent("warn", "Таблицы в Supabase не существуют, сохраняем только в локальное хранилище", "createMatch")
@@ -452,28 +536,32 @@ export const createMatch = async (match) => {
     // Очищаем локальное хранилище перед добавлением нового матча
     cleanupStorage()
 
-    // Сохраняем в локальное хранилище
-    const singleMatchKey = `match_${match.id}`
-    safeSetItem(singleMatchKey, match)
+    // Сохраняем в локальное хранилище по ID и коду
+    const singleMatchKeyId = `match_${newMatch.id}`
+    safeSetItem(singleMatchKeyId, newMatch)
+
+    const singleMatchKeyCode = `match_${newMatch.code}`
+    safeSetItem(singleMatchKeyCode, newMatch)
 
     // Добавляем в общий список без истории и детальных данных
     const matchSummary = {
-      id: match.id,
-      type: match.type,
-      format: match.format,
-      createdAt: match.createdAt,
+      id: newMatch.id,
+      code: newMatch.code,
+      type: newMatch.type,
+      format: newMatch.format,
+      createdAt: newMatch.createdAt,
       teamA: {
-        players: match.teamA.players,
+        players: newMatch.teamA.players,
       },
       teamB: {
-        players: match.teamB.players,
+        players: newMatch.teamB.players,
       },
       score: {
-        teamA: match.score.teamA,
-        teamB: match.score.teamB,
+        teamA: newMatch.score.teamA,
+        teamB: newMatch.score.teamB,
       },
-      isCompleted: match.isCompleted,
-      courtNumber: match.courtNumber,
+      isCompleted: newMatch.isCompleted,
+      courtNumber: newMatch.courtNumber,
     }
 
     const matches = safeGetItem("tennis_padel_matches", [])
@@ -483,8 +571,13 @@ export const createMatch = async (match) => {
     // Уведомляем другие вкладки об изменении
     window.dispatchEvent(new Event("storage"))
 
-    logEvent("info", "Матч успешно сохранен в локальное хранилище", "createMatch", { matchId: match.id })
-    return match.id
+    logEvent("info", "Матч успешно сохранен в локальное хранилище", "createMatch", {
+      matchId: newMatch.id,
+      matchCode: newMatch.code,
+    })
+
+    // Возвращаем код матча для пользовательского интерфейса
+    return newMatch.code
   } catch (error) {
     logEvent("error", `Ошибка при создании матча: ${error.message}`, "createMatch", {
       error: {
@@ -517,15 +610,24 @@ export const updateMatch = async (updatedMatch) => {
 
     // Обновляем кэш немедленно для быстрого доступа
     matchCache.set(updatedMatch.id, { data: updatedMatch, timestamp: Date.now() })
+    if (updatedMatch.code) {
+      matchCache.set(updatedMatch.code, { data: updatedMatch, timestamp: Date.now() })
+    }
 
     // Сохраняем в локальное хранилище сразу для быстрого доступа
-    const singleMatchKey = `match_${updatedMatch.id}`
+    const singleMatchKeyId = `match_${updatedMatch.id}`
+    const singleMatchKeyCode = updatedMatch.code ? `match_${updatedMatch.code}` : null
+
     try {
-      safeSetItem(singleMatchKey, updatedMatch)
+      safeSetItem(singleMatchKeyId, updatedMatch)
+      if (singleMatchKeyCode) {
+        safeSetItem(singleMatchKeyCode, updatedMatch)
+      }
     } catch (storageError) {
       // Если не удалось сохранить полные данные, сохраняем только самое необходимое
       const essentialMatchData = {
         id: updatedMatch.id,
+        code: updatedMatch.code,
         type: updatedMatch.type,
         format: updatedMatch.format,
         createdAt: updatedMatch.createdAt,
@@ -555,16 +657,20 @@ export const updateMatch = async (updatedMatch) => {
         }))
       }
 
-      safeSetItem(singleMatchKey, essentialMatchData)
+      safeSetItem(singleMatchKeyId, essentialMatchData)
+      if (singleMatchKeyCode) {
+        safeSetItem(singleMatchKeyCode, essentialMatchData)
+      }
     }
 
     // Обновляем запись в общем списке
     const matches = safeGetItem("tennis_padel_matches", [])
-    const index = matches.findIndex((match) => match.id === updatedMatch.id)
+    const index = matches.findIndex((match) => match.id === updatedMatch.id || match.code === updatedMatch.code)
 
     if (index !== -1) {
       matches[index] = {
         id: updatedMatch.id,
+        code: updatedMatch.code,
         type: updatedMatch.type,
         format: updatedMatch.format,
         createdAt: updatedMatch.createdAt,
@@ -624,14 +730,24 @@ export const updateMatch = async (updatedMatch) => {
 }
 
 // Удаление матча
-export const deleteMatch = async (id) => {
+export const deleteMatch = async (idOrCode) => {
   if (typeof window === "undefined") return false
 
   try {
-    logEvent("info", `Удаление матча: ${id}`, "deleteMatch")
+    logEvent("info", `Удаление матча: ${idOrCode}`, "deleteMatch")
 
-    // Удаляем из кэша
-    matchCache.delete(id)
+    // Получаем полную информацию о матче, чтобы иметь и ID, и код
+    const match = await getMatch(idOrCode)
+    if (!match) {
+      logEvent("warn", `Матч не найден для удаления: ${idOrCode}`, "deleteMatch")
+      return false
+    }
+
+    // Удаляем из кэша по ID и коду
+    matchCache.delete(match.id)
+    if (match.code) {
+      matchCache.delete(match.code)
+    }
 
     // Проверяем доступность Supabase
     const supabaseAvailable = await isSupabaseAvailable()
@@ -643,15 +759,19 @@ export const deleteMatch = async (id) => {
       if (tablesStatus.exists) {
         logEvent("debug", "Supabase доступен, удаляем матч из базы данных", "deleteMatch")
         const supabase = createClientSupabaseClient()
-        const { error } = await supabase.from("matches").delete().eq("id", id)
+        const { error } = await supabase.from("matches").delete().eq("id", match.id)
 
         if (error) {
           logEvent("error", `Ошибка при удалении матча из Supabase: ${error.message}`, "deleteMatch", {
             error,
-            matchId: id,
+            matchId: match.id,
+            matchCode: match.code,
           })
         } else {
-          logEvent("info", "Матч успешно удален из Supabase", "deleteMatch", { matchId: id })
+          logEvent("info", "Матч успешно удален из Supabase", "deleteMatch", {
+            matchId: match.id,
+            matchCode: match.code,
+          })
         }
       } else {
         logEvent("warn", "Таблицы в Supabase не существуют, удаляем только из локального хранилища", "deleteMatch")
@@ -660,18 +780,24 @@ export const deleteMatch = async (id) => {
       logEvent("warn", "Supabase недоступен, удаляем только из локального хранилища", "deleteMatch")
     }
 
-    // Удаляем отдельную запись матча из локального хранилища
-    localStorage.removeItem(`match_${id}`)
+    // Удаляем отдельные записи матча из локального хранилища
+    localStorage.removeItem(`match_${match.id}`)
+    if (match.code) {
+      localStorage.removeItem(`match_${match.code}`)
+    }
 
     // Удаляем из общего списка
     const matches = safeGetItem("tennis_padel_matches", [])
-    const filteredMatches = matches.filter((match) => match.id !== id)
+    const filteredMatches = matches.filter((m) => m.id !== match.id && m.code !== match.code)
     safeSetItem("tennis_padel_matches", filteredMatches)
 
     // Уведомляем другие вкладки об изменении
     window.dispatchEvent(new Event("storage"))
 
-    logEvent("info", "Матч успешно удален из локального хранилища", "deleteMatch", { matchId: id })
+    logEvent("info", "Матч успешно удален из локального хранилища", "deleteMatch", {
+      matchId: match.id,
+      matchCode: match.code,
+    })
     return true
   } catch (error) {
     logEvent("error", `Ошибка при удалении матча: ${error.message}`, "deleteMatch", {
@@ -680,14 +806,14 @@ export const deleteMatch = async (id) => {
         message: error.message,
         stack: error.stack,
       },
-      matchId: id,
+      matchId: idOrCode,
     })
     return false
   }
 }
 
 // Подписка на обновления матча в реальном времени
-export const subscribeToMatchUpdates = (matchId, callback) => {
+export const subscribeToMatchUpdates = (idOrCode, callback) => {
   if (typeof window === "undefined") return () => {}
 
   let unsubscribe = null
@@ -701,6 +827,16 @@ export const subscribeToMatchUpdates = (matchId, callback) => {
       if (tablesStatus.exists) {
         // Проверяем и включаем Realtime
         await checkAndEnableRealtime()
+
+        // Сначала получаем полную информацию о матче, чтобы иметь ID для подписки
+        const match = await getMatch(idOrCode)
+        if (!match) {
+          logEvent("warn", `Матч не найден для подписки: ${idOrCode}`, "subscribeToMatchUpdates")
+          setupLocalSubscription()
+          return
+        }
+
+        const matchId = match.id // Используем UUID для подписки в Supabase
 
         const supabase = createClientSupabaseClient()
 
@@ -721,6 +857,9 @@ export const subscribeToMatchUpdates = (matchId, callback) => {
               if (payload.eventType === "DELETE") {
                 // Если матч был удален
                 matchCache.delete(matchId)
+                if (match.code) {
+                  matchCache.delete(match.code)
+                }
                 callback(null)
               } else {
                 // Для INSERT или UPDATE получаем обновленные данные
@@ -729,6 +868,9 @@ export const subscribeToMatchUpdates = (matchId, callback) => {
 
                 // Обновляем кэш
                 matchCache.set(matchId, { data: updatedMatch, timestamp: Date.now() })
+                if (updatedMatch.code) {
+                  matchCache.set(updatedMatch.code, { data: updatedMatch, timestamp: Date.now() })
+                }
 
                 callback(updatedMatch)
               }
@@ -756,8 +898,8 @@ export const subscribeToMatchUpdates = (matchId, callback) => {
   // Функция для настройки локальной подписки
   const setupLocalSubscription = () => {
     const handleStorageChange = async (event) => {
-      if (event.key === `match_${matchId}` || event.key === "tennis_padel_matches" || !event.key) {
-        const match = await getMatch(matchId)
+      if (event.key === `match_${idOrCode}` || event.key === "tennis_padel_matches" || !event.key) {
+        const match = await getMatch(idOrCode)
         if (match) {
           callback(match)
         }
@@ -768,7 +910,7 @@ export const subscribeToMatchUpdates = (matchId, callback) => {
 
     // Также настраиваем периодическую проверку обновлений
     const interval = setInterval(async () => {
-      const match = await getMatch(matchId)
+      const match = await getMatch(idOrCode)
       if (match) {
         callback(match)
       }
@@ -856,19 +998,19 @@ export const subscribeToMatchesListUpdates = (callback) => {
 }
 
 // Сохранение матча в URL для шаринга
-export const getMatchShareUrl = (matchId) => {
+export const getMatchShareUrl = (idOrCode) => {
   if (typeof window === "undefined") return ""
 
   const baseUrl = window.location.origin
-  return `${baseUrl}/match/${matchId}`
+  return `${baseUrl}/match/${idOrCode}`
 }
 
 // Функция для экспорта матча в JSON
-export const exportMatchToJson = async (matchId) => {
+export const exportMatchToJson = async (idOrCode) => {
   if (typeof window === "undefined") return null
 
   try {
-    const match = await getMatch(matchId)
+    const match = await getMatch(idOrCode)
     if (!match) return null
 
     // Создаем копию матча без истории для уменьшения размера
@@ -904,9 +1046,14 @@ export const importMatchFromJson = async (jsonData) => {
       match.score.sets = []
     }
 
+    // Добавляем код, если его нет
+    if (!match.code) {
+      match.code = generateNumericCode()
+    }
+
     // Сохраняем импортированный матч
     await createMatch(match)
-    return match.id
+    return match.code || match.id
   } catch (error) {
     logEvent("error", `Ошибка при импорте матча: ${error.message}`, "importMatchFromJson", error)
     return false
@@ -930,6 +1077,7 @@ export async function getAllMatches() {
       // Преобразуем формат данных для совместимости с компонентом истории
       return matches.map((match) => ({
         id: match.id,
+        code: match.code,
         date: match.createdAt || new Date().toISOString(),
         team1: {
           player1: match.teamA?.players?.[0]?.name || "Игрок 1",
@@ -987,6 +1135,7 @@ export async function getAllMatches() {
                     // Преобразуем в нужный формат
                     foundMatches.push({
                       id: match.id,
+                      code: match.code,
                       date: match.createdAt || new Date().toISOString(),
                       team1: {
                         player1: match.teamA?.players?.[0]?.name || "Игрок 1",
@@ -1011,6 +1160,7 @@ export async function getAllMatches() {
                     // Преобразуем в нужный формат
                     foundMatches.push({
                       id: match.id,
+                      code: match.code,
                       date: match.createdAt || new Date().toISOString(),
                       team1: {
                         player1: match.teamA?.players?.[0]?.name || "Игрок 1",
