@@ -367,18 +367,18 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
         }
 
         .server-indicator {
-          font-size: 15vh; /* Увеличено в 3 раза */
+          font-size: 12vh; /* Увеличено в 3 раза */
           line-height: 1;
         }
 
         .set-cell {
           font-weight: bold;
-          font-size: 10vh; /* Увеличено в 2 раза */
+          font-size: 8vh; /* Увеличено в 2 раза */
         }
 
         .points-cell {
           font-weight: bold;
-          font-size: 32vh; /* Увеличено в 4 раза (2 раза от предыдущего увеличенного) */
+          font-size: 25.6vh; /* Увеличено в 4 раза (2 раза от предыдущего увеличенного) */
         }
 
         .important-event {
@@ -387,7 +387,7 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
           font-weight: bold;
           text-align: center;
           padding: 3px;
-          font-size: 4vh;
+          font-size: 3.2vh;
           max-height: 6vh;
           display: flex;
           align-items: center;
@@ -398,7 +398,25 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
         /* Responsive font sizes */
         @media (max-width: 768px) {
           .player-name {
-            font-size: 6vh; /* Увеличено в 2 раза */
+            font-size: 4.8vh; /* Увеличено в 2 раза */
+          }
+          .server-indicator {
+            font-size: 9.6vh; /* Увеличено в 3 раза */
+          }
+          .set-cell {
+            font-size: 6.4vh; /* Увеличено в 2 раза */
+          }
+          .points-cell {
+            font-size: 19.2vh; /* Увеличено в 4 раза (2 раза от предыдущего увеличенного) */
+          }
+          .important-event {
+            font-size: 2.4vh;
+          }
+        }
+
+        @media (min-width: 769px) and (max-width: 1200px) {
+          .player-name {
+            font-size: 6.4vh; /* Увеличено в 2 раза */
           }
           .server-indicator {
             font-size: 12vh; /* Увеличено в 3 раза */
@@ -407,46 +425,28 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
             font-size: 8vh; /* Увеличено в 2 раза */
           }
           .points-cell {
-            font-size: 24vh; /* Увеличено в 4 раза (2 раза от предыдущего увеличенного) */
+            font-size: 22.4vh; /* Увеличено в 4 раза (2 раза от предыдущего увеличенного) */
           }
           .important-event {
-            font-size: 3vh;
-          }
-        }
-
-        @media (min-width: 769px) and (max-width: 1200px) {
-          .player-name {
-            font-size: 8vh; /* Увеличено в 2 раза */
-          }
-          .server-indicator {
-            font-size: 15vh; /* Увеличено в 3 раза */
-          }
-          .set-cell {
-            font-size: 10vh; /* Увеличено в 2 раза */
-          }
-          .points-cell {
-            font-size: 28vh; /* Увеличено в 4 раза (2 раза от предыдущего увеличенного) */
-          }
-          .important-event {
-            font-size: 3.5vh;
+            font-size: 2.8vh;
           }
         }
 
         @media (min-width: 1201px) {
           .player-name {
-            font-size: 10vh; /* Увеличено в 2 раза */
+            font-size: 8vh; /* Увеличено в 2 раза */
           }
           .server-indicator {
-            font-size: 18vh; /* Увеличено в 3 раза */
+            font-size: 14.4vh; /* Увеличено в 3 раза */
           }
           .set-cell {
-            font-size: 12vh; /* Увеличено в 2 раза */
+            font-size: 9.6vh; /* Увеличено в 2 раза */
           }
           .points-cell {
-            font-size: 36vh; /* Увеличено в 4 раза (2 раза от предыдущего увеличенного) */
+            font-size: 28.8vh; /* Увеличено в 4 раза (2 раза от предыдущего увеличенного) */
           }
           .important-event {
-            font-size: 4vh;
+            font-size: 3.2vh;
           }
         }
       `}</style>
