@@ -2,6 +2,8 @@
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 import { type Language, LANGUAGES, translations } from "@/lib/translations"
+import { createClientSupabaseClient } from "@/lib/supabase"
+import { logEvent } from "@/lib/error-logger"
 
 type LanguageContextType = {
   language: Language
@@ -16,14 +18,54 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   const [language, setLanguageState] = useState<Language>("ru")
   const [isLoaded, setIsLoaded] = useState(false)
 
+  // Load language preference from database or localStorage
   useEffect(() => {
-    const savedLanguage = localStorage.getItem("language") as Language
-    if (savedLanguage && Object.keys(LANGUAGES).includes(savedLanguage)) {
-      setLanguageState(savedLanguage)
+    const loadLanguagePreference = async () => {
+      try {
+        // Try to get language from database first
+        const supabase = createClientSupabaseClient()
+
+        if (supabase) {
+          const { data, error } = await supabase.from("user_preferences").select("language").eq("id", "global").single()
+
+          if (!error && data && data.language) {
+            const dbLanguage = data.language as Language
+            if (Object.keys(LANGUAGES).includes(dbLanguage)) {
+              setLanguageState(dbLanguage)
+              logEvent("info", "Loaded language preference from database", "loadLanguagePreference", {
+                language: dbLanguage,
+              })
+              setIsLoaded(true)
+              return
+            }
+          }
+        }
+
+        // Fall back to localStorage if database not available or no preference found
+        const savedLanguage = localStorage.getItem("language") as Language
+        if (savedLanguage && Object.keys(LANGUAGES).includes(savedLanguage)) {
+          setLanguageState(savedLanguage)
+          logEvent("info", "Loaded language preference from localStorage", "loadLanguagePreference", {
+            language: savedLanguage,
+          })
+        }
+
+        setIsLoaded(true)
+      } catch (error) {
+        logEvent("error", "Error loading language preference", "loadLanguagePreference", { error })
+        // Fall back to localStorage in case of error
+        const savedLanguage = localStorage.getItem("language") as Language
+        if (savedLanguage && Object.keys(LANGUAGES).includes(savedLanguage)) {
+          setLanguageState(savedLanguage)
+        }
+        setIsLoaded(true)
+      }
     }
-    setIsLoaded(true)
+
+    loadLanguagePreference()
   }, [])
 
+  // Save language to localStorage as a fallback
   useEffect(() => {
     if (isLoaded) {
       localStorage.setItem("language", language)

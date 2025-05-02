@@ -16,12 +16,14 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog"
 import { logEvent } from "@/lib/error-logger"
+import { useLanguage } from "@/contexts/language-context"
 
 export function SupabaseStatus() {
   const [isConnected, setIsConnected] = useState(false)
   const [isChecking, setIsChecking] = useState(true)
   const [connectionInfo, setConnectionInfo] = useState(null)
   const [showDetails, setShowDetails] = useState(false)
+  const { t } = useLanguage()
 
   useEffect(() => {
     // Проверяем статус Supabase при монтировании компонента
@@ -99,11 +101,11 @@ export function SupabaseStatus() {
               } flex items-center gap-1`}
             >
               {isChecking ? (
-                <span className="animate-pulse">Проверка...</span>
+                <span className="animate-pulse">{t("common.checking")}</span>
               ) : (
                 <>
                   {isConnected ? <Cloud className="h-3 w-3" /> : <CloudOff className="h-3 w-3" />}
-                  {isConnected ? "Онлайн" : "Офлайн"}
+                  {isConnected ? t("common.online") : t("common.offline")}
                 </>
               )}
             </Badge>
@@ -112,13 +114,13 @@ export function SupabaseStatus() {
               <DialogTrigger asChild>
                 <Button variant="ghost" size="sm" className="h-6 w-6 p-0 ml-1">
                   <Info className="h-3 w-3" />
-                  <span className="sr-only">Информация о соединении</span>
+                  <span className="sr-only">{t("supabaseStatus.connectionInfo")}</span>
                 </Button>
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>Информация о соединении с базой данных</DialogTitle>
-                  <DialogDescription>Подробная информация о статусе соединения с Supabase</DialogDescription>
+                  <DialogTitle>{t("supabaseStatus.connectionInfo")}</DialogTitle>
+                  <DialogDescription>{t("supabaseStatus.connectionDetails")}</DialogDescription>
                 </DialogHeader>
 
                 <div className="space-y-4 my-4">
@@ -127,17 +129,17 @@ export function SupabaseStatus() {
                       variant="outline"
                       className={isConnected ? "bg-green-100 text-green-800" : "bg-amber-100 text-amber-800"}
                     >
-                      {isConnected ? "Соединение установлено" : "Соединение отсутствует"}
+                      {isConnected ? t("supabaseStatus.connectionEstablished") : t("supabaseStatus.connectionMissing")}
                     </Badge>
 
                     <Button variant="outline" size="sm" onClick={handleCheckNow} disabled={isChecking}>
-                      {isChecking ? "Проверка..." : "Проверить сейчас"}
+                      {isChecking ? t("common.checking") : t("supabaseStatus.checkNow")}
                     </Button>
                   </div>
 
                   {connectionInfo && (
                     <div className="border rounded-md p-3 text-sm">
-                      <h4 className="font-medium mb-2">Детали соединения:</h4>
+                      <h4 className="font-medium mb-2">{t("supabaseStatus.connectionDetailsTitle")}</h4>
                       <pre className="bg-gray-100 p-2 rounded text-xs overflow-auto max-h-40">
                         {JSON.stringify(connectionInfo, null, 2)}
                       </pre>
@@ -148,14 +150,14 @@ export function SupabaseStatus() {
                     <div className="bg-amber-50 border border-amber-200 rounded-md p-3 text-sm text-amber-800">
                       <h4 className="font-medium flex items-center gap-1 mb-1">
                         <AlertCircle className="h-4 w-4" />
-                        Возможные причины проблем с соединением:
+                        {t("supabaseStatus.possibleIssues")}
                       </h4>
                       <ul className="list-disc list-inside space-y-1">
-                        <li>Отсутствует подключение к интернету</li>
-                        <li>Неверные учетные данные Supabase</li>
-                        <li>Сервер Supabase недоступен</li>
-                        <li>Проблемы с CORS или сетевыми настройками</li>
-                        <li>Отсутствуют необходимые переменные окружения</li>
+                        <li>{t("supabaseStatus.issueInternet")}</li>
+                        <li>{t("supabaseStatus.issueCredentials")}</li>
+                        <li>{t("supabaseStatus.issueServer")}</li>
+                        <li>{t("supabaseStatus.issueCors")}</li>
+                        <li>{t("supabaseStatus.issueEnvVars")}</li>
                       </ul>
                     </div>
                   )}
@@ -163,7 +165,7 @@ export function SupabaseStatus() {
 
                 <DialogFooter>
                   <Button variant="outline" onClick={() => setShowDetails(false)}>
-                    Закрыть
+                    {t("supabaseStatus.close")}
                   </Button>
                 </DialogFooter>
               </DialogContent>
@@ -172,10 +174,10 @@ export function SupabaseStatus() {
         </TooltipTrigger>
         <TooltipContent>
           {isChecking
-            ? "Проверка соединения с базой данных..."
+            ? t("supabaseStatus.checkingTooltip")
             : isConnected
-              ? "Синхронизация включена. Матчи доступны на всех устройствах."
-              : "Синхронизация отключена. Матчи сохраняются только локально."}
+              ? t("supabaseStatus.onlineTooltip")
+              : t("supabaseStatus.offlineTooltip")}
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>

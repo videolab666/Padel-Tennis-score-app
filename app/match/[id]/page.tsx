@@ -296,7 +296,7 @@ export default function MatchPage({ params }: MatchParams) {
         </TabsList>
 
         <TabsContent value="match">
-          <Card className="mb-6 p-4">
+          <Card className="mb-6 p-4" aria-label={t.match.scoreCard}>
             <ScoreBoard match={match} updateMatch={handleUpdateMatch} />
           </Card>
 

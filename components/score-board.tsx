@@ -14,11 +14,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import { useLanguage } from "@/contexts/language-context"
 
 export function ScoreBoard({ match, updateMatch }) {
   const [showMatchEndDialog, setShowMatchEndDialog] = useState(false)
   const [pendingMatchUpdate, setPendingMatchUpdate] = useState(null)
   const [previousMatchState, setPreviousMatchState] = useState(null)
+  const { t } = useLanguage()
 
   if (!match) return null
 
@@ -410,17 +412,15 @@ export function ScoreBoard({ match, updateMatch }) {
       <AlertDialog open={showMatchEndDialog} onOpenChange={setShowMatchEndDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Завершить матч?</AlertDialogTitle>
+            <AlertDialogTitle>{t("match.finishMatch")}</AlertDialogTitle>
             <AlertDialogDescription>
-              Команда {pendingMatchUpdate?.winner === "teamA" ? "A" : "B"} выиграла матч! Что вы хотите сделать?
+              {t("match.teamWonMatch", { team: pendingMatchUpdate?.winner === "teamA" ? "A" : "B" })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={handleCancelMatchCompletion}>
-              Отмена (вернуть предыдущий счет)
-            </AlertDialogCancel>
-            <AlertDialogAction onClick={() => setShowMatchEndDialog(false)}>Продолжить</AlertDialogAction>
-            <AlertDialogAction onClick={handleCompleteMatch}>Завершить матч</AlertDialogAction>
+            <AlertDialogCancel onClick={handleCancelMatchCompletion}>{t("common.cancel")}</AlertDialogCancel>
+            <AlertDialogAction onClick={() => setShowMatchEndDialog(false)}>{t("common.continue")}</AlertDialogAction>
+            <AlertDialogAction onClick={handleCompleteMatch}>{t("match.finishMatch")}</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
@@ -428,7 +428,7 @@ export function ScoreBoard({ match, updateMatch }) {
       <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-0 items-center w-full">
         <div className="text-right space-y-1 pr-3 border-r border-gray-200">
           <div className="text-sm text-muted-foreground mb-1 text-right">
-            {match.courtSides?.teamA === "left" ? "Левая сторона" : "Правая сторона"}
+            {match.courtSides?.teamA === "left" ? t("match.leftSide") : t("match.rightSide")}
           </div>
           {teamA.players.map((player, idx) => (
             <div key={idx} className="flex items-center justify-end w-full">
@@ -437,7 +437,7 @@ export function ScoreBoard({ match, updateMatch }) {
                   variant="outline"
                   className="mr-2 w-3 h-3 rounded-full bg-lime-400 border-lime-600 p-0 flex items-center justify-center flex-shrink-0"
                 >
-                  <span className="sr-only">Подача</span>
+                  <span className="sr-only">{t("match.serving")}</span>
                 </Badge>
               )}
               <div className="w-full overflow-hidden max-w-full">
@@ -450,7 +450,7 @@ export function ScoreBoard({ match, updateMatch }) {
         </div>
         <div className="text-left space-y-1 pl-3">
           <div className="text-sm text-muted-foreground mb-1 text-left">
-            {match.courtSides?.teamB === "left" ? "Левая сторона" : "Правая сторона"}
+            {match.courtSides?.teamB === "left" ? t("match.leftSide") : t("match.rightSide")}
           </div>
           {teamB.players.map((player, idx) => (
             <div key={idx} className="flex items-center w-full">
@@ -464,7 +464,7 @@ export function ScoreBoard({ match, updateMatch }) {
                   variant="outline"
                   className="ml-2 w-3 h-3 rounded-full bg-lime-400 border-lime-600 p-0 flex items-center justify-center flex-shrink-0"
                 >
-                  <span className="sr-only">Подача</span>
+                  <span className="sr-only">{t("match.serving")}</span>
                 </Badge>
               )}
             </div>
@@ -488,11 +488,11 @@ export function ScoreBoard({ match, updateMatch }) {
             <div className="text-center text-muted-foreground">
               {currentSet.isTiebreak
                 ? currentSet.isSuperTiebreak
-                  ? "Супер-тай-брейк"
+                  ? t("match.superTiebreak")
                   : match.settings.tiebreakType === "championship"
-                    ? "Чемпионский тай-брейк"
-                    : "Тай-брейк"
-                : "Текущий гейм"}
+                    ? t("match.championshipTiebreak")
+                    : t("match.tiebreak")
+                : t("match.currentGame")}
             </div>
             <div className="text-center">
               <button
@@ -513,7 +513,7 @@ export function ScoreBoard({ match, updateMatch }) {
           <span className="text-xl font-bold">{currentSet.teamA}</span>
         </div>
         <div className="text-center text-muted-foreground">
-          Сет {currentSetIndex + 1} из {totalSets}
+          {`${t("match.set")} ${currentSetIndex + 1} ${t("match.of")} ${totalSets}`}
         </div>
         <div className="text-center">
           <span className="text-xl font-bold">{currentSet.teamB}</span>
@@ -524,16 +524,16 @@ export function ScoreBoard({ match, updateMatch }) {
         <div className="mt-4">
           <div className="grid grid-cols-[auto_1fr_1fr] gap-2 text-sm">
             <div></div>
-            <div className="text-center font-medium">Команда A</div>
-            <div className="text-center font-medium">Команда B</div>
+            <div className="text-center font-medium">{t("match.teamA")}</div>
+            <div className="text-center font-medium">{t("match.teamB")}</div>
 
             {allSets.map((set, index) => (
               <div key={index} className="contents">
                 <div className="font-medium flex items-center">
-                  Сет {index + 1}
+                  {t("match.setX").replace("{{number}}", (index + 1).toString())}
                   {set.isCurrent && (
                     <Badge variant="outline" className="ml-2 bg-blue-100 text-blue-800">
-                      Текущий
+                      {t("match.current")}
                     </Badge>
                   )}
                 </div>

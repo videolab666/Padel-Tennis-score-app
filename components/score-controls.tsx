@@ -7,10 +7,12 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { shouldChangeSides } from "@/lib/tennis-utils"
 import { useSoundEffects } from "@/hooks/use-sound-effects"
 import { SoundToggle } from "@/components/sound-toggle"
+import { useLanguage } from "@/contexts/language-context"
 
 export function ScoreControls({ match, updateMatch }) {
   // Используем хук для звуковых эффектов
   const { soundsEnabled, playSound, toggleSounds } = useSoundEffects()
+  const { t } = useLanguage()
 
   if (!match) return null
 
@@ -420,7 +422,7 @@ export function ScoreControls({ match, updateMatch }) {
   return (
     <Card className="w-full">
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>Управление счетом</CardTitle>
+        <CardTitle>{t("match.scoreControls")}</CardTitle>
         <SoundToggle enabled={soundsEnabled} onToggle={toggleSounds} />
       </CardHeader>
       <CardContent className="space-y-4">
@@ -429,9 +431,9 @@ export function ScoreControls({ match, updateMatch }) {
             <CardContent className="p-2 sm:p-4">
               <div className="min-h-[60px] sm:min-h-[80px] flex flex-col justify-center w-full">
                 <h3 className="text-sm sm:text-base font-medium text-center w-full overflow-hidden truncate">
-                  Команда A
+                  {t("match.teamA")}
                   <span className="ml-2 text-xs sm:text-sm text-muted-foreground">
-                    ({match.courtSides?.teamA === "left" ? "Левая" : "Правая"})
+                    ({match.courtSides?.teamA === "left" ? t("match.leftSide") : t("match.rightSide")})
                   </span>
                 </h3>
                 {renderPlayerNames(match.teamA)}
@@ -452,7 +454,7 @@ export function ScoreControls({ match, updateMatch }) {
                   disabled={match.isCompleted}
                 >
                   <PlusIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-1" />
-                  Очко
+                  {t("match.addPoint")}
                 </Button>
               </div>
             </CardContent>
@@ -462,9 +464,9 @@ export function ScoreControls({ match, updateMatch }) {
             <CardContent className="p-2 sm:p-4">
               <div className="min-h-[60px] sm:min-h-[80px] flex flex-col justify-center w-full">
                 <h3 className="text-sm sm:text-base font-medium text-center w-full overflow-hidden truncate">
-                  Команда B
+                  {t("match.teamB")}
                   <span className="ml-2 text-xs sm:text-sm text-muted-foreground">
-                    ({match.courtSides?.teamB === "left" ? "Левая" : "Правая"})
+                    ({match.courtSides?.teamB === "left" ? t("match.leftSide") : t("match.rightSide")})
                   </span>
                 </h3>
                 {renderPlayerNames(match.teamB)}
@@ -485,7 +487,7 @@ export function ScoreControls({ match, updateMatch }) {
                   disabled={match.isCompleted}
                 >
                   <PlusIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-1" />
-                  Очко
+                  {t("match.addPoint")}
                 </Button>
               </div>
             </CardContent>
@@ -494,9 +496,7 @@ export function ScoreControls({ match, updateMatch }) {
 
         {match.shouldChangeSides && (
           <Alert className="bg-red-50 border-red-200">
-            <AlertDescription className="text-red-700 font-medium">
-              Необходимо поменять стороны! Смена сторон произойдет автоматически при следующем изменении счета.
-            </AlertDescription>
+            <AlertDescription className="text-red-700 font-medium">{t("match.needToSwitchSides")}</AlertDescription>
           </Alert>
         )}
 
@@ -507,7 +507,7 @@ export function ScoreControls({ match, updateMatch }) {
             onClick={manualSwitchServer}
             disabled={match.isCompleted}
           >
-            Сменить подающего
+            {t("match.switchServer")}
           </Button>
 
           <Button
@@ -517,7 +517,7 @@ export function ScoreControls({ match, updateMatch }) {
             disabled={match.isCompleted}
           >
             <ArrowLeftRightIcon className="h-4 w-4 mr-1" />
-            Сменить стороны
+            {t("match.switchSides")}
           </Button>
         </div>
       </CardContent>

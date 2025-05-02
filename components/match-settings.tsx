@@ -520,15 +520,17 @@ export function MatchSettings({ match, updateMatch, type, settings, onChange }: 
       {/* Score Editing Card */}
       <Card className="w-full mb-4">
         <CardHeader>
-          <CardTitle>Редактирование счета</CardTitle>
+          <CardTitle>{t("match.scoreEditing")}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-4">
+            {/* Update 1 start */}
             <div className="grid grid-cols-[1fr_2fr_2fr] gap-2 items-center">
-              <div className="font-medium text-center">Сет</div>
-              <div className="font-medium text-center">Команда A</div>
-              <div className="font-medium text-center">Команда B</div>
+              <div className="font-medium text-center">{t("match.set")}</div>
+              <div className="font-medium text-center">{t("match.teamA")}</div>
+              <div className="font-medium text-center">{t("match.teamB")}</div>
             </div>
+            {/* Update 1 end */}
 
             {/* All Sets */}
             {allSetsArray.map((set) => (
@@ -540,7 +542,9 @@ export function MatchSettings({ match, updateMatch, type, settings, onChange }: 
               >
                 <div className="text-center font-medium">
                   {set.index + 1}
-                  {set.isCurrent && <span className="text-xs block text-blue-600">текущий</span>}
+                  {/* Update 2 start */}
+                  {set.isCurrent && <span className="text-xs block text-blue-600">{t("match.currentSet")}</span>}
+                  {/* Update 2 end */}
                 </div>
                 <div>
                   <div className="flex">
@@ -645,16 +649,16 @@ export function MatchSettings({ match, updateMatch, type, settings, onChange }: 
               onClick={startTiebreak}
               disabled={match.isCompleted || match.score.currentSet.isTiebreak}
             >
-              Начать тай-брейк вручную
+              {t("match.startTiebreakManually")}
             </Button>
 
             {match.score.currentSet.isTiebreak && (
               <div className="grid grid-cols-2 gap-2 mt-2">
                 <Button variant="outline" onClick={() => endTiebreak("teamA")} disabled={match.isCompleted}>
-                  Тай-брейк выиграла A
+                  {t("match.teamAWonTiebreak")}
                 </Button>
                 <Button variant="outline" onClick={() => endTiebreak("teamB")} disabled={match.isCompleted}>
-                  Тай-брейк выиграла B
+                  {t("match.teamBWonTiebreak")}
                 </Button>
               </div>
             )}
@@ -665,16 +669,16 @@ export function MatchSettings({ match, updateMatch, type, settings, onChange }: 
       {/* Match Settings Card */}
       <Card className="w-full">
         <CardHeader>
-          <CardTitle>Настройки матча</CardTitle>
+          <CardTitle>{t("match.settings")}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="p-2 bg-blue-50 border border-blue-200 rounded-md text-sm text-center">
-            Код матча: <span className="font-bold">{match.code || match.id}</span>
+            {t("match.matchCode")}: <span className="font-bold">{match.code || match.id}</span>
           </div>
 
           <div className="space-y-4">
             <div>
-              <Label>Система счета</Label>
+              <Label>{t("match.scoringSystem")}</Label>
               <RadioGroup
                 value={scoringSystem}
                 onValueChange={setScoringSystem}
@@ -683,21 +687,21 @@ export function MatchSettings({ match, updateMatch, type, settings, onChange }: 
               >
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="classic" id="scoring-classic" disabled={match.isCompleted} />
-                  <Label htmlFor="scoring-classic">Классическая (AD)</Label>
+                  <Label htmlFor="scoring-classic">{t("match.classicScoring")}</Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="no-ad" id="scoring-no-ad" disabled={match.isCompleted} />
-                  <Label htmlFor="scoring-no-ad">No-Ad (ровно → решающий мяч)</Label>
+                  <Label htmlFor="scoring-no-ad">{t("match.noAdScoring")}</Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="fast4" id="scoring-fast4" disabled={match.isCompleted} />
-                  <Label htmlFor="scoring-fast4">Fast4 (до 4 геймов)</Label>
+                  <Label htmlFor="scoring-fast4">{t("match.fast4Scoring")}</Label>
                 </div>
               </RadioGroup>
             </div>
 
             <div className="flex items-center justify-between">
-              <Label htmlFor="tiebreak-enabled">Тай-брейк</Label>
+              <Label htmlFor="tiebreak-enabled">{t("match.tiebreak")}</Label>
               <Switch
                 id="tiebreak-enabled"
                 checked={tiebreakEnabled}
@@ -710,7 +714,7 @@ export function MatchSettings({ match, updateMatch, type, settings, onChange }: 
             {tiebreakEnabled && (
               <>
                 <div>
-                  <Label>Тип тай-брейка</Label>
+                  <Label>{t("match.tiebreakType")}</Label>
                   <RadioGroup
                     value={tiebreakType}
                     onValueChange={setTiebreakType}
@@ -719,24 +723,24 @@ export function MatchSettings({ match, updateMatch, type, settings, onChange }: 
                   >
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="regular" id="tiebreak-regular" disabled={match.isCompleted} />
-                      <Label htmlFor="tiebreak-regular">Обычный (до 7)</Label>
+                      <Label htmlFor="tiebreak-regular">{t("match.regularTiebreak")}</Label>
                     </div>
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="championship" id="tiebreak-championship" disabled={match.isCompleted} />
-                      <Label htmlFor="tiebreak-championship"> Чемпионский (до 10)</Label>
+                      <Label htmlFor="tiebreak-championship">{t("match.championshipTiebreak")}</Label>
                     </div>
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="super" id="tiebreak-super" disabled={match.isCompleted} />
-                      <Label htmlFor="tiebreak-super">Супер-тай-брейк (вместо 3-го сета)</Label>
+                      <Label htmlFor="tiebreak-super">{t("match.superTiebreak")}</Label>
                     </div>
                   </RadioGroup>
                 </div>
 
                 <div>
-                  <Label>Тай-брейк при счете</Label>
+                  <Label>{t("match.tiebreakAtScore")}</Label>
                   <Select value={tiebreakAt} onValueChange={setTiebreakAt} disabled={match.isCompleted}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Выберите счет для тай-брейка" />
+                      <SelectValue placeholder={t("match.selectTiebreakScore")} />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="6-6">6:6</SelectItem>
@@ -749,7 +753,7 @@ export function MatchSettings({ match, updateMatch, type, settings, onChange }: 
             )}
 
             <div className="flex items-center justify-between">
-              <Label htmlFor="final-set-tiebreak">Тай-брейк в решающем сете</Label>
+              <Label htmlFor="final-set-tiebreak">{t("match.finalSetTiebreak")}</Label>
               <Switch
                 id="final-set-tiebreak"
                 checked={finalSetTiebreak}
@@ -760,7 +764,7 @@ export function MatchSettings({ match, updateMatch, type, settings, onChange }: 
             </div>
 
             <div className="space-y-2 border-t pt-4">
-              <Label className="text-base font-medium">Дополнительно</Label>
+              <Label className="text-base font-medium">{t("match.additional")}</Label>
               <div className="space-y-2">
                 <div className="flex items-center space-x-2">
                   <Checkbox
@@ -770,7 +774,7 @@ export function MatchSettings({ match, updateMatch, type, settings, onChange }: 
                     disabled={match.isCompleted}
                   />
                   <Label htmlFor="golden-game" className="text-sm">
-                    Золотой гейм (падел)
+                    {t("match.goldenGame")}
                   </Label>
                 </div>
                 <div className="flex items-center space-x-2">
@@ -781,7 +785,7 @@ export function MatchSettings({ match, updateMatch, type, settings, onChange }: 
                     disabled={match.isCompleted}
                   />
                   <Label htmlFor="golden-point" className="text-sm">
-                    Золотой мяч (40-40 в решающем гейме)
+                    {t("match.goldenPoint")}
                   </Label>
                 </div>
                 <div className="flex items-center space-x-2">
@@ -792,14 +796,14 @@ export function MatchSettings({ match, updateMatch, type, settings, onChange }: 
                     disabled={match.isCompleted}
                   />
                   <Label htmlFor="windbreak" className="text-sm">
-                    Виндрейк (подача через гейм)
+                    {t("match.windbreak")}
                   </Label>
                 </div>
               </div>
             </div>
 
             <Button className="w-full" onClick={applySettings} disabled={match.isCompleted}>
-              Применить настройки
+              {t("match.applySettings")}
             </Button>
           </div>
 
@@ -807,23 +811,19 @@ export function MatchSettings({ match, updateMatch, type, settings, onChange }: 
             {match.isCompleted ? (
               <Button variant="outline" className="w-full mt-2" onClick={unlockMatch}>
                 <LockOpenIcon className="mr-2 h-4 w-4" />
-                Разблокировать матч
+                {t("match.unlockMatch")}
               </Button>
             ) : (
               <Button
                 variant="destructive"
                 className="w-full mt-2"
                 onClick={() => {
-                  if (
-                    confirm(
-                      "Вы уверены, что хотите завершить матч? Вы сможете разблокировать его позже, если потребуется.",
-                    )
-                  ) {
+                  if (confirm(t("match.endMatchConfirmation"))) {
                     endMatch()
                   }
                 }}
               >
-                Завершить матч
+                {t("match.endMatch")}
               </Button>
             )}
           </div>

@@ -26,6 +26,8 @@ export type TranslationKeys = {
     vmixOverlay: string
     vmixSettings: string
     checking: string
+    saving: string
+    continue: string
   }
   home: {
     title: string
@@ -55,6 +57,68 @@ export type TranslationKeys = {
     serve: string
     undo: string
     settings: string
+    scoreCard: string
+    scoreControls: string
+    addPoint: string
+    switchServer: string
+    switchSides: string
+    leftSide: string
+    rightSide: string
+    needToSwitchSides: string
+    management: string
+    matchManagement: string
+    editPlayers: string
+    editTeams: string
+    matchStatus: string
+    matchType: string
+    courtNumber: string
+    completedMatch: string
+    inProgressMatch: string
+    deleteMatch: string
+    confirmDeleteMatch: string
+    deleteMatchWarning: string
+    deleteMatchConfirm: string
+    deleteMatchCancel: string
+    matchDeleted: string
+    matchDeleteError: string
+    noCourtAssigned: string
+    selectCourt: string
+    courtAlreadyOccupied: string
+    updateCourt: string
+    courtUpdated: string
+    courtUpdateError: string
+    scoreEditing: string
+    currentSet: string
+    startTiebreakManually: string
+    teamWonTiebreak: string
+    matchCode: string
+    scoringSystem: string
+    classicScoring: string
+    noAdScoring: string
+    fast4Scoring: string
+    tiebreakType: string
+    regularTiebreak: string
+    championshipTiebreak: string
+    superTiebreak: string
+    tiebreakAt: string
+    selectTiebreakScore: string
+    additional: string
+    goldenGame: string
+    goldenPoint: string
+    windbreak: string
+    applySettings: string
+    unlockMatch: string
+    endMatch: string
+    confirmEndMatch: string
+    finishMatch: string
+    teamWonMatch: string
+    serving: string
+    currentGame: string
+    setXofY: string
+    setX: string
+    current: string
+    tiebreak: string
+    of: string
   }
   matchPage: {
     loadingMatch: string
@@ -215,6 +279,8 @@ export const translations: { [key in Language]: TranslationKeys } = {
       vmixOverlay: "vMix overlay",
       vmixSettings: "vMix настройки",
       checking: "Проверка...",
+      saving: "Сохранение...",
+      continue: "Продолжить",
     },
     home: {
       title: "Tennis & Padel Scoreboard",
@@ -244,6 +310,69 @@ export const translations: { [key in Language]: TranslationKeys } = {
       serve: "Подача",
       undo: "Отменить",
       settings: "Настройки",
+      scoreCard: "Табло счета",
+      scoreControls: "Управление счетом",
+      addPoint: "Очко",
+      switchServer: "Сменить подающего",
+      switchSides: "Сменить стороны",
+      leftSide: "Левая сторона",
+      rightSide: "Правая сторона",
+      needToSwitchSides:
+        "Необходимо поменять стороны! Смена сторон произойдет автоматически при следующем изменении счета.",
+      management: "Управление",
+      matchManagement: "Управление матчем",
+      editPlayers: "Редактировать игроков",
+      editTeams: "Редактировать команды",
+      matchStatus: "Статус матча",
+      matchType: "Тип матча",
+      courtNumber: "Номер корта",
+      completedMatch: "Завершенный",
+      inProgressMatch: "В процессе",
+      deleteMatch: "Удалить матч",
+      confirmDeleteMatch: "Подтвердите удаление",
+      deleteMatchWarning: "Вы уверены, что хотите удалить этот матч? Это действие нельзя отменить.",
+      deleteMatchConfirm: "Да, удалить",
+      deleteMatchCancel: "Отмена",
+      matchDeleted: "Матч успешно удален",
+      matchDeleteError: "Ошибка при удалении матча",
+      noCourtAssigned: "Не назначен",
+      selectCourt: "Выберите корт",
+      courtAlreadyOccupied: "Этот корт уже занят",
+      updateCourt: "Обновить корт",
+      courtUpdated: "Корт успешно обновлен",
+      courtUpdateError: "Ошибка при обновлении корта",
+      scoreEditing: "Редактирование счета",
+      currentSet: "текущий",
+      startTiebreakManually: "Начать тай-брейк вручную",
+      teamWonTiebreak: "Тай-брейк выиграла",
+      matchCode: "Код матча",
+      scoringSystem: "Система счета",
+      classicScoring: "Классическая (AD)",
+      noAdScoring: "No-Ad (ровно → решающий мяч)",
+      fast4Scoring: "Fast4 (до 4 геймов)",
+      tiebreakType: "Тип тай-брейка",
+      regularTiebreak: "Обычный (до 7)",
+      championshipTiebreak: "Чемпионский (до 10)",
+      superTiebreak: "Супер-тай-брейк (вместо 3-го сета)",
+      tiebreakAt: "Тай-брейк при счете",
+      selectTiebreakScore: "Выберите счет для тай-брейка",
+      additional: "Дополнительно",
+      goldenGame: "Золотой гейм (падел)",
+      goldenPoint: "Золотой мяч (40-40 в решающем гейме)",
+      windbreak: "Виндрейк (подача через гейм)",
+      applySettings: "Применить настройки",
+      unlockMatch: "Разблокировать матч",
+      endMatch: "Завершить матч",
+      confirmEndMatch: "Вы уверены, что хотите завершить матч? Вы сможете разблокировать его позже, если потребуется.",
+      finishMatch: "Завершить матч",
+      teamWonMatch: "Команда {{team}} выиграла матч! Что вы хотите сделать?",
+      serving: "Подача",
+      currentGame: "Текущий гейм",
+      setXofY: "Сет {{current}} из {{total}}",
+      setX: "Сет {{number}}",
+      current: "Текущий",
+      tiebreak: "Тай-брейк",
+      of: "из",
     },
     matchPage: {
       loadingMatch: "Загрузка матча...",
@@ -402,6 +531,8 @@ export const translations: { [key in Language]: TranslationKeys } = {
       vmixOverlay: "vMix overlay",
       vmixSettings: "vMix settings",
       checking: "Checking...",
+      saving: "Saving...",
+      continue: "Continue",
     },
     home: {
       title: "Tennis & Padel Scoreboard",
@@ -431,6 +562,68 @@ export const translations: { [key in Language]: TranslationKeys } = {
       serve: "Serve",
       undo: "Undo",
       settings: "Settings",
+      scoreCard: "Score Board",
+      scoreControls: "Score Controls",
+      addPoint: "Point",
+      switchServer: "Switch Server",
+      switchSides: "Switch Sides",
+      leftSide: "Left side",
+      rightSide: "Right side",
+      needToSwitchSides: "Need to switch sides! Side change will happen automatically with the next score change.",
+      management: "Management",
+      matchManagement: "Match Management",
+      editPlayers: "Edit Players",
+      editTeams: "Edit Teams",
+      matchStatus: "Match Status",
+      matchType: "Match Type",
+      courtNumber: "Court Number",
+      completedMatch: "Completed",
+      inProgressMatch: "In Progress",
+      deleteMatch: "Delete Match",
+      confirmDeleteMatch: "Confirm Deletion",
+      deleteMatchWarning: "Are you sure you want to delete this match? This action cannot be undone.",
+      deleteMatchConfirm: "Yes, Delete",
+      deleteMatchCancel: "Cancel",
+      matchDeleted: "Match successfully deleted",
+      matchDeleteError: "Error deleting match",
+      noCourtAssigned: "Not assigned",
+      selectCourt: "Select Court",
+      courtAlreadyOccupied: "This court is already occupied",
+      updateCourt: "Update Court",
+      courtUpdated: "Court successfully updated",
+      courtUpdateError: "Error updating court",
+      scoreEditing: "Score Editing",
+      currentSet: "current",
+      startTiebreakManually: "Start tiebreak manually",
+      teamWonTiebreak: "Tiebreak won by",
+      matchCode: "Match code",
+      scoringSystem: "Scoring system",
+      classicScoring: "Classic (AD)",
+      noAdScoring: "No-Ad (deuce → deciding point)",
+      fast4Scoring: "Fast4 (up to 4 games)",
+      tiebreakType: "Tiebreak type",
+      regularTiebreak: "Regular (up to 7)",
+      championshipTiebreak: "Championship (up to 10)",
+      superTiebreak: "Super tiebreak (instead of 3rd set)",
+      tiebreakAt: "Tiebreak at score",
+      selectTiebreakScore: "Select tiebreak score",
+      additional: "Additional",
+      goldenGame: "Golden game (padel)",
+      goldenPoint: "Golden point (40-40 in deciding game)",
+      windbreak: "Windbreak (serve every other game)",
+      applySettings: "Apply settings",
+      unlockMatch: "Unlock match",
+      endMatch: "End match",
+      confirmEndMatch: "Are you sure you want to end this match? You can unlock it later if needed.",
+      finishMatch: "Finish match",
+      teamWonMatch: "Team {{team}} won the match! What would you like to do?",
+      serving: "Serving",
+      currentGame: "Current game",
+      setXofY: "Set {{current}} of {{total}}",
+      setX: "Set {{number}}",
+      current: "Current",
+      tiebreak: "Tiebreak",
+      of: "of",
     },
     matchPage: {
       loadingMatch: "Loading match...",
