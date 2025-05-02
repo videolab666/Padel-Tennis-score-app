@@ -10,27 +10,8 @@ import { MinusIcon, PlusIcon, LockOpenIcon } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Checkbox } from "@/components/ui/checkbox"
-import { useLanguage } from "@/contexts/language-context"
 
-type MatchSettingsProps = {
-  match: any
-  updateMatch: any
-  type: string
-  settings: {
-    sets: number
-    games: number
-    tiebreak: boolean
-    finalSetTiebreak: boolean
-    goldPoint: boolean
-    servingSide: "left" | "right"
-    servingTeam: 1 | 2
-    servingPlayer: 1 | 2 | 3 | 4
-  }
-  onChange: (settings: any) => void
-}
-
-export function MatchSettings({ match, updateMatch, type, settings: initialSettings, onChange }: MatchSettingsProps) {
-  const { t } = useLanguage()
+export function MatchSettings({ match, updateMatch }) {
   const [tiebreakEnabled, setTiebreakEnabled] = useState(match?.settings?.tiebreakEnabled)
   const [tiebreakType, setTiebreakType] = useState(match?.settings?.tiebreakType || "regular")
   const [tiebreakAt, setTiebreakAt] = useState(match?.settings?.tiebreakAt)
@@ -44,10 +25,6 @@ export function MatchSettings({ match, updateMatch, type, settings: initialSetti
   const [editSetIndex, setEditSetIndex] = useState(null)
   const [editSetScoreA, setEditSetScoreA] = useState(0)
   const [editSetScoreB, setEditSetScoreB] = useState(0)
-
-  const handleChange = (key: string, value: any) => {
-    onChange({ ...initialSettings, [key]: value })
-  }
 
   const applySettings = () => {
     const updatedMatch = { ...match }
@@ -666,141 +643,6 @@ export function MatchSettings({ match, updateMatch, type, settings: initialSetti
           </div>
         </CardContent>
       </Card>
-
-      <div className="space-y-6">
-        <h3 className="text-lg font-medium mb-2">{t("newMatch.matchSettings")}</h3>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="sets">{t("newMatch.sets")}</Label>
-            <Select
-              value={initialSettings.sets.toString()}
-              onValueChange={(value) => handleChange("sets", Number.parseInt(value))}
-            >
-              <SelectTrigger id="sets">
-                <SelectValue placeholder={t("newMatch.sets")} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="1">1</SelectItem>
-                <SelectItem value="3">3</SelectItem>
-                <SelectItem value="5">5</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="games">{t("newMatch.games")}</Label>
-            <Select
-              value={initialSettings.games.toString()}
-              onValueChange={(value) => handleChange("games", Number.parseInt(value))}
-            >
-              <SelectTrigger id="games">
-                <SelectValue placeholder={t("newMatch.games")} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="4">4</SelectItem>
-                <SelectItem value="6">6</SelectItem>
-                <SelectItem value="8">8</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-
-        <div className="space-y-4">
-          <div className="flex items-center space-x-2">
-            <Switch
-              id="tiebreak"
-              checked={initialSettings.tiebreak}
-              onCheckedChange={(checked) => handleChange("tiebreak", checked)}
-            />
-            <Label htmlFor="tiebreak">{t("newMatch.tiebreak")}</Label>
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <Switch
-              id="finalSetTiebreak"
-              checked={initialSettings.finalSetTiebreak}
-              onCheckedChange={(checked) => handleChange("finalSetTiebreak", checked)}
-            />
-            <Label htmlFor="finalSetTiebreak">{t("newMatch.finalSetTiebreak")}</Label>
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <Switch
-              id="goldPoint"
-              checked={initialSettings.goldPoint}
-              onCheckedChange={(checked) => handleChange("goldPoint", checked)}
-            />
-            <Label htmlFor="goldPoint">{t("newMatch.goldPoint")}</Label>
-          </div>
-        </div>
-
-        <div className="space-y-4">
-          <Label>{t("newMatch.servingSide")}</Label>
-          <RadioGroup
-            value={initialSettings.servingSide}
-            onValueChange={(value) => handleChange("servingSide", value)}
-            className="flex space-x-4"
-          >
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="left" id="left" />
-              <Label htmlFor="left">{t("newMatch.left")}</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="right" id="right" />
-              <Label htmlFor="right">{t("newMatch.right")}</Label>
-            </div>
-          </RadioGroup>
-        </div>
-
-        <div className="space-y-4">
-          <Label>{t("newMatch.servingTeam")}</Label>
-          <RadioGroup
-            value={initialSettings.servingTeam.toString()}
-            onValueChange={(value) => handleChange("servingTeam", Number.parseInt(value) as 1 | 2)}
-            className="flex space-x-4"
-          >
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="1" id="team1" />
-              <Label htmlFor="team1">1</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="2" id="team2" />
-              <Label htmlFor="team2">2</Label>
-            </div>
-          </RadioGroup>
-        </div>
-
-        <div className="space-y-4">
-          <Label>{t("newMatch.servingPlayer")}</Label>
-          <RadioGroup
-            value={initialSettings.servingPlayer.toString()}
-            onValueChange={(value) => handleChange("servingPlayer", Number.parseInt(value) as 1 | 2 | 3 | 4)}
-            className="flex flex-wrap gap-4"
-          >
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="1" id="player1" />
-              <Label htmlFor="player1">1</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="2" id="player2" />
-              <Label htmlFor="player2">2</Label>
-            </div>
-            {type === "padel" && (
-              <>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="3" id="player3" />
-                  <Label htmlFor="player3">3</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="4" id="player4" />
-                  <Label htmlFor="player4">4</Label>
-                </div>
-              </>
-            )}
-          </RadioGroup>
-        </div>
-      </div>
     </>
   )
 }
