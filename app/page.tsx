@@ -1,21 +1,27 @@
+"use client"
+
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { MatchList } from "@/components/match-list"
 import { SupabaseStatus } from "@/components/supabase-status"
 import { OfflineNotice } from "@/components/offline-notice"
-// Добавим импорт иконки History
 import { Bug, Users, History } from "lucide-react"
-
-// Добавим импорт компонента CourtsList
 import { CourtsList } from "@/components/courts-list"
+import { LanguageSwitcher } from "@/components/language-switcher"
+import { useLanguage } from "@/contexts/language-context"
 
 export default function HomePage() {
+  const { t } = useLanguage()
+
   return (
     <div className="container max-w-4xl mx-auto px-4 py-8">
       <header className="text-center mb-8">
-        <h1 className="text-3xl font-bold">Tennis & Padel Scoreboard</h1>
-        <p className="text-muted-foreground">Отслеживайте счет в реальном времени</p>
+        <div className="flex justify-end mb-2">
+          <LanguageSwitcher />
+        </div>
+        <h1 className="text-3xl font-bold">{t("home.title")}</h1>
+        <p className="text-muted-foreground">{t("home.subtitle")}</p>
         <div className="mt-2 flex items-center justify-center gap-2">
           <SupabaseStatus />
         </div>
@@ -26,24 +32,23 @@ export default function HomePage() {
       <div className="mb-8">
         <Card>
           <CardHeader>
-            <CardTitle>Создать новый матч</CardTitle>
-            <CardDescription>Настройте новую игру с выбранными параметрами</CardDescription>
+            <CardTitle>{t("home.newMatch")}</CardTitle>
+            <CardDescription>{t("home.newMatchDesc")}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <Link href="/new-match?type=tennis">
-                  <Button className="w-full">Теннис</Button>
+                  <Button className="w-full">{t("home.tennis")}</Button>
                 </Link>
                 <Link href="/new-match?type=padel">
-                  <Button className="w-full">Падел</Button>
+                  <Button className="w-full">{t("home.padel")}</Button>
                 </Link>
               </div>
-              {/* Добавляем кнопку "Игроки" под кнопками "Теннис" и "Падел" */}
               <Link href="/players">
                 <Button variant="outline" className="w-full">
                   <Users className="h-4 w-4 mr-2" />
-                  Управление игроками
+                  {t("home.managePlayers")}
                 </Button>
               </Link>
             </div>
@@ -54,8 +59,8 @@ export default function HomePage() {
       {/* Активные матчи */}
       <Card className="mb-6">
         <CardHeader>
-          <CardTitle>Активные матчи</CardTitle>
-          <CardDescription>Текущие и недавние матчи</CardDescription>
+          <CardTitle>{t("home.activeMatches")}</CardTitle>
+          <CardDescription>{t("home.activeMatchesDesc")}</CardDescription>
         </CardHeader>
         <CardContent>
           <MatchList />
@@ -63,7 +68,7 @@ export default function HomePage() {
             <Link href="/history">
               <Button variant="outline" className="w-full">
                 <History className="h-4 w-4 mr-2" />
-                История матчей
+                {t("home.matchHistory")}
               </Button>
             </Link>
           </div>
@@ -78,13 +83,13 @@ export default function HomePage() {
       {/* Присоединиться к матчу - перемещен под статус кортов */}
       <Card className="mb-6">
         <CardHeader>
-          <CardTitle>Присоединиться к матчу</CardTitle>
-          <CardDescription>Введите код матча для просмотра</CardDescription>
+          <CardTitle>{t("home.joinMatch")}</CardTitle>
+          <CardDescription>{t("home.joinMatchDesc")}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             <Link href="/join-match">
-              <Button className="w-full">Присоединиться по цифровому коду</Button>
+              <Button className="w-full">{t("home.joinByCode")}</Button>
             </Link>
           </div>
         </CardContent>
@@ -95,7 +100,7 @@ export default function HomePage() {
         <Link href="/debug">
           <Button variant="outline" size="sm">
             <Bug className="h-4 w-4 mr-2" />
-            Диагностика
+            {t("home.diagnostics")}
           </Button>
         </Link>
       </div>

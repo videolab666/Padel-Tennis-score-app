@@ -10,8 +10,29 @@ import { MinusIcon, PlusIcon, LockOpenIcon } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Checkbox } from "@/components/ui/checkbox"
+import { useLanguage } from "@/contexts/language-context"
 
-export function MatchSettings({ match, updateMatch }) {
+// Обновим тип пропсов, чтобы сделать некоторые параметры опциональными
+type MatchSettingsProps = {
+  match?: any
+  updateMatch?: any
+  type?: string
+  settings?: {
+    sets: number
+    games: number
+    tiebreak: boolean
+    finalSetTiebreak: boolean
+    goldPoint: boolean
+    servingSide: "left" | "right"
+    servingTeam: 1 | 2
+    servingPlayer: 1 | 2 | 3 | 4
+  }
+  onChange?: (settings: any) => void
+}
+
+// Обновим начало функции компонента, чтобы обрабатывать оба случая использования
+export function MatchSettings({ match, updateMatch, type, settings, onChange }: MatchSettingsProps) {
+  const { t } = useLanguage()
   const [tiebreakEnabled, setTiebreakEnabled] = useState(match?.settings?.tiebreakEnabled)
   const [tiebreakType, setTiebreakType] = useState(match?.settings?.tiebreakType || "regular")
   const [tiebreakAt, setTiebreakAt] = useState(match?.settings?.tiebreakAt)
@@ -26,7 +47,16 @@ export function MatchSettings({ match, updateMatch }) {
   const [editSetScoreA, setEditSetScoreA] = useState(0)
   const [editSetScoreB, setEditSetScoreB] = useState(0)
 
+  // Добавим проверку на наличие settings и onChange
+  const handleChange = (key: string, value: any) => {
+    if (onChange && settings) {
+      onChange({ ...settings, [key]: value })
+    }
+  }
+
   const applySettings = () => {
+    if (!match || !updateMatch) return
+
     const updatedMatch = { ...match }
 
     // Отключаем историю
@@ -74,6 +104,8 @@ export function MatchSettings({ match, updateMatch }) {
   }
 
   const startTiebreak = () => {
+    if (!match || !updateMatch) return
+
     const updatedMatch = { ...match }
 
     // Отключаем историю
@@ -115,6 +147,8 @@ export function MatchSettings({ match, updateMatch }) {
   }
 
   const endTiebreak = (winner) => {
+    if (!match || !updateMatch) return
+
     const updatedMatch = { ...match }
 
     // Отключаем историю
@@ -129,6 +163,8 @@ export function MatchSettings({ match, updateMatch }) {
   }
 
   const winSet = (team, updatedMatch) => {
+    if (!match || !updateMatch) return
+
     // Увеличиваем счет матча
     updatedMatch.score[team]++
 
@@ -167,6 +203,8 @@ export function MatchSettings({ match, updateMatch }) {
   }
 
   const endMatch = () => {
+    if (!match || !updateMatch) return
+
     console.log("endMatch function called")
 
     // Create a copy of the match
@@ -202,6 +240,8 @@ export function MatchSettings({ match, updateMatch }) {
   }
 
   const unlockMatch = () => {
+    if (!match || !updateMatch) return
+
     const updatedMatch = { ...match }
     updatedMatch.isCompleted = false
     updatedMatch.history = []
@@ -209,6 +249,8 @@ export function MatchSettings({ match, updateMatch }) {
   }
 
   const updateSetScore = (index, team, delta) => {
+    if (!match || !updateMatch) return
+
     const updatedMatch = { ...match }
     updatedMatch.history = []
 
@@ -248,6 +290,8 @@ export function MatchSettings({ match, updateMatch }) {
   }
 
   const startEditSet = (index) => {
+    if (!match) return
+
     if (index < match.score.sets.length) {
       const set = match.score.sets[index]
       setEditSetScoreA(set.teamA)
@@ -262,7 +306,7 @@ export function MatchSettings({ match, updateMatch }) {
   }
 
   const saveSetScore = () => {
-    if (editSetIndex === null) return
+    if (editSetIndex === null || !match || !updateMatch) return
 
     const updatedMatch = { ...match }
     updatedMatch.history = []
@@ -293,38 +337,180 @@ export function MatchSettings({ match, updateMatch }) {
   }
 
   // Создаем массив для отображения всех запланированных сетов
-  const totalSets = match.settings.sets || 3 // По умолчанию 3 сета
+  const totalSets = match?.settings?.sets || 3 // По умолчанию 3 сета
   const allSetsArray = []
 
-  // Добавляем завершенные сеты
-  for (let i = 0; i < match.score.sets.length; i++) {
+  // Добавляем завершенные сеты, если есть match
+  if (match && match.score && match.score.sets) {
+    for (let i = 0; i < match.score.sets.length; i++) {
+      allSetsArray.push({
+        index: i,
+        isCompleted: true,
+        isCurrent: false,
+        teamA: match.score.sets[i].teamA,
+        teamB: match.score.sets[i].teamB,
+      })
+    }
+
+    // Добавляем текущий сет
     allSetsArray.push({
-      index: i,
-      isCompleted: true,
-      isCurrent: false,
-      teamA: match.score.sets[i].teamA,
-      teamB: match.score.sets[i].teamB,
+      index: match.score.sets.length,
+      isCompleted: false,
+      isCurrent: true,
+      teamA: match.score.currentSet.teamA,
+      teamB: match.score.currentSet.teamB,
     })
+
+    // Добавляем будущие сеты
+    for (let i = match.score.sets.length + 1; i < totalSets; i++) {
+      allSetsArray.push({
+        index: i,
+        isCompleted: false,
+        isCurrent: false,
+        teamA: 0,
+        teamB: 0,
+      })
+    }
   }
 
-  // Добавляем текущий сет
-  allSetsArray.push({
-    index: match.score.sets.length,
-    isCompleted: false,
-    isCurrent: true,
-    teamA: match.score.currentSet.teamA,
-    teamB: match.score.currentSet.teamB,
-  })
+  // Если нет match, но есть settings и onChange, отрендерим только настройки для нового матча
+  if (!match && settings && onChange) {
+    return (
+      <div className="space-y-6">
+        <h3 className="text-lg font-medium mb-2">{t("newMatch.matchSettings")}</h3>
 
-  // Добавляем будущие сеты
-  for (let i = match.score.sets.length + 1; i < totalSets; i++) {
-    allSetsArray.push({
-      index: i,
-      isCompleted: false,
-      isCurrent: false,
-      teamA: 0,
-      teamB: 0,
-    })
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="sets">{t("newMatch.sets")}</Label>
+            <Select
+              value={settings.sets.toString()}
+              onValueChange={(value) => handleChange("sets", Number.parseInt(value))}
+            >
+              <SelectTrigger id="sets">
+                <SelectValue placeholder={t("newMatch.sets")} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="1">1</SelectItem>
+                <SelectItem value="3">3</SelectItem>
+                <SelectItem value="5">5</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="games">{t("newMatch.games")}</Label>
+            <Select
+              value={settings.games.toString()}
+              onValueChange={(value) => handleChange("games", Number.parseInt(value))}
+            >
+              <SelectTrigger id="games">
+                <SelectValue placeholder={t("newMatch.games")} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="4">4</SelectItem>
+                <SelectItem value="6">6</SelectItem>
+                <SelectItem value="8">8</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="tiebreak"
+              checked={settings.tiebreak}
+              onCheckedChange={(checked) => handleChange("tiebreak", checked)}
+            />
+            <Label htmlFor="tiebreak">{t("newMatch.tiebreak")}</Label>
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="finalSetTiebreak"
+              checked={settings.finalSetTiebreak}
+              onCheckedChange={(checked) => handleChange("finalSetTiebreak", checked)}
+            />
+            <Label htmlFor="finalSetTiebreak">{t("newMatch.finalSetTiebreak")}</Label>
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="goldPoint"
+              checked={settings.goldPoint}
+              onCheckedChange={(checked) => handleChange("goldPoint", checked)}
+            />
+            <Label htmlFor="goldPoint">{t("newMatch.goldPoint")}</Label>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <Label>{t("newMatch.servingSide")}</Label>
+          <RadioGroup
+            value={settings.servingSide}
+            onValueChange={(value) => handleChange("servingSide", value)}
+            className="flex space-x-4"
+          >
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="left" id="left" />
+              <Label htmlFor="left">{t("newMatch.left")}</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="right" id="right" />
+              <Label htmlFor="right">{t("newMatch.right")}</Label>
+            </div>
+          </RadioGroup>
+        </div>
+
+        <div className="space-y-4">
+          <Label>{t("newMatch.servingTeam")}</Label>
+          <RadioGroup
+            value={settings.servingTeam.toString()}
+            onValueChange={(value) => handleChange("servingTeam", Number.parseInt(value) as 1 | 2)}
+            className="flex space-x-4"
+          >
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="1" id="team1" />
+              <Label htmlFor="team1">1</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="2" id="team2" />
+              <Label htmlFor="team2">2</Label>
+            </div>
+          </RadioGroup>
+        </div>
+
+        <div className="space-y-4">
+          <Label>{t("newMatch.servingPlayer")}</Label>
+          <RadioGroup
+            value={settings.servingPlayer.toString()}
+            onValueChange={(value) => handleChange("servingPlayer", Number.parseInt(value) as 1 | 2 | 3 | 4)}
+            className="flex flex-wrap gap-4"
+          >
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="1" id="player1" />
+              <Label htmlFor="player1">1</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="2" id="player2" />
+              <Label htmlFor="player2">2</Label>
+            </div>
+            {type === "padel" && (
+              <>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="3" id="player3" />
+                  <Label htmlFor="player3">3</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="4" id="player4" />
+                  <Label htmlFor="player4">4</Label>
+                </div>
+              </>
+            )}
+          </RadioGroup>
+        </div>
+      </div>
+    )
   }
 
   if (!match) return null
@@ -537,7 +723,7 @@ export function MatchSettings({ match, updateMatch }) {
                     </div>
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="championship" id="tiebreak-championship" disabled={match.isCompleted} />
-                      <Label htmlFor="tiebreak-championship">Чемпионский (до 10)</Label>
+                      <Label htmlFor="tiebreak-championship"> Чемпионский (до 10)</Label>
                     </div>
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="super" id="tiebreak-super" disabled={match.isCompleted} />

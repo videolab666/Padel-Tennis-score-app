@@ -21,11 +21,13 @@ import { SupabaseStatus } from "@/components/supabase-status"
 import { OfflineNotice } from "@/components/offline-notice"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { logEvent } from "@/lib/error-logger"
+import { useLanguage } from "@/contexts/language-context"
 
 // Добавим импорт функций для работы с кортами
 import { getOccupiedCourts, MAX_COURTS, isCourtAvailable } from "@/lib/court-utils"
 
 export default function NewMatchPage() {
+  const { t } = useLanguage()
   const router = useRouter()
   const searchParams = useSearchParams()
   const defaultType = searchParams.get("type") || "tennis"
@@ -161,12 +163,12 @@ export default function NewMatchPage() {
   const handleCreateMatch = async () => {
     // Проверка, что все необходимые игроки выбраны
     if (!teamAPlayer1 || !teamBPlayer1) {
-      showNotification("Выберите игроков для обеих команд", "error")
+      showNotification(t("newMatch.selectAllPlayers"), "error")
       return
     }
 
     if (matchFormat === "doubles" && (!teamAPlayer2 || !teamBPlayer2)) {
-      showNotification("Для парной игры необходимо выбрать всех игроков", "error")
+      showNotification(t("newMatch.selectAllPlayersForDoubles"), "error")
       return
     }
 
@@ -174,7 +176,7 @@ export default function NewMatchPage() {
     if (courtNumber !== null) {
       const isAvailable = await isCourtAvailable(courtNumber)
       if (!isAvailable) {
-        showNotification(`Корт ${courtNumber} уже занят. Выберите другой корт.`, "error")
+        showNotification(t("newMatch.courtOccupied", { court: courtNumber }), "error")
         return
       }
     }
@@ -275,7 +277,11 @@ export default function NewMatchPage() {
           }`}
         >
           <AlertTitle>
-            {alertType === "success" ? "Успешно" : alertType === "error" ? "Ошибка" : "Предупреждение"}
+            {alertType === "success"
+              ? t("common.success")
+              : alertType === "error"
+                ? t("common.error")
+                : t("common.warning")}
           </AlertTitle>
           <AlertDescription
             className={
@@ -290,7 +296,7 @@ export default function NewMatchPage() {
       <div className="flex justify-between items-center mb-4">
         <Button variant="ghost" onClick={() => router.push("/")}>
           <ArrowLeft className="mr-2 h-4 w-4" />
-          Назад
+          {t("common.back")}
         </Button>
         <SupabaseStatus />
       </div>
@@ -299,54 +305,54 @@ export default function NewMatchPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-center">Новый матч</CardTitle>
+          <CardTitle className="text-center">{t("newMatch.title")}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
           <Tabs defaultValue={matchType} onValueChange={setMatchType}>
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="tennis">Теннис</TabsTrigger>
-              <TabsTrigger value="padel">Падел</TabsTrigger>
+              <TabsTrigger value="tennis">{t("home.tennis")}</TabsTrigger>
+              <TabsTrigger value="padel">{t("home.padel")}</TabsTrigger>
             </TabsList>
           </Tabs>
 
           <div className="space-y-4">
             <div>
-              <Label>Формат игры</Label>
+              <Label>{t("newMatch.format")}</Label>
               <Select value={matchFormat} onValueChange={setMatchFormat}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Выберите формат" />
+                  <SelectValue placeholder={t("newMatch.selectFormat")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="singles">Одиночная игра</SelectItem>
-                  <SelectItem value="doubles">Парная игра</SelectItem>
+                  <SelectItem value="singles">{t("newMatch.singles")}</SelectItem>
+                  <SelectItem value="doubles">{t("newMatch.doubles")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div>
-              <Label>Количество сетов</Label>
+              <Label>{t("newMatch.sets")}</Label>
               <RadioGroup value={sets} onValueChange={setSets} className="grid grid-cols-2 gap-2 mt-2">
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="1" id="sets-1" />
-                  <Label htmlFor="sets-1">1 сет</Label>
+                  <Label htmlFor="sets-1">{t("newMatch.oneSets")}</Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="2" id="sets-2" />
-                  <Label htmlFor="sets-2">2 сета (тай-брейк в 3-м)</Label>
+                  <Label htmlFor="sets-2">{t("newMatch.twoSets")}</Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="3" id="sets-3" />
-                  <Label htmlFor="sets-3">3 сета</Label>
+                  <Label htmlFor="sets-3">{t("newMatch.threeSets")}</Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="5" id="sets-5" />
-                  <Label htmlFor="sets-5">5 сетов (Гранд-слам)</Label>
+                  <Label htmlFor="sets-5">{t("newMatch.fiveSets")}</Label>
                 </div>
               </RadioGroup>
             </div>
 
             <div>
-              <Label>Система счета</Label>
+              <Label>{t("newMatch.scoringSystem")}</Label>
               <RadioGroup
                 value={scoringSystem}
                 onValueChange={setScoringSystem}
@@ -354,21 +360,21 @@ export default function NewMatchPage() {
               >
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="classic" id="scoring-classic" />
-                  <Label htmlFor="scoring-classic">Классическая (AD)</Label>
+                  <Label htmlFor="scoring-classic">{t("newMatch.classicScoring")}</Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="no-ad" id="scoring-no-ad" />
-                  <Label htmlFor="scoring-no-ad">No-Ad (ровно → решающий мяч)</Label>
+                  <Label htmlFor="scoring-no-ad">{t("newMatch.noAdScoring")}</Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="fast4" id="scoring-fast4" />
-                  <Label htmlFor="scoring-fast4">Fast4 (до 4 геймов)</Label>
+                  <Label htmlFor="scoring-fast4">{t("newMatch.fast4Scoring")}</Label>
                 </div>
               </RadioGroup>
             </div>
 
             <div className="flex items-center justify-between">
-              <Label>Тай-брейк</Label>
+              <Label>{t("newMatch.tiebreak")}</Label>
               <Switch
                 checked={tiebreakEnabled}
                 onCheckedChange={setTiebreakEnabled}
@@ -379,7 +385,7 @@ export default function NewMatchPage() {
             {tiebreakEnabled && (
               <>
                 <div>
-                  <Label>Тип тай-брейка</Label>
+                  <Label>{t("newMatch.tiebreakType")}</Label>
                   <RadioGroup
                     value={tiebreakType}
                     onValueChange={setTiebreakType}
@@ -387,24 +393,24 @@ export default function NewMatchPage() {
                   >
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="regular" id="tiebreak-regular" />
-                      <Label htmlFor="tiebreak-regular">Обычный (до 7)</Label>
+                      <Label htmlFor="tiebreak-regular">{t("newMatch.regularTiebreak")}</Label>
                     </div>
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="championship" id="tiebreak-championship" />
-                      <Label htmlFor="tiebreak-championship">Чемпионский (до 10)</Label>
+                      <Label htmlFor="tiebreak-championship">{t("newMatch.championshipTiebreak")}</Label>
                     </div>
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="super" id="tiebreak-super" />
-                      <Label htmlFor="tiebreak-super">Супер-тай-брейк (вместо 3-го сета)</Label>
+                      <Label htmlFor="tiebreak-super">{t("newMatch.superTiebreak")}</Label>
                     </div>
                   </RadioGroup>
                 </div>
 
                 <div>
-                  <Label>Тай-брейк при счете</Label>
+                  <Label>{t("newMatch.tiebreakAt")}</Label>
                   <Select value={tiebreakAt} onValueChange={setTiebreakAt}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Выберите счет для тай-брейка" />
+                      <SelectValue placeholder={t("newMatch.selectTiebreakScore")} />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="6-6">6:6</SelectItem>
@@ -417,7 +423,7 @@ export default function NewMatchPage() {
             )}
 
             <div className="flex items-center justify-between">
-              <Label>Тай-брейк в решающем сете</Label>
+              <Label>{t("newMatch.finalSetTiebreak")}</Label>
               <Switch
                 checked={finalSetTiebreak}
                 onCheckedChange={setFinalSetTiebreak}
@@ -426,24 +432,24 @@ export default function NewMatchPage() {
             </div>
 
             <div className="space-y-2 border-t pt-4">
-              <Label className="text-base font-medium">Дополнительно</Label>
+              <Label className="text-base font-medium">{t("newMatch.additional")}</Label>
               <div className="space-y-2">
                 <div className="flex items-center space-x-2">
                   <Checkbox id="golden-game" checked={goldenGame} onCheckedChange={setGoldenGame} />
                   <Label htmlFor="golden-game" className="text-sm">
-                    Золотой гейм (падел)
+                    {t("newMatch.goldenGame")}
                   </Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Checkbox id="golden-point" checked={goldenPoint} onCheckedChange={setGoldenPoint} />
                   <Label htmlFor="golden-point" className="text-sm">
-                    Золотой мяч (40-40 в решающем гейме)
+                    {t("newMatch.goldenPoint")}
                   </Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Checkbox id="windbreak" checked={windbreak} onCheckedChange={setWindbreak} />
                   <Label htmlFor="windbreak" className="text-sm">
-                    Виндрейк (подача через гейм)
+                    {t("newMatch.windbreak")}
                   </Label>
                 </div>
               </div>
@@ -451,11 +457,11 @@ export default function NewMatchPage() {
           </div>
 
           <div className="space-y-4">
-            <h3 className="font-medium">Игроки</h3>
+            <h3 className="font-medium">{t("newMatch.players")}</h3>
 
             <div className="flex gap-2">
               <Input
-                placeholder="Добавить нового игрока"
+                placeholder={t("players.addPlayer")}
                 value={newPlayerName}
                 onChange={(e) => setNewPlayerName(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && !isAddingPlayer && handleAddPlayer()}
@@ -463,25 +469,25 @@ export default function NewMatchPage() {
               />
               <Button onClick={handleAddPlayer} disabled={isAddingPlayer || !newPlayerName.trim()}>
                 {isAddingPlayer ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}
-                Добавить
+                {t("common.add")}
               </Button>
             </div>
 
             {loading ? (
               <div className="text-center py-4 text-muted-foreground">
                 <Loader2 className="h-6 w-6 animate-spin mx-auto mb-2" />
-                Загрузка игроков...
+                {t("common.loadingPlayers")}
               </div>
             ) : (
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label>Команда A</Label>
+                  <Label>{t("match.teamA")}</Label>
                   <div className="space-y-2 mt-2">
                     <PlayerSelector
                       players={players}
                       value={teamAPlayer1}
                       onChange={setTeamAPlayer1}
-                      placeholder="Игрок 1"
+                      placeholder={t("newMatch.player1")}
                     />
 
                     {matchFormat === "doubles" && (
@@ -489,20 +495,20 @@ export default function NewMatchPage() {
                         players={players}
                         value={teamAPlayer2}
                         onChange={setTeamAPlayer2}
-                        placeholder="Игрок 2"
+                        placeholder={t("newMatch.player2")}
                       />
                     )}
                   </div>
                 </div>
 
                 <div>
-                  <Label>Команда B</Label>
+                  <Label>{t("match.teamB")}</Label>
                   <div className="space-y-2 mt-2">
                     <PlayerSelector
                       players={players}
                       value={teamBPlayer1}
                       onChange={setTeamBPlayer1}
-                      placeholder="Игрок 1"
+                      placeholder={t("newMatch.player1")}
                     />
 
                     {matchFormat === "doubles" && (
@@ -510,7 +516,7 @@ export default function NewMatchPage() {
                         players={players}
                         value={teamBPlayer2}
                         onChange={setTeamBPlayer2}
-                        placeholder="Игрок 2"
+                        placeholder={t("newMatch.player2")}
                       />
                     )}
                   </div>
@@ -520,19 +526,19 @@ export default function NewMatchPage() {
 
             {/* Первая подача - перемещена вверх */}
             <div className="w-full border rounded-md p-2 sm:p-3 mb-4">
-              <Label className="block mb-1 sm:mb-2 text-[0.65rem] sm:text-sm">Первая подача</Label>
+              <Label className="block mb-1 sm:mb-2 text-[0.65rem] sm:text-sm">{t("newMatch.firstServe")}</Label>
               <div className="grid grid-cols-2 gap-2 text-center">
                 <div
                   className={`p-2 rounded cursor-pointer ${servingTeam === "teamA" ? "bg-green-200 font-medium" : "bg-gray-100"}`}
                   onClick={() => setServingTeam("teamA")}
                 >
-                  Команда A
+                  {t("match.teamA")}
                 </div>
                 <div
                   className={`p-2 rounded cursor-pointer ${servingTeam === "teamB" ? "bg-green-200 font-medium" : "bg-gray-100"}`}
                   onClick={() => setServingTeam("teamB")}
                 >
-                  Команда B
+                  {t("match.teamB")}
                 </div>
               </div>
             </div>
@@ -540,27 +546,27 @@ export default function NewMatchPage() {
             {/* Сторона команды A */}
             <div className="w-full border rounded-md p-2 sm:p-3 mb-4">
               <div className="flex justify-between items-center mb-1 sm:mb-2">
-                <Label className="text-[0.65rem] sm:text-sm">Сторона команды A</Label>
+                <Label className="text-[0.65rem] sm:text-sm">{t("newMatch.teamASide")}</Label>
               </div>
               <div className="grid grid-cols-2 gap-2 text-center">
                 <div
                   className={`p-2 rounded cursor-pointer ${teamASide === "left" ? "bg-blue-200 font-medium" : "bg-gray-100"}`}
                   onClick={() => setTeamASide("left")}
                 >
-                  Левая
+                  {t("newMatch.left")}
                 </div>
                 <div
                   className={`p-2 rounded cursor-pointer ${teamASide === "right" ? "bg-blue-200 font-medium" : "bg-gray-100"}`}
                   onClick={() => setTeamASide("right")}
                 >
-                  Правая
+                  {t("newMatch.right")}
                 </div>
               </div>
             </div>
 
             {/* Выбор корта */}
             <div className="space-y-2 mb-4">
-              <Label className="text-[0.65rem] sm:text-sm">Выбор корта</Label>
+              <Label className="text-[0.65rem] sm:text-sm">{t("newMatch.courtSelection")}</Label>
               <div className="border rounded-md p-2 sm:p-3">
                 <div className="mb-2">
                   <RadioGroup
@@ -576,7 +582,7 @@ export default function NewMatchPage() {
                     <div className="flex items-center space-x-2 mb-2">
                       <RadioGroupItem value="no-court" id="no-court" className="scale-75 sm:scale-100" />
                       <Label htmlFor="no-court" className="text-[0.65rem] sm:text-sm">
-                        Без корта
+                        {t("newMatch.noCourt")}
                       </Label>
                     </div>
 
@@ -593,7 +599,7 @@ export default function NewMatchPage() {
                             htmlFor={`court-${num}`}
                             className={`text-[0.65rem] sm:text-sm ${isCourtOccupied(num) ? "text-muted-foreground line-through" : ""}`}
                           >
-                            Корт {num}
+                            {t("newMatch.court")} {num}
                           </Label>
                         </div>
                       ))}
@@ -604,14 +610,14 @@ export default function NewMatchPage() {
                 {loadingCourts ? (
                   <div className="text-center py-2 text-[0.65rem] sm:text-sm text-muted-foreground">
                     <Loader2 className="h-4 w-4 animate-spin inline mr-1" />
-                    Проверка доступности кортов...
+                    {t("newMatch.checkingCourtAvailability")}
                   </div>
                 ) : occupiedCourts.length > 0 ? (
                   <div className="text-[0.65rem] sm:text-sm text-muted-foreground">
-                    Занятые корты: {occupiedCourts.sort((a, b) => a - b).join(", ")}
+                    {t("newMatch.occupiedCourts")}: {occupiedCourts.sort((a, b) => a - b).join(", ")}
                   </div>
                 ) : (
-                  <div className="text-[0.65rem] sm:text-sm text-green-600">Все корты свободны</div>
+                  <div className="text-[0.65rem] sm:text-sm text-green-600">{t("newMatch.allCourtsAvailable")}</div>
                 )}
               </div>
             </div>
@@ -619,7 +625,7 @@ export default function NewMatchPage() {
         </CardContent>
         <CardFooter>
           <Button className="w-full" onClick={handleCreateMatch}>
-            Начать матч
+            {t("newMatch.startMatch")}
           </Button>
         </CardFooter>
       </Card>
