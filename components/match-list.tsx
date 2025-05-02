@@ -3,14 +3,16 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { formatDistanceToNow } from "date-fns"
-import { ru } from "date-fns/locale"
+import { ru, enUS } from "date-fns/locale"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { getMatches, subscribeToMatchesListUpdates } from "@/lib/match-storage"
+import { useLanguage } from "@/contexts/language-context"
 
 export function MatchList() {
   const [matches, setMatches] = useState([])
   const [loading, setLoading] = useState(true)
+  const { language, t } = useLanguage()
 
   useEffect(() => {
     const loadMatches = async () => {
@@ -40,11 +42,11 @@ export function MatchList() {
   }, [])
 
   if (loading) {
-    return <div className="text-center py-8 text-muted-foreground">Загрузка матчей...</div>
+    return <div className="text-center py-8 text-muted-foreground">{t("matchList.loading")}</div>
   }
 
   if (matches.length === 0) {
-    return <div className="text-center py-8 text-muted-foreground">Нет активных матчей</div>
+    return <div className="text-center py-8 text-muted-foreground">{t("matchList.noMatches")}</div>
   }
 
   return (
@@ -55,18 +57,21 @@ export function MatchList() {
             <CardContent className="p-4">
               <div className="flex justify-between items-center mb-2">
                 <span className="text-xs sm:text-sm text-muted-foreground">
-                  {formatDistanceToNow(new Date(match.createdAt), { addSuffix: true, locale: ru })}
+                  {formatDistanceToNow(new Date(match.createdAt), {
+                    addSuffix: true,
+                    locale: language === "ru" ? ru : enUS,
+                  })}
                 </span>
                 <div className="flex gap-2">
                   <Badge variant="outline" className="text-xs sm:text-sm px-2 py-0.5">
-                    {match.type === "tennis" ? "Теннис" : "Падел"}
+                    {match.type === "tennis" ? t("home.tennis") : t("home.padel")}
                   </Badge>
                   {match.courtNumber !== null && (
                     <Badge
                       variant="outline"
                       className="text-xs sm:text-sm px-2 py-0.5 bg-blue-100 text-blue-800 hover:bg-blue-100"
                     >
-                      Корт {match.courtNumber}
+                      {t("matchList.court")} {match.courtNumber}
                     </Badge>
                   )}
                   {match.isCompleted ? (
@@ -74,14 +79,14 @@ export function MatchList() {
                       variant="outline"
                       className="text-xs sm:text-sm px-2 py-0.5 bg-green-100 text-green-800 hover:bg-green-100"
                     >
-                      Завершен
+                      {t("matchList.completed")}
                     </Badge>
                   ) : (
                     <Badge
                       variant="outline"
                       className="text-xs sm:text-sm px-2 py-0.5 bg-blue-100 text-blue-800 hover:bg-blue-100"
                     >
-                      В процессе
+                      {t("matchList.inProgress")}
                     </Badge>
                   )}
                 </div>

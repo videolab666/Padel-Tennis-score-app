@@ -9,8 +9,10 @@ import { getOccupiedCourts, MAX_COURTS } from "@/lib/court-utils"
 import { VmixButton } from "@/components/vmix-button"
 import { FullscreenButton } from "@/components/fullscreen-button"
 import { logEvent } from "@/lib/error-logger"
+import { useLanguage } from "@/contexts/language-context"
 
 export function CourtsList() {
+  const { t } = useLanguage()
   const [occupiedCourts, setOccupiedCourts] = useState<number[]>([])
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
@@ -54,12 +56,12 @@ export function CourtsList() {
     <Card>
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <div>
-          <CardTitle>Статус кортов</CardTitle>
-          <CardDescription>Информация о занятых кортах</CardDescription>
+          <CardTitle>{t("courtsList.title")}</CardTitle>
+          <CardDescription>{t("courtsList.description")}</CardDescription>
         </div>
         <Button variant="outline" size="sm" onClick={handleRefresh} disabled={refreshing}>
           {refreshing ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
-          <span className="sr-only">Обновить</span>
+          <span className="sr-only">{t("courtsList.refresh")}</span>
         </Button>
       </CardHeader>
       <CardContent>
@@ -79,8 +81,12 @@ export function CourtsList() {
                   }`}
                 >
                   <div className="flex flex-col items-center gap-2">
-                    <div className="text-lg font-medium">Корт {courtNumber}</div>
-                    <Badge variant={occupied ? "success" : "outline"}>{occupied ? "Занят" : "Свободен"}</Badge>
+                    <div className="text-lg font-medium">
+                      {t("courtsList.court")} {courtNumber}
+                    </div>
+                    <Badge variant={occupied ? "success" : "outline"}>
+                      {occupied ? t("courtsList.occupied") : t("courtsList.available")}
+                    </Badge>
                     {occupied && (
                       <div className="flex flex-col gap-1 w-full mt-1">
                         <VmixButton

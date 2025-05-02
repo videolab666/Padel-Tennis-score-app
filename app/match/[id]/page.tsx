@@ -1,8 +1,7 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useContext } from "react"
 import { useRouter } from "next/navigation"
-// Добавим импорт для новой иконки
 import { ArrowLeft, Share2, Copy, Download, Upload, ExternalLink } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -22,9 +21,10 @@ import {
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
-// Добавим импорт для VmixButton
 import { VmixButton } from "@/components/vmix-button"
 import { Badge } from "@/components/ui/badge"
+import { LanguageContext } from "@/contexts/language-context"
+import { translations } from "@/lib/translations"
 
 type MatchParams = {
   params: {
@@ -34,6 +34,9 @@ type MatchParams = {
 
 export default function MatchPage({ params }: MatchParams) {
   const router = useRouter()
+  const { language } = useContext(LanguageContext)
+  const t = translations[language]
+
   const [match, setMatch] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
@@ -46,7 +49,7 @@ export default function MatchPage({ params }: MatchParams) {
     const loadMatch = async () => {
       try {
         if (!params.id || params.id === "[object%20Promise]") {
-          setError("Некорректный ID матча")
+          setError(language === "ru" ? "Некорректный ID матча" : "Invalid match ID")
           setLoading(false)
           return
         }
@@ -60,10 +63,10 @@ export default function MatchPage({ params }: MatchParams) {
           setMatch(matchData)
           setError("")
         } else {
-          setError("Матч не найден")
+          setError(language === "ru" ? "Матч не найден" : "Match not found")
         }
       } catch (err) {
-        setError("Ошибка загрузки матча")
+        setError(language === "ru" ? "Ошибка загрузки матча" : "Error loading match")
         console.error(err)
       } finally {
         setLoading(false)
@@ -79,7 +82,7 @@ export default function MatchPage({ params }: MatchParams) {
         setError("")
       } else {
         // Если матч был удален, показываем ошибку
-        setError("Матч не найден или был удален")
+        setError(language === "ru" ? "Матч не найден или был удален" : "Match not found or was deleted")
       }
     })
 
@@ -104,7 +107,7 @@ export default function MatchPage({ params }: MatchParams) {
       }
       window.removeEventListener("match-updated", handleMatchUpdated)
     }
-  }, [params.id])
+  }, [params.id, language])
 
   const handleUpdateMatch = async (updatedMatch) => {
     try {
@@ -115,7 +118,7 @@ export default function MatchPage({ params }: MatchParams) {
       setMatch(updatedMatch)
 
       // Показываем уведомление об успешном обновлении
-      setAlertMessage("Счет обновлен")
+      setAlertMessage(t.matchPage.scoreUpdated)
       setShowAlert(true)
       setTimeout(() => setShowAlert(false), 2000)
     } catch (err) {
@@ -146,12 +149,16 @@ export default function MatchPage({ params }: MatchParams) {
         setMatch(minimalMatch)
 
         // Показываем уведомление о проблеме
-        setAlertMessage("Данные матча были упрощены из-за ограничений хранилища")
+        setAlertMessage(t.matchPage.matchDataSimplified)
         setShowAlert(true)
         setTimeout(() => setShowAlert(false), 3000)
       } catch (innerErr) {
         console.error("Критическая ошибка обновления матча:", innerErr)
-        setError("Не удалось обновить матч. Попробуйте обновить страницу.")
+        setError(
+          language === "ru"
+            ? "Не удалось обновить матч. Попробуйте обновить страницу."
+            : "Failed to update match. Try refreshing the page.",
+        )
       }
     }
   }
@@ -161,13 +168,13 @@ export default function MatchPage({ params }: MatchParams) {
 
     if (navigator.share) {
       navigator.share({
-        title: "Теннисный матч",
-        text: "Следите за счетом матча в реальном времени",
+        title: language === "ru" ? "Теннисный матч" : "Tennis match",
+        text: language === "ru" ? "Следите за счетом матча в реальном времени" : "Follow the match score in real-time",
         url,
       })
     } else {
       navigator.clipboard.writeText(url)
-      setAlertMessage("Ссылка скопирована в буфер обмена")
+      setAlertMessage(t.matchPage.linkCopied)
       setShowAlert(true)
       setTimeout(() => setShowAlert(false), 2000)
     }
@@ -175,7 +182,7 @@ export default function MatchPage({ params }: MatchParams) {
 
   const copyMatchId = () => {
     navigator.clipboard.writeText(params.id)
-    setAlertMessage("Код матча скопирован в буфер обмена")
+    setAlertMessage(t.matchPage.matchCodeCopied)
     setShowAlert(true)
     setTimeout(() => setShowAlert(false), 2000)
   }
@@ -184,7 +191,7 @@ export default function MatchPage({ params }: MatchParams) {
     const jsonData = await exportMatchToJson(params.id)
     if (jsonData) {
       navigator.clipboard.writeText(jsonData)
-      setAlertMessage("Данные матча скопированы в буфер обмена")
+      setAlertMessage(t.matchPage.matchDataCopied)
       setShowAlert(true)
       setTimeout(() => setShowAlert(false), 2000)
     }
@@ -192,7 +199,7 @@ export default function MatchPage({ params }: MatchParams) {
 
   const handleImportMatch = async () => {
     if (!importData.trim()) {
-      setAlertMessage("Введите данные для импорта")
+      setAlertMessage(t.matchPage.importDataRequired)
       setShowAlert(true)
       setTimeout(() => setShowAlert(false), 2000)
       return
@@ -201,7 +208,7 @@ export default function MatchPage({ params }: MatchParams) {
     try {
       const matchId = await importMatchFromJson(importData)
       if (matchId) {
-        setAlertMessage("Матч успешно импортирован")
+        setAlertMessage(t.matchPage.matchImported)
         setShowAlert(true)
         setTimeout(() => {
           setShowAlert(false)
@@ -211,7 +218,7 @@ export default function MatchPage({ params }: MatchParams) {
         throw new Error("Ошибка импорта")
       }
     } catch (err) {
-      setAlertMessage("Ошибка при импорте матча. Проверьте формат данных.")
+      setAlertMessage(t.matchPage.importError)
       setShowAlert(true)
       setTimeout(() => setShowAlert(false), 3000)
     }
@@ -223,7 +230,7 @@ export default function MatchPage({ params }: MatchParams) {
   }
 
   if (loading) {
-    return <div className="container max-w-4xl mx-auto px-4 py-8 text-center">Загрузка матча...</div>
+    return <div className="container max-w-4xl mx-auto px-4 py-8 text-center">{t.matchPage.loadingMatch}</div>
   }
 
   if (error) {
@@ -231,12 +238,12 @@ export default function MatchPage({ params }: MatchParams) {
       <div className="container max-w-4xl mx-auto px-4 py-8">
         <Button variant="ghost" className="mb-4" onClick={() => router.push("/")}>
           <ArrowLeft className="mr-2 h-4 w-4" />
-          На главную
+          {t.matchPage.home}
         </Button>
         <Card className="p-6 text-center">
-          <h2 className="text-xl font-bold text-red-500 mb-2">Ошибка</h2>
+          <h2 className="text-xl font-bold text-red-500 mb-2">{t.matchPage.errorTitle}</h2>
           <p className="mb-4">{error}</p>
-          <Button onClick={handleCreateNewMatch}>Создать новый матч</Button>
+          <Button onClick={handleCreateNewMatch}>{t.matchPage.createNewMatch}</Button>
         </Card>
       </div>
     )
@@ -246,21 +253,20 @@ export default function MatchPage({ params }: MatchParams) {
     <div className="container max-w-4xl mx-auto px-4 py-8">
       {showAlert && (
         <Alert className="fixed top-4 right-4 w-auto z-50 bg-green-50 border-green-200">
-          <AlertTitle>Уведомление</AlertTitle>
+          <AlertTitle>{t.matchPage.notification}</AlertTitle>
           <AlertDescription>{alertMessage}</AlertDescription>
         </Alert>
       )}
 
-      {/* Добавим кнопку для перехода на страницу просмотра счета в блок с кнопками в верхней части страницы */}
       <div className="flex justify-between items-center mb-6">
         <div className="flex items-center">
           <Button variant="ghost" onClick={() => router.push("/")}>
             <ArrowLeft className="mr-2 h-4 w-4" />
-            На главную
+            {t.matchPage.home}
           </Button>
           {match && match.courtNumber !== null && (
             <Badge variant="outline" className="ml-2 bg-blue-100 text-blue-800">
-              Корт {match.courtNumber}
+              {t.matchPage.court} {match.courtNumber}
             </Badge>
           )}
         </div>
@@ -270,15 +276,14 @@ export default function MatchPage({ params }: MatchParams) {
         </div>
       </div>
 
-      {/* Добавим блок с основными кнопками, которые будут растягиваться на мобильных устройствах */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-6">
         <Button variant="outline" onClick={handleShare} className="w-full">
           <Share2 className="mr-2 h-4 w-4" />
-          Поделиться
+          {t.matchPage.share}
         </Button>
         <Button variant="outline" onClick={() => router.push(`/match/${params.id}/view`)} className="w-full">
           <ExternalLink className="mr-2 h-4 w-4" />
-          Просмотр счета
+          {t.matchPage.viewScore}
         </Button>
       </div>
 
@@ -286,8 +291,8 @@ export default function MatchPage({ params }: MatchParams) {
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="mb-4">
-          <TabsTrigger value="match">Матч</TabsTrigger>
-          <TabsTrigger value="export">Экспорт/Импорт</TabsTrigger>
+          <TabsTrigger value="match">{t.matchPage.matchTab}</TabsTrigger>
+          <TabsTrigger value="export">{t.matchPage.exportImportTab}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="match">
@@ -304,21 +309,19 @@ export default function MatchPage({ params }: MatchParams) {
         <TabsContent value="export">
           <Card className="p-6 space-y-6">
             <div>
-              <h3 className="text-lg font-medium mb-2">Экспорт матча</h3>
-              <p className="text-sm text-muted-foreground mb-4">
-                Скопируйте данные матча для сохранения или передачи на другое устройство
-              </p>
+              <h3 className="text-lg font-medium mb-2">{t.matchPage.exportMatch}</h3>
+              <p className="text-sm text-muted-foreground mb-4">{t.matchPage.exportDescription}</p>
               <Button onClick={handleExportMatch}>
                 <Download className="mr-2 h-4 w-4" />
-                Экспортировать данные
+                {t.matchPage.exportButton}
               </Button>
             </div>
 
             <div>
-              <h3 className="text-lg font-medium mb-2">Импорт матча</h3>
-              <p className="text-sm text-muted-foreground mb-4">Вставьте данные матча для импорта</p>
+              <h3 className="text-lg font-medium mb-2">{t.matchPage.importMatch}</h3>
+              <p className="text-sm text-muted-foreground mb-4">{t.matchPage.importDescription}</p>
               <Textarea
-                placeholder="Вставьте данные матча в формате JSON"
+                placeholder={t.matchPage.importPlaceholder}
                 value={importData}
                 onChange={(e) => setImportData(e.target.value)}
                 className="mb-4"
@@ -326,7 +329,7 @@ export default function MatchPage({ params }: MatchParams) {
               />
               <Button onClick={handleImportMatch}>
                 <Upload className="mr-2 h-4 w-4" />
-                Импортировать данные
+                {t.matchPage.importButton}
               </Button>
             </div>
           </Card>
@@ -334,11 +337,11 @@ export default function MatchPage({ params }: MatchParams) {
       </Tabs>
       {activeTab === "match" && (
         <Card className="mt-6 p-4">
-          <h3 className="text-sm font-medium mb-3 text-muted-foreground">Технические функции</h3>
+          <h3 className="text-sm font-medium mb-3 text-muted-foreground">{t.matchPage.technicalFunctions}</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
             <Button variant="outline" onClick={copyMatchId} className="w-full text-sm" size="sm">
               <Copy className="mr-2 h-4 w-4" />
-              Код матча
+              {t.matchPage.matchCode}
             </Button>
             <VmixButton matchId={params.id} courtNumber={match?.courtNumber} className="w-full text-sm" size="sm" />
             {match?.courtNumber && (
@@ -349,7 +352,7 @@ export default function MatchPage({ params }: MatchParams) {
                 size="sm"
               >
                 <ExternalLink className="mr-2 h-4 w-4" />
-                JSON КОРТ {match.courtNumber}
+                {t.matchPage.jsonCourt} {match.courtNumber}
               </Button>
             )}
             {match?.courtNumber && (
@@ -360,7 +363,7 @@ export default function MatchPage({ params }: MatchParams) {
                 size="sm"
               >
                 <ExternalLink className="mr-2 h-4 w-4" />
-                vMix корт {match.courtNumber}
+                {t.matchPage.vmixCourt} {match.courtNumber}
               </Button>
             )}
             <Button
@@ -370,7 +373,7 @@ export default function MatchPage({ params }: MatchParams) {
               size="sm"
             >
               <ExternalLink className="mr-2 h-4 w-4" />
-              JSON МАТЧ
+              {t.matchPage.jsonMatch}
             </Button>
             <Button
               variant="outline"
@@ -500,7 +503,7 @@ export default function MatchPage({ params }: MatchParams) {
               size="sm"
             >
               <ExternalLink className="mr-2 h-4 w-4" />
-              vMix матч
+              {t.matchPage.vmixMatch}
             </Button>
           </div>
         </Card>

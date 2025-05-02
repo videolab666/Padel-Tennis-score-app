@@ -3,12 +3,13 @@
 import { Button } from "@/components/ui/button"
 import { Maximize2 } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { useLanguage } from "@/contexts/language-context"
 
 interface FullscreenButtonProps {
   courtNumber: number | null
   matchId?: string
   className?: string
-  size?: "default" | "sm" | "lg" | "icon"
+  size?: "default" | "sm" | "lg"
   iconClassName?: string
 }
 
@@ -125,6 +126,7 @@ export function FullscreenButton({
   iconClassName?: string
 }) {
   const router = useRouter()
+  const { t } = useLanguage()
 
   // Изменяем функцию handleClick, чтобы она переходила в текущем окне вместо открытия нового
   const handleClick = () => {
@@ -188,7 +190,7 @@ export function FullscreenButton({
   return (
     <Button variant="outline" size={size} className={className} onClick={handleClick}>
       <Maximize2 className={`h-4 w-4 ${iconClassName}`} />
-      Полный экран
+      {t("common.fullscreen")}
     </Button>
   )
 }

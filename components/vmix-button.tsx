@@ -4,6 +4,9 @@ import { Button } from "@/components/ui/button"
 import { MonitorPlay } from "lucide-react"
 import { useRouter } from "next/navigation"
 
+// Import the language context
+import { useLanguage } from "@/contexts/language-context"
+
 // Обновим интерфейс пропсов:
 interface VmixButtonProps {
   matchId: string
@@ -192,7 +195,7 @@ const generateCourtVmixUrl = (courtNumber, settings) => {
   return url.toString()
 }
 
-// Обновим функцию компонента, чтобы она загружала настройки из localStorage
+// Add the useLanguage hook to the VmixButton component
 export function VmixButton({
   courtNumber,
   matchId,
@@ -203,6 +206,7 @@ export function VmixButton({
   openInCurrentWindow = false,
 }: VmixButtonProps) {
   const router = useRouter()
+  const { t } = useLanguage() // Add this line to get the translation function
 
   const handleClick = () => {
     if (directLink) {
@@ -240,10 +244,11 @@ export function VmixButton({
     }
   }
 
+  // Replace the hardcoded text with translated text
   return (
     <Button variant="outline" size={size} className={className} onClick={handleClick}>
       <MonitorPlay className={`h-4 w-4 ${iconClassName}`} />
-      {directLink ? "vMix overlay" : "vMix настройки"}
+      {directLink ? t("common.vmixOverlay") : t("common.vmixSettings")}
     </Button>
   )
 }

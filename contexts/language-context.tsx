@@ -64,3 +64,5 @@ export function useLanguage() {
   }
   return context
 }
+
+export { LanguageContext }
