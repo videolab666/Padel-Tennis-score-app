@@ -302,90 +302,7 @@ export default function VmixSettingsPage({ params }) {
   // Добавим функцию для генерации URL для страницы корта
   // Добавьте эту функцию после функции generateVmixUrl()
 
-  const generateCourtVmixUrl = () => {
-    // Получаем номер корта из матча
-    const courtNumber = match?.courtNumber || 1
-
-    const baseUrl = window.location.origin
-    const url = new URL(`${baseUrl}/court-vmix/${courtNumber}`)
-
-    // Добавляем основные параметры
-    url.searchParams.set("theme", theme)
-    url.searchParams.set("showNames", showNames.toString())
-    url.searchParams.set("showPoints", showPoints.toString())
-    url.searchParams.set("showSets", showSets.toString())
-    url.searchParams.set("showServer", showServer.toString())
-    url.searchParams.set("showCountry", showCountry.toString())
-    url.searchParams.set("fontSize", fontSize)
-    url.searchParams.set("bgOpacity", bgOpacity.toString())
-    url.searchParams.set("textColor", formatColorForUrl(textColor))
-    url.searchParams.set("accentColor", formatColorForUrl(accentColor))
-    url.searchParams.set("playerNamesFontSize", playerNamesFontSize.toString())
-
-    // Добавляем параметры цветов и градиентов (только если тема не прозрачная)
-    if (theme !== "transparent") {
-      url.searchParams.set("namesBgColor", formatColorForUrl(namesBgColor))
-      url.searchParams.set("countryBgColor", formatColorForUrl(countryBgColor))
-      url.searchParams.set("serveBgColor", formatColorForUrl(serveBgColor))
-      url.searchParams.set("pointsBgColor", formatColorForUrl(pointsBgColor))
-      url.searchParams.set("setsBgColor", formatColorForUrl(setsBgColor))
-      url.searchParams.set("setsTextColor", formatColorForUrl(setsTextColor))
-
-      // Явно передаем строковые значения "true" или "false" для булевых параметров
-      url.searchParams.set("namesGradient", namesGradient ? "true" : "false")
-      url.searchParams.set("namesGradientFrom", formatColorForUrl(namesGradientFrom))
-      url.searchParams.set("namesGradientTo", formatColorForUrl(namesGradientTo))
-      url.searchParams.set("countryGradient", countryGradient ? "true" : "false")
-      url.searchParams.set("countryGradientFrom", formatColorForUrl(countryGradientFrom))
-      url.searchParams.set("countryGradientTo", formatColorForUrl(countryGradientTo))
-      url.searchParams.set("serveGradient", serveGradient ? "true" : "false")
-      url.searchParams.set("serveGradientFrom", formatColorForUrl(serveGradientFrom))
-      url.searchParams.set("serveGradientTo", formatColorForUrl(serveGradientTo))
-      url.searchParams.set("pointsGradient", pointsGradient ? "true" : "false")
-      url.searchParams.set("pointsGradientFrom", formatColorForUrl(pointsGradientFrom))
-      url.searchParams.set("pointsGradientTo", formatColorForUrl(pointsGradientTo))
-      url.searchParams.set("setsGradient", setsGradient ? "true" : "false")
-      url.searchParams.set("setsGradientFrom", formatColorForUrl(setsGradientFrom))
-      url.searchParams.set("setsGradientTo", formatColorForUrl(setsGradientTo))
-
-      // Добавляем параметры для индикатора
-      url.searchParams.set("indicatorBgColor", formatColorForUrl(indicatorBgColor))
-      url.searchParams.set("indicatorTextColor", formatColorForUrl(indicatorTextColor))
-      url.searchParams.set("indicatorGradient", indicatorGradient ? "true" : "false")
-      url.searchParams.set("indicatorGradientFrom", formatColorForUrl(indicatorGradientFrom))
-      url.searchParams.set("indicatorGradientTo", formatColorForUrl(indicatorGradientTo))
-    }
-
-    return url.toString()
-  }
-
   // Добавим функции для работы с URL корта
-  const handleCopyCourtUrl = async () => {
-    try {
-      setCopying(true)
-      await navigator.clipboard.writeText(generateCourtVmixUrl())
-      toast({
-        title: t("vmixSettings.urlCopied"),
-        description: t("vmixSettings.courtUrlCopied"),
-      })
-    } catch (error) {
-      toast({
-        title: t("common.error"),
-        description: t("vmixSettings.failedToCopyUrl"),
-        variant: "destructive",
-      })
-    } finally {
-      setCopying(false)
-    }
-  }
-
-  const handleOpenCourtVmix = () => {
-    window.open(generateCourtVmixUrl(), "_blank")
-  }
-
-  const handleOpenCourtVmixInCurrentWindow = () => {
-    router.push(generateCourtVmixUrl())
-  }
 
   const generateJsonUrl = () => {
     const baseUrl = window.location.origin
@@ -1352,46 +1269,8 @@ export default function VmixSettingsPage({ params }) {
                     <Save className="mr-2 h-4 w-4" />
                     {t("vmixSettings.saveSettings")}
                   </Button>
-                  <Button onClick={handleOpenCourtVmix} className="w-full">
-                    <ExternalLink className="mr-2 h-4 w-4" />
-                    {t("vmixSettings.openCourtInNewWindow")}
-                  </Button>
-                  <Button onClick={handleOpenCourtVmixInCurrentWindow} className="w-full">
-                    <ArrowRight className="mr-2 h-4 w-4" />
-                    {t("vmixSettings.openCourtInCurrentWindow")}
-                  </Button>
-                  <Button onClick={handleCopyCourtUrl} className="w-full" disabled={copying}>
-                    <Copy className="mr-2 h-4 w-4" />
-                    {copying ? t("common.copying") : t("vmixSettings.copyCourtUrl")}
-                  </Button>
+
                   <Separator className="my-4" />
-
-                  <div className="text-sm font-medium text-gray-500 mb-2">{t("vmixSettings.courtPageActions")}</div>
-
-                  {match && match.courtNumber ? (
-                    <>
-                      <Button onClick={handleOpenCourtVmix} className="w-full" variant="outline">
-                        <ExternalLink className="mr-2 h-4 w-4" />
-                        {t("vmixSettings.openCourtPageNewWindow", { courtNumber: match.courtNumber })}
-                      </Button>
-
-                      <Button onClick={handleOpenCourtVmixInCurrentWindow} className="w-full" variant="outline">
-                        <ArrowRight className="mr-2 h-4 w-4" />
-                        {t("vmixSettings.openCourtPageCurrentWindow", { courtNumber: match.courtNumber })}
-                      </Button>
-
-                      <Button onClick={handleCopyCourtUrl} className="w-full" variant="outline" disabled={copying}>
-                        <Copy className="mr-2 h-4 w-4" />
-                        {copying
-                          ? t("common.copying")
-                          : t("vmixSettings.copyCourtPageUrl", { courtNumber: match.courtNumber })}
-                      </Button>
-                    </>
-                  ) : (
-                    <div className="text-sm text-gray-400 italic p-2 text-center">
-                      {t("vmixSettings.matchNotAssignedToCourt")}
-                    </div>
-                  )}
                 </CardContent>
               </Card>
             </div>
