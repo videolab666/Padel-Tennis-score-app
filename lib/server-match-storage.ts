@@ -50,7 +50,7 @@ export const getMatchFromServer = async (id) => {
 
     logEvent("info", "Матч успешно получен из Supabase (сервер)", "getMatchFromServer", { matchId: id })
 
-    // Преобразуем данные из Supabase
+    // Преобраз��ем данные из Supabase
     const match = transformMatchFromSupabase(data)
 
     // Убедимся, что структура матча полная

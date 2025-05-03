@@ -510,7 +510,7 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
             font-size: 8vh; /* Увеличено в 2 раза */
           }
           .points-cell {
-            font-size: 14.4vh; /* Уменьшено на 40% от 24vh */
+            font-size: 14.4vh; /* Уменьшено на 40% ��т 24vh */
           }
           .important-event {
             font-size: 3vh;

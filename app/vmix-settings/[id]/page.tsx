@@ -606,7 +606,7 @@ export default function VmixSettingsPage({ params }) {
 
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <Label htmlFor="showNames">{t("vmixSettings.showPlayerNames")}</Label>
+                      <Label htmlFor="showNames">Показывать имена игроков</Label>
                       <Switch
                         id="showNames"
                         checked={showNames}
@@ -704,7 +704,7 @@ export default function VmixSettingsPage({ params }) {
                       {namesGradient && (
                         <>
                           <div className="space-y-2">
-                            <Label htmlFor="namesGradientFrom">{t("vmixSettings.nameGradientStartColor")}</Label>
+                            <Label htmlFor="namesGradientFrom">{t("vmixSettings.namesGradientStartColor")}</Label>
                             <div className="flex items-center space-x-2">
                               <div
                                 className="w-6 h-6 rounded-full border"
@@ -727,7 +727,7 @@ export default function VmixSettingsPage({ params }) {
                           </div>
 
                           <div className="space-y-2">
-                            <Label htmlFor="namesGradientTo">{t("vmixSettings.nameGradientEndColor")}</Label>
+                            <Label htmlFor="namesGradientTo">{t("vmixSettings.namesGradientEndColor")}</Label>
                             <div className="flex items-center space-x-2">
                               <div
                                 className="w-6 h-6 rounded-full border"
