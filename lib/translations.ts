@@ -1328,7 +1328,7 @@ export const translations: { [key in Language]: TranslationKeys } = {
       backToMatch: "Back",
       settingsForCourt: "vMix Settings for Court {number}",
       noActiveMatches: "No active matches on court {number}",
-      matchOnCourt: "Match on court:",
+      matchOnCourt: "Match on court",
       displaySettings: "Display Settings",
       apiForVmix: "API for vMix",
       basicSettings: "Basic Settings",

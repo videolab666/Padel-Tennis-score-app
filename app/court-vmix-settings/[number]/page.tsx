@@ -19,7 +19,7 @@ import { useLanguage } from "@/contexts/language-context"
 
 export default function CourtVmixSettingsPage({ params }) {
   const router = useRouter()
-  const { t } = useLanguage()
+  const { t, language } = useLanguage()
   const [match, setMatch] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
@@ -508,7 +508,9 @@ export default function CourtVmixSettingsPage({ params }) {
 
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <Label htmlFor="showNames">Показывать имена игроков</Label>
+                      <Label htmlFor="showNames">
+                        {t.language === "ru" ? "Показывать имена игроков" : "Show player names"}
+                      </Label>
                       <Switch
                         id="showNames"
                         checked={showNames}
@@ -518,7 +520,9 @@ export default function CourtVmixSettingsPage({ params }) {
                     </div>
 
                     <div className="flex items-center justify-between">
-                      <Label htmlFor="showPoints">Показывать текущие очки</Label>
+                      <Label htmlFor="showPoints">
+                        {t.language === "ru" ? "Показывать текущие очки" : "Show current points"}
+                      </Label>
                       <Switch
                         id="showPoints"
                         checked={showPoints}
@@ -528,7 +532,9 @@ export default function CourtVmixSettingsPage({ params }) {
                     </div>
 
                     <div className="flex items-center justify-between">
-                      <Label htmlFor="showSets">Показывать счет по сетам</Label>
+                      <Label htmlFor="showSets">
+                        {t.language === "ru" ? "Показывать счет по сетам" : "Show sets score"}
+                      </Label>
                       <Switch
                         id="showSets"
                         checked={showSets}
@@ -538,7 +544,7 @@ export default function CourtVmixSettingsPage({ params }) {
                     </div>
 
                     <div className="flex items-center justify-between">
-                      <Label htmlFor="showServer">Показывать подающего</Label>
+                      <Label htmlFor="showServer">{t.language === "ru" ? "Показывать подающего" : "Show server"}</Label>
                       <Switch
                         id="showServer"
                         checked={showServer}
@@ -548,7 +554,9 @@ export default function CourtVmixSettingsPage({ params }) {
                     </div>
 
                     <div className="flex items-center justify-between">
-                      <Label htmlFor="showCountry">Показывать страны</Label>
+                      <Label htmlFor="showCountry">
+                        {t.language === "ru" ? "Показывать страны" : "Show countries"}
+                      </Label>
                       <Switch
                         id="showCountry"
                         checked={showCountry}
