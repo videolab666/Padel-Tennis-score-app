@@ -370,7 +370,7 @@ export default function CourtVmixSettingsPage({ params }) {
       </Button>
 
       <h1 className="text-2xl font-bold mb-4">
-        {t("courtVmixSettings.title")} - Корт {courtNumber}
+        {t("courtVmixSettings.title")} - {t("matchList.court")} {courtNumber}
       </h1>
 
       {error ? (

@@ -153,7 +153,7 @@ export default function PlayersPage() {
       }
     } catch (error) {
       console.error("Ошибка при удалении игроков:", error)
-      showNotification("Произошла ошибка при удалении игроков", "error")
+      showNotification("Произо��ла ошибка при удалении игроков", "error")
       logEvent("error", "Ошибка при удалении игроков", "PlayersPage", error)
     } finally {
       setIsDeletingPlayers(false)
