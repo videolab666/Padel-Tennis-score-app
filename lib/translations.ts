@@ -255,6 +255,226 @@ export type TranslationKeys = {
     selectAllPlayersForDoubles: string
     courtOccupied: string
   }
+  vmixSettings: {
+    title: string
+    backToMatch: string
+    settingsFor: string
+    displaySettings: string
+    apiForVmix: string
+    basicSettings: string
+    configureBasicParams: string
+    theme: string
+    selectTheme: string
+    customTheme: string
+    transparentTheme: string
+    fontSize: string
+    selectFontSize: string
+    smallSize: string
+    mediumSize: string
+    largeSize: string
+    xlargeSize: string
+    playerNamesFontSize: string
+    bgOpacity: string
+    textColor: string
+    serveIndicatorColor: string
+    colorsAndGradients: string
+    configureColorsAndGradients: string
+    playerNamesBlock: string
+    playerNamesBgColor: string
+    useGradientForNames: string
+    namesGradientStartColor: string
+    namesGradientEndColor: string
+    countriesBlock: string
+    countriesBgColor: string
+    useGradientForCountries: string
+    countriesGradientStartColor: string
+    countriesGradientEndColor: string
+    serveIndicatorBlock: string
+    serveIndicatorBgColor: string
+    useGradientForServeIndicator: string
+    serveIndicatorGradientStartColor: string
+    serveIndicatorGradientEndColor: string
+    serveIndicatorExample: string
+    currentScoreBlock: string
+    currentScoreBgColor: string
+    useGradientForCurrentScore: string
+    currentScoreGradientStartColor: string
+    currentScoreGradientEndColor: string
+    setsScoreBlock: string
+    setsBgColor: string
+    setsTextColor: string
+    useGradientForSets: string
+    setsGradientStartColor: string
+    setsGradientEndColor: string
+    importantMomentsIndicator: string
+    indicatorBgColor: string
+    indicatorTextColor: string
+    useGradientForIndicator: string
+    indicatorGradientStartColor: string
+    indicatorGradientEndColor: string
+    actions: string
+    previewAndUseSettings: string
+    preview: string
+    openInNewWindow: string
+    openInCurrentWindow: string
+    copyUrl: string
+    copying: string
+    saveSettings: string
+    jsonApiForVmix: string
+    useApiForVmixData: string
+    jsonApiUrl: string
+    instructionsForVmix: string
+    dataSourceSetup: string
+    dataSourceSteps: string
+    titleDesignerUsage: string
+    titleDesignerSteps: string
+    availableDataFields: string
+    teamA: string
+    teamB: string
+    generalData: string
+    dataFormatExample: string
+    settingsSaved: string
+    errorSavingSettings: string
+    teamAName: string
+    teamAScore: string
+    teamAGameScore: string
+    teamACurrentSet: string
+    teamAServing: string
+    teamASetScores: string
+    teamBName: string
+    teamBScore: string
+    teamBGameScore: string
+    teamBCurrentSet: string
+    teamBServing: string
+    teamBSetScores: string
+    matchId: string
+    isTiebreak: string
+    isCompleted: string
+    winner: string
+    updateTime: string
+    copyJsonApiUrl: string
+    openCourtInNewWindow: string
+    openCourtInCurrentWindow: string
+    copyCourtUrl: string
+    actionsForCourtPage: string
+    courtNotAssigned: string
+    matchNotAssignedToCourt: string
+    useApiToGetMatchData: string
+    usageInstructions: string
+    goToSettingsDataSources: string
+    clickAddAndSelectWeb: string
+    pasteApiUrl: string
+    setUpdateInterval: string
+    clickOkToSave: string
+    usingInTitleDesigner: string
+    createOrOpenTitle: string
+    addTextFields: string
+    inTextFieldPropertiesSelectDataBinding: string
+    selectDataSourceAndField: string
+    repeatForAllFields: string
+  }
+  courtVmixSettings: {
+    title: string
+    backToMatch: string
+    settingsForCourt: string
+    noActiveMatches: string
+    matchOnCourt: string
+    displaySettings: string
+    apiForVmix: string
+    basicSettings: string
+    configureBasicParams: string
+    theme: string
+    selectTheme: string
+    customTheme: string
+    transparentTheme: string
+    fontSize: string
+    selectFontSize: string
+    smallSize: string
+    mediumSize: string
+    largeSize: string
+    xlargeSize: string
+    playerNamesFontSize: string
+    bgOpacity: string
+    textColor: string
+    serveIndicatorColor: string
+    colorsAndGradients: string
+    configureColorsAndGradients: string
+    playerNamesBlock: string
+    playerNamesBgColor: string
+    useGradientForNames: string
+    namesGradientStartColor: string
+    namesGradientEndColor: string
+    countriesBlock: string
+    countriesBgColor: string
+    useGradientForCountries: string
+    countriesGradientStartColor: string
+    countriesGradientEndColor: string
+    serveIndicatorBlock: string
+    serveIndicatorBgColor: string
+    useGradientForServeIndicator: string
+    serveIndicatorGradientStartColor: string
+    serveIndicatorGradientEndColor: string
+    serveIndicatorExample: string
+    currentScoreBlock: string
+    currentScoreBgColor: string
+    useGradientForCurrentScore: string
+    currentScoreGradientStartColor: string
+    currentScoreGradientEndColor: string
+    setsScoreBlock: string
+    setsBgColor: string
+    setsTextColor: string
+    useGradientForSets: string
+    setsGradientStartColor: string
+    setsGradientEndColor: string
+    importantMomentsIndicator: string
+    indicatorBgColor: string
+    indicatorTextColor: string
+    useGradientForIndicator: string
+    indicatorGradientStartColor: string
+    indicatorGradientEndColor: string
+    actions: string
+    previewAndUseSettings: string
+    preview: string
+    openInNewWindow: string
+    openInCurrentWindow: string
+    copyUrl: string
+    copying: string
+    saveSettings: string
+    jsonApiForVmix: string
+    useApiForVmixData: string
+    jsonApiUrl: string
+    instructionsForVmix: string
+    dataSourceSetup: string
+    dataSourceSteps: string
+    titleDesignerUsage: string
+    titleDesignerSteps: string
+    availableDataFields: string
+    teamA: string
+    teamB: string
+    generalData: string
+    dataFormatExample: string
+    settingsSaved: string
+    errorSavingSettings: string
+    loadingSettings: string
+    teamAName: string
+    teamAScore: string
+    teamAGameScore: string
+    teamACurrentSet: string
+    teamAServing: string
+    teamASetScores: string
+    teamBName: string
+    teamBScore: string
+    teamBGameScore: string
+    teamBCurrentSet: string
+    teamBServing: string
+    teamBSetScores: string
+    matchId: string
+    isTiebreak: string
+    isCompleted: string
+    winner: string
+    updateTime: string
+    copyJsonApiUrl: string
+  }
 }
 
 export const translations: { [key in Language]: TranslationKeys } = {
@@ -509,6 +729,229 @@ export const translations: { [key in Language]: TranslationKeys } = {
       selectAllPlayersForDoubles: "Для парной игры необходимо выбрать всех игроков",
       courtOccupied: "Корт {{court}} уже занят. Выберите другой корт.",
     },
+    vmixSettings: {
+      title: "Настройки vMix для матча",
+      backToMatch: "Назад к матчу",
+      settingsFor: "Настройки для матча",
+      displaySettings: "Настройки отображения",
+      apiForVmix: "API для vMix",
+      basicSettings: "Основные настройки",
+      configureBasicParams: "Настройте основные параметры отображения",
+      theme: "Тема",
+      selectTheme: "Выберите тему",
+      customTheme: "Пользовательская",
+      transparentTheme: "Прозрачная",
+      fontSize: "Размер шрифта",
+      selectFontSize: "Выберите размер шрифта",
+      smallSize: "Маленький",
+      mediumSize: "Средний",
+      largeSize: "Большой",
+      xlargeSize: "Очень большой",
+      playerNamesFontSize: "Размер шрифта имен игроков",
+      bgOpacity: "Прозрачность фона",
+      textColor: "Цвет текста",
+      serveIndicatorColor: "Цвет индикатора подачи",
+      colorsAndGradients: "Цвета и градиенты",
+      configureColorsAndGradients: "Настройте цвета и градиенты для различных блоков",
+      playerNamesBlock: "Блок имен игроков",
+      playerNamesBgColor: "Цвет фона имен игроков",
+      useGradientForNames: "Использовать градиент для имен",
+      namesGradientStartColor: "Начальный цвет градиента имен",
+      namesGradientEndColor: "Конечный цвет градиента имен",
+      countriesBlock: "Блок стран игроков",
+      countriesBgColor: "Цвет фона стран игроков",
+      useGradientForCountries: "Использовать градиент для стран",
+      countriesGradientStartColor: "Начальный цвет градиента стран",
+      countriesGradientEndColor: "Конечный цвет градиента стран",
+      serveIndicatorBlock: "Блок индикатора подачи",
+      serveIndicatorBgColor: "Цвет фона индикатора подачи",
+      useGradientForServeIndicator: "Использовать градиент для фона индикатора подачи",
+      serveIndicatorGradientStartColor: "Начальный цвет градиента фона индикатора",
+      serveIndicatorGradientEndColor: "Конечный цвет градиента фона индикатора",
+      serveIndicatorExample: "Пример индикатора подачи",
+      currentScoreBlock: "Блок текущего счета",
+      currentScoreBgColor: "Цвет фона текущего счета",
+      useGradientForCurrentScore: "Использовать градиент для счета",
+      currentScoreGradientStartColor: "Начальный цвет градиента счета",
+      currentScoreGradientEndColor: "Конечный цвет градиента счета",
+      setsScoreBlock: "Блок счета в сетах",
+      setsBgColor: "Цвет фона счета сетов",
+      setsTextColor: "Цвет текста счета сетов",
+      useGradientForSets: "Использовать градиент для счета в сетах",
+      setsGradientStartColor: "Начальный цвет градиента счета в сетах",
+      setsGradientEndColor: "Конечный цвет градиента счета в сетах",
+      importantMomentsIndicator: "Индикатор важных моментов",
+      indicatorBgColor: "Цвет фона индикатора",
+      indicatorTextColor: "Цвет текста индикатора",
+      useGradientForIndicator: "Использовать градиент для индикатора",
+      indicatorGradientStartColor: "Начальный цвет градиента индикатора",
+      indicatorGradientEndColor: "Конечный цвет градиента индикатора",
+      actions: "Действия",
+      previewAndUseSettings: "Предпросмотр и использование настроек",
+      preview: "Предпросмотр с текущими настройками",
+      openInNewWindow: "Открыть в новом окне",
+      openInCurrentWindow: "Открыть в текущем окне",
+      copyUrl: "Скопировать URL",
+      copying: "Копирование...",
+      saveSettings: "Сохранить настройки",
+      jsonApiForVmix: "JSON API для vMix",
+      useApiForVmixData: "Используйте этот API для получения данных матча в формате JSON",
+      jsonApiUrl: "URL для JSON API",
+      instructionsForVmix: "Инструкция по использованию в vMix",
+      dataSourceSetup: "Настройка Data Source в vMix:",
+      dataSourceSteps:
+        'В vMix перейдите в меню "Settings" → "Data Sources"\nНажмите "Add" и выберите "Web"\nВставьте URL API в поле "URL"\nУстановите "Update Interval" на 1-2 секунды\nНажмите "OK" для сохранения',
+      titleDesignerUsage: "Использование в Title Designer:",
+      titleDesignerSteps:
+        'Создайте новый Title или откройте существующий\nДобавьте текстовые поля для отображения данных\nВ свойствах текстового поля выберите "Data Binding"\nВыберите вашу Data Source и нужное поле (например, "teamA_name")\nПовторите для всех нужных полей',
+      availableDataFields: "Доступные поля данных",
+      teamA: "Команда A:",
+      teamB: "Команда B:",
+      generalData: "Общие данные:",
+      dataFormatExample: "Пример формата данных",
+      settingsSaved: "Настройки сохранены",
+      errorSavingSettings: "Не удалось сохранить настройки",
+      teamAName: "Имя команды A",
+      teamAScore: "Счет команды A",
+      teamAGameScore: "Текущий счет в гейме команды A",
+      teamACurrentSet: "Текущий сет команды A",
+      teamAServing: "Подача команды A",
+      teamASetScores: "Счет в сетах команды A",
+      teamBName: "Имя команды B",
+      teamBScore: "Счет команды B",
+      teamBGameScore: "Текущий счет в гейме команды B",
+      teamBCurrentSet: "Текущий сет команды B",
+      teamBServing: "Подача команды B",
+      teamBSetScores: "Счет в сетах команды B",
+      matchId: "ID матча",
+      isTiebreak: "Тай-брейк",
+      isCompleted: "Матч завершен",
+      winner: "Победитель",
+      updateTime: "Время обновления",
+      copyJsonApiUrl: "Скопировать URL JSON API",
+      openCourtInNewWindow: "Открыть корт в новом окне",
+      openCourtInCurrentWindow: "Открыть корт в текущем окне",
+      copyCourtUrl: "Скопировать URL корта",
+      actionsForCourtPage: "Действия для страницы корта:",
+      courtNotAssigned: "Матч не назначен на корт. Назначьте матч на корт, чтобы использовать эти функции.",
+      useApiToGetMatchData: "Используйте этот API для получения данных матча в формате JSON",
+      usageInstructions: "Инструкция по использованию в vMix",
+      goToSettingsDataSources: 'В vMix перейдите в меню "Settings" → "Data Sources"',
+      clickAddAndSelectWeb: 'Нажмите "Add" и выберите "Web"',
+      pasteApiUrl: 'Вставьте URL API в поле "URL"',
+      setUpdateInterval: 'Установите "Update Interval" на 1-2 секунды',
+      clickOkToSave: 'Нажмите "OK" для сохранения',
+      usingInTitleDesigner: "Использование в Title Designer:",
+      createOrOpenTitle: "Создайте новый Title или откройте существующий",
+      addTextFields: "Добавьте текстовые поля для отображения данных",
+      inTextFieldPropertiesSelectDataBinding: 'В свойствах текстового поля выберите "Data Binding"',
+      selectDataSourceAndField: 'Выберите вашу Data Source и нужное поле (например, "teamA_name")',
+      repeatForAllFields: "Повторите для всех нужных полей",
+    },
+    courtVmixSettings: {
+      title: "Настройки vMix для корта",
+      backToMatch: "Назад",
+      settingsForCourt: "Настройки vMix для корта {number}",
+      noActiveMatches: "На корте {number} нет активных матчей",
+      matchOnCourt: "Матч на корте: {match}",
+      displaySettings: "Настройки отображения",
+      apiForVmix: "API для vMix",
+      basicSettings: "Основные настройки",
+      configureBasicParams: "Настройте основные параметры отображения",
+      theme: "Тема",
+      selectTheme: "Выберите тему",
+      customTheme: "Пользовательская",
+      transparentTheme: "Прозрачная",
+      fontSize: "Размер шрифта",
+      selectFontSize: "Выберите размер шрифта",
+      smallSize: "Маленький",
+      mediumSize: "Средний",
+      largeSize: "Большой",
+      xlargeSize: "Очень большой",
+      playerNamesFontSize: "Размер шрифта имен игроков: {size}em",
+      bgOpacity: "Прозрачность фона: {opacity}%",
+      textColor: "Цвет текста",
+      serveIndicatorColor: "Цвет индикатора подачи",
+      colorsAndGradients: "Цвета и градиенты",
+      configureColorsAndGradients: "Настройте цвета и градиенты для различных блоков",
+      playerNamesBlock: "Блок имен игроков",
+      playerNamesBgColor: "Цвет фона имен игроков",
+      useGradientForNames: "Использовать градиент для имен",
+      namesGradientStartColor: "Начальный цвет градиента имен",
+      namesGradientEndColor: "Конечный цвет градиента имен",
+      countriesBlock: "Блок стран игроков",
+      countriesBgColor: "Цвет фона стран игроков",
+      useGradientForCountries: "Использовать градиент для стран",
+      countriesGradientStartColor: "Начальный цвет градиента стран",
+      countriesGradientEndColor: "Конечный цвет градиента стран",
+      serveIndicatorBlock: "Блок индикатора подачи",
+      serveIndicatorBgColor: "Цвет фона индикатора подачи",
+      useGradientForServeIndicator: "Использовать градиент для фона индикатора подачи",
+      serveIndicatorGradientStartColor: "Начальный цвет градиента фона индикатора",
+      serveIndicatorGradientEndColor: "Конечный цвет градиента фона индикатора",
+      serveIndicatorExample: "Пример индикатора подачи",
+      currentScoreBlock: "Блок текущего счета",
+      currentScoreBgColor: "Цвет фона текущего счета",
+      useGradientForCurrentScore: "Использовать градиент для счета",
+      currentScoreGradientStartColor: "Начальный цвет градиента счета",
+      currentScoreGradientEndColor: "Конечный цвет градиента счета",
+      setsScoreBlock: "Блок счета в сетах",
+      setsBgColor: "Цвет фона счета сетов",
+      setsTextColor: "Цвет текста счета сетов",
+      useGradientForSets: "Использовать градиент для счета в сетах",
+      setsGradientStartColor: "Начальный цвет градиента счета в сетах",
+      setsGradientEndColor: "Конечный цвет градиента счета в сетах",
+      importantMomentsIndicator: "Индикатор важных моментов",
+      indicatorBgColor: "Цвет фона индикатора",
+      indicatorTextColor: "Цвет текста индикатора",
+      useGradientForIndicator: "Использовать градиент для индикатора",
+      indicatorGradientStartColor: "Начальный цвет градиента индикатора",
+      indicatorGradientEndColor: "Конечный цвет градиента индикатора",
+      actions: "Действия",
+      previewAndUseSettings: "Предпросмотр и использование настроек",
+      preview: "Предпросмотр с текущими настройками",
+      openInNewWindow: "Открыть в новом окне",
+      openInCurrentWindow: "Открыть в текущем окне",
+      copyUrl: "Скопировать URL",
+      copying: "Копирование...",
+      saveSettings: "Сохранить настройки",
+      jsonApiForVmix: "JSON API для vMix",
+      useApiForVmixData: "Используйте этот API для получения данных матча в формате JSON",
+      jsonApiUrl: "URL для JSON API",
+      instructionsForVmix: "Инструкция по использованию в vMix",
+      dataSourceSetup: "Настройка Data Source в vMix:",
+      dataSourceSteps:
+        'В vMix перейдите в меню "Settings" → "Data Sources"\nНажмите "Add" и выберите "Web"\nВставьте URL API в поле "URL"\nУстановите "Update Interval" на 1-2 секунды\nНажмите "OK" для сохранения',
+      titleDesignerUsage: "Использование в Title Designer:",
+      titleDesignerSteps:
+        'Создайте новый Title или откройте существующий\nДобавьте текстовые поля для отображения данных\nВ свойствах текстового поля выберите "Data Binding"\nВыберите вашу Data Source и нужное поле (например, "teamA_name")\nПовторите для всех нужных полей',
+      availableDataFields: "Доступные поля данных",
+      teamA: "Команда A:",
+      teamB: "Команда B:",
+      generalData: "Общие данные:",
+      dataFormatExample: "Пример формата данных",
+      settingsSaved: "Настройки сохранены",
+      errorSavingSettings: "Не удалось сохранить настройки",
+      loadingSettings: "Загрузка настроек...",
+      teamAName: "Имя команды A",
+      teamAScore: "Счет команды A",
+      teamAGameScore: "Текущий счет в гейме команды A",
+      teamACurrentSet: "Текущий сет команды A",
+      teamAServing: "Подача команды A",
+      teamASetScores: "Счет в сетах команды A",
+      teamBName: "Имя команды B",
+      teamBScore: "Счет команды B",
+      teamBGameScore: "Текущий счет в гейме команды B",
+      teamBCurrentSet: "Текущий сет команды B",
+      teamBServing: "Подача команды B",
+      teamBSetScores: "Счет в сетах команды B",
+      matchId: "ID матча",
+      isTiebreak: "Тай-брейк",
+      isCompleted: "Матч завершен",
+      winner: "Победитель",
+      updateTime: "Время обновления",
+      copyJsonApiUrl: "Скопировать URL JSON API",
+    },
   },
   en: {
     common: {
@@ -723,7 +1166,7 @@ export const translations: { [key in Language]: TranslationKeys } = {
       tiebreak: "Tiebreak",
       finalSetTiebreak: "Final set tiebreak",
       goldPoint: "Gold point",
-      goldenPoint: "Gold point",
+      goldenPoint: "Golden point",
       goldenGame: "Golden game (padel)",
       windbreak: "Windbreak (serve every other game)",
       format: "Game format",
@@ -759,6 +1202,230 @@ export const translations: { [key in Language]: TranslationKeys } = {
       selectAllPlayers: "Select players for both teams",
       selectAllPlayersForDoubles: "For doubles, you need to select all players",
       courtOccupied: "Court {{court}} is already occupied. Please select another court.",
+    },
+    vmixSettings: {
+      title: "vMix Settings for Match",
+      backToMatch: "Back to Match",
+      settingsFor: "Settings for Match",
+      displaySettings: "Display Settings",
+      apiForVmix: "API for vMix",
+      basicSettings: "Basic Settings",
+      configureBasicParams: "Configure basic display parameters",
+      theme: "Theme",
+      selectTheme: "Select theme",
+      customTheme: "Custom",
+      transparentTheme: "Transparent",
+      fontSize: "Font Size",
+      selectFontSize: "Select font size",
+      smallSize: "Small",
+      mediumSize: "Medium",
+      largeSize: "Large",
+      xlargeSize: "Extra Large",
+      playerNamesFontSize: "Player names font size",
+      bgOpacity: "Background opacity",
+      textColor: "Text color",
+      serveIndicatorColor: "Serve indicator color",
+      colorsAndGradients: "Colors and Gradients",
+      configureColorsAndGradients: "Configure colors and gradients for different blocks",
+      playerNamesBlock: "Player Names Block",
+      playerNamesBgColor: "Player names background color",
+      useGradientForNames: "Use gradient for names",
+      namesGradientStartColor: "Names gradient start color",
+      namesGradientEndColor: "Names gradient end color",
+      countriesBlock: "Countries Block",
+      countriesBgColor: "Countries background color",
+      useGradientForCountries: "Use gradient for countries",
+      countriesGradientStartColor: "Countries gradient start color",
+      countriesGradientEndColor: "Countries gradient end color",
+      serveIndicatorBlock: "Serve Indicator Block",
+      serveIndicatorBgColor: "Serve indicator background color",
+      useGradientForServeIndicator: "Use gradient for serve indicator background",
+      serveIndicatorGradientStartColor: "Serve indicator gradient start color",
+      serveIndicatorGradientEndColor: "Serve indicator gradient end color",
+      serveIndicatorExample: "Serve indicator example",
+      currentScoreBlock: "Current Score Block",
+      currentScoreBgColor: "Current score background color",
+      useGradientForCurrentScore: "Use gradient for score",
+      currentScoreGradientStartColor: "Score gradient start color",
+      currentScoreGradientEndColor: "Score gradient end color",
+      setsScoreBlock: "Sets Score Block",
+      setsBgColor: "Sets score background color",
+      setsTextColor: "Sets score text color",
+      useGradientForSets: "Use gradient for sets score",
+      setsGradientStartColor: "Sets score gradient start color",
+      setsGradientEndColor: "Sets score gradient end color",
+      importantMomentsIndicator: "Important Moments Indicator",
+      indicatorBgColor: "Indicator background color",
+      indicatorTextColor: "Indicator text color",
+      useGradientForIndicator: "Use gradient for indicator",
+      indicatorGradientStartColor: "Indicator gradient start color",
+      indicatorGradientEndColor: "Indicator gradient end color",
+      actions: "Actions",
+      previewAndUseSettings: "Preview and use settings",
+      preview: "Preview with current settings",
+      openInNewWindow: "Open in new window",
+      openInCurrentWindow: "Open in current window",
+      copyUrl: "Copy URL",
+      copying: "Copying...",
+      saveSettings: "Save settings",
+      jsonApiForVmix: "JSON API for vMix",
+      useApiForVmixData: "Use this API to get match data in JSON format",
+      jsonApiUrl: "URL for JSON API",
+      instructionsForVmix: "Instructions for using in vMix",
+      dataSourceSetup: "Setting up Data Source in vMix:",
+      dataSourceSteps:
+        'In vMix, go to "Settings" → "Data Sources"\nClick "Add" and select "Web"\nPaste the API URL in the "URL" field\nSet "Update Interval" to 1-2 seconds\nClick "OK" to save',
+      titleDesignerUsage: "Using in Title Designer:",
+      titleDesignerSteps:
+        'Create a new Title or open an existing one\nAdd text fields to display data\nIn the text field properties, select "Data Binding"\nSelect your Data Source and the desired field (e.g., "teamA_name")\nRepeat for all needed fields',
+      availableDataFields: "Available data fields",
+      teamA: "Team A:",
+      teamB: "Team B:",
+      generalData: "General data:",
+      dataFormatExample: "Data format example",
+      settingsSaved: "Settings saved",
+      errorSavingSettings: "Failed to save settings",
+      teamAName: "Team A name",
+      teamAScore: "Team A score",
+      teamAGameScore: "Team A current game score",
+      teamACurrentSet: "Team A current set",
+      teamAServing: "Team A serving",
+      teamASetScores: "Team A set scores",
+      teamBName: "Team B name",
+      teamBScore: "Team B score",
+      teamBGameScore: "Team B current game score",
+      teamBCurrentSet: "Team B current set",
+      teamBServing: "Team B serving",
+      teamBSetScores: "Team B set scores",
+      matchId: "Match ID",
+      isTiebreak: "Is tiebreak",
+      isCompleted: "Is completed",
+      winner: "Winner",
+      updateTime: "Update time",
+      copyJsonApiUrl: "Copy JSON API URL",
+      openCourtInNewWindow: "Open court in new window",
+      openCourtInCurrentWindow: "Open court in current window",
+      copyCourtUrl: "Copy court URL",
+      actionsForCourtPage: "Actions for court page:",
+      courtNotAssigned: "Match is not assigned to a court. Assign the match to a court to use these features.",
+      matchNotAssignedToCourt: "Match is not assigned to a court. Assign the match to a court to use these features.",
+      useApiToGetMatchData: "Use this API to get match data in JSON format",
+      usageInstructions: "Instructions for using in vMix",
+      goToSettingsDataSources: 'In vMix, go to "Settings" → "Data Sources"',
+      clickAddAndSelectWeb: 'Click "Add" and select "Web"',
+      pasteApiUrl: 'Paste the API URL in the "URL" field',
+      setUpdateInterval: 'Set "Update Interval" to 1-2 seconds',
+      clickOkToSave: 'Click "OK" to save',
+      usingInTitleDesigner: "Using in Title Designer:",
+      createOrOpenTitle: "Create a new Title or open an existing one",
+      addTextFields: "Add text fields to display data",
+      inTextFieldPropertiesSelectDataBinding: 'In the text field properties, select "Data Binding"',
+      selectDataSourceAndField: 'Select your Data Source and the desired field (e.g., "teamA_name")',
+      repeatForAllFields: "Repeat for all needed fields",
+    },
+    courtVmixSettings: {
+      title: "vMix Settings for Court",
+      backToMatch: "Back",
+      settingsForCourt: "vMix Settings for Court {number}",
+      noActiveMatches: "No active matches on court {number}",
+      matchOnCourt: "Match on court: {match}",
+      displaySettings: "Display Settings",
+      apiForVmix: "API for vMix",
+      basicSettings: "Basic Settings",
+      configureBasicParams: "Configure basic display parameters",
+      theme: "Theme",
+      selectTheme: "Select theme",
+      customTheme: "Custom",
+      transparentTheme: "Transparent",
+      fontSize: "Font Size",
+      selectFontSize: "Select font size",
+      smallSize: "Small",
+      mediumSize: "Medium",
+      largeSize: "Large",
+      xlargeSize: "Extra Large",
+      playerNamesFontSize: "Player names font size: {size}em",
+      bgOpacity: "Background opacity: {opacity}%",
+      textColor: "Text color",
+      serveIndicatorColor: "Serve indicator color",
+      colorsAndGradients: "Colors and Gradients",
+      configureColorsAndGradients: "Configure colors and gradients for different blocks",
+      playerNamesBlock: "Player Names Block",
+      playerNamesBgColor: "Player names background color",
+      useGradientForNames: "Use gradient for names",
+      namesGradientStartColor: "Names gradient start color",
+      namesGradientEndColor: "Names gradient end color",
+      countriesBlock: "Countries Block",
+      countriesBgColor: "Countries background color",
+      useGradientForCountries: "Use gradient for countries",
+      countriesGradientStartColor: "Countries gradient start color",
+      countriesGradientEndColor: "Countries gradient end color",
+      serveIndicatorBlock: "Serve Indicator Block",
+      serveIndicatorBgColor: "Serve indicator background color",
+      useGradientForServeIndicator: "Use gradient for serve indicator background",
+      serveIndicatorGradientStartColor: "Serve indicator gradient start color",
+      serveIndicatorGradientEndColor: "Serve indicator gradient end color",
+      serveIndicatorExample: "Serve indicator example",
+      currentScoreBlock: "Current Score Block",
+      currentScoreBgColor: "Current score background color",
+      useGradientForCurrentScore: "Use gradient for score",
+      currentScoreGradientStartColor: "Score gradient start color",
+      currentScoreGradientEndColor: "Score gradient end color",
+      setsScoreBlock: "Sets Score Block",
+      setsBgColor: "Sets score background color",
+      setsTextColor: "Sets score text color",
+      useGradientForSets: "Use gradient for sets score",
+      setsGradientStartColor: "Sets score gradient start color",
+      setsGradientEndColor: "Sets score gradient end color",
+      importantMomentsIndicator: "Important Moments Indicator",
+      indicatorBgColor: "Indicator background color",
+      indicatorTextColor: "Indicator text color",
+      useGradientForIndicator: "Use gradient for indicator",
+      indicatorGradientStartColor: "Indicator gradient start color",
+      indicatorGradientEndColor: "Indicator gradient end color",
+      actions: "Actions",
+      previewAndUseSettings: "Preview and use settings",
+      preview: "Preview with current settings",
+      openInNewWindow: "Open in new window",
+      openInCurrentWindow: "Open court in current window",
+      copyUrl: "Copy URL",
+      copying: "Copying...",
+      saveSettings: "Save settings",
+      jsonApiForVmix: "JSON API for vMix",
+      useApiForVmixData: "Use this API to get match data in JSON format",
+      jsonApiUrl: "URL for JSON API",
+      instructionsForVmix: "Instructions for using in vMix",
+      dataSourceSetup: "Setting up Data Source in vMix:",
+      dataSourceSteps:
+        'In vMix, go to "Settings" → "Data Sources"\nClick "Add" and select "Web"\nPaste the API URL in the "URL" field\nSet "Update Interval" to 1-2 seconds\nClick "OK" to save',
+      titleDesignerUsage: "Using in Title Designer:",
+      titleDesignerSteps:
+        'Create a new Title or open an existing one\nAdd text fields to display data\nIn the text field properties, select "Data Binding"\nSelect your Data Source and the desired field (e.g., "teamA_name")\nRepeat for all needed fields',
+      availableDataFields: "Available data fields",
+      teamA: "Team A:",
+      teamB: "Team B:",
+      generalData: "General data:",
+      dataFormatExample: "Data format example",
+      settingsSaved: "Settings saved",
+      errorSavingSettings: "Failed to save settings",
+      loadingSettings: "Loading settings...",
+      teamAName: "Team A name",
+      teamAScore: "Team A score",
+      teamAGameScore: "Team A current game score",
+      teamACurrentSet: "Team A current set",
+      teamAServing: "Team A serving",
+      teamASetScores: "Team A set scores",
+      teamBName: "Team B name",
+      teamBScore: "Team B score",
+      teamBGameScore: "Team B current game score",
+      teamBCurrentSet: "Team B current set",
+      teamBServing: "Team B serving",
+      teamBSetScores: "Team B set scores",
+      matchId: "Match ID",
+      isTiebreak: "Is tiebreak",
+      isCompleted: "Is completed",
+      winner: "Winner",
+      updateTime: "Update time",
+      copyJsonApiUrl: "Copy JSON API URL",
     },
   },
 }

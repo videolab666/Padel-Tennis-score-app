@@ -15,9 +15,11 @@ import { logEvent } from "@/lib/error-logger"
 import { ArrowLeft, Copy, ExternalLink, Eye, Save, ArrowRight } from "lucide-react"
 import { toast } from "@/components/ui/use-toast"
 import { Separator } from "@/components/ui/separator"
+import { useLanguage } from "@/contexts/language-context"
 
 export default function CourtVmixSettingsPage({ params }) {
   const router = useRouter()
+  const { t } = useLanguage()
   const [match, setMatch] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
@@ -117,14 +119,14 @@ export default function CourtVmixSettingsPage({ params }) {
 
       localStorage.setItem("vmix_settings", JSON.stringify(settings))
       toast({
-        title: "Настройки сохранены",
-        description: "Ваши настройки будут применены автоматически при следующем открытии",
+        title: t("courtVmixSettings.settingsSaved"),
+        description: t("vmixSettings.settingsSaved"),
       })
       logEvent("info", "Настройки vMix сохранены", "court-vmix-settings-save")
     } catch (error) {
       toast({
-        title: "Ошибка",
-        description: "Не удалось сохранить настройки",
+        title: t("common.error"),
+        description: t("courtVmixSettings.errorSavingSettings"),
         variant: "destructive",
       })
       logEvent("error", "Ошибка при сохранении настроек vMix", "court-vmix-settings-save", error)
@@ -301,13 +303,13 @@ export default function CourtVmixSettingsPage({ params }) {
       setCopying(true)
       await navigator.clipboard.writeText(generateCourtVmixUrl())
       toast({
-        title: "URL скопирован",
-        description: "URL для vMix корта скопирован в буфер обмена",
+        title: t("courtVmixSettings.copyUrl"),
+        description: t("matchPage.linkCopied"),
       })
     } catch (error) {
       toast({
-        title: "Ошибка",
-        description: "Не удалось скопировать URL",
+        title: t("common.error"),
+        description: t("courtVmixSettings.errorSavingSettings"),
         variant: "destructive",
       })
     } finally {
@@ -320,12 +322,12 @@ export default function CourtVmixSettingsPage({ params }) {
       setCopying(true)
       await navigator.clipboard.writeText(generateJsonUrl())
       toast({
-        title: "URL скопирован",
+        title: t("courtVmixSettings.copyUrl"),
         description: "URL для JSON API скопирован в буфер обмена",
       })
     } catch (error) {
       toast({
-        title: "Ошибка",
+        title: t("common.error"),
         description: "Не удалось скопировать URL",
         variant: "destructive",
       })
@@ -353,7 +355,7 @@ export default function CourtVmixSettingsPage({ params }) {
         <div className="flex justify-center items-center h-64">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
-            <p>Загрузка настроек...</p>
+            <p>{t("courtVmixSettings.loadingSettings")}</p>
           </div>
         </div>
       </div>
@@ -364,10 +366,12 @@ export default function CourtVmixSettingsPage({ params }) {
     <div className="container mx-auto p-4">
       <Button onClick={handleBack} className="mb-4">
         <ArrowLeft className="mr-2 h-4 w-4" />
-        Назад
+        {t("courtVmixSettings.backToMatch")}
       </Button>
 
-      <h1 className="text-2xl font-bold mb-4">Настройки vMix для корта {courtNumber}</h1>
+      <h1 className="text-2xl font-bold mb-4">
+        {t("courtVmixSettings.title")} - Корт {courtNumber}
+      </h1>
 
       {error ? (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
@@ -376,20 +380,20 @@ export default function CourtVmixSettingsPage({ params }) {
       ) : match ? (
         <div className="mb-4">
           <p className="font-medium">
-            Матч на корте: {match.teamA.players.map((p) => p.name).join(" / ")} vs{" "}
-            {match.teamB.players.map((p) => p.name).join(" / ")}
+            {t("courtVmixSettings.matchOnCourt", { number: courtNumber })}:{" "}
+            {match.teamA.players.map((p) => p.name).join(" / ")} vs {match.teamB.players.map((p) => p.name).join(" / ")}
           </p>
         </div>
       ) : (
         <div className="mb-4">
-          <p className="font-medium">На корте {courtNumber} нет активных матчей</p>
+          <p className="font-medium">{t("courtVmixSettings.noActiveMatches", { number: courtNumber })}</p>
         </div>
       )}
 
       <Tabs defaultValue="settings">
         <TabsList className="mb-4">
-          <TabsTrigger value="settings">Настройки отображения</TabsTrigger>
-          <TabsTrigger value="api">API для vMix</TabsTrigger>
+          <TabsTrigger value="settings">{t("courtVmixSettings.displaySettings")}</TabsTrigger>
+          <TabsTrigger value="api">{t("courtVmixSettings.apiForVmix")}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="settings">
@@ -398,40 +402,42 @@ export default function CourtVmixSettingsPage({ params }) {
             <div className="space-y-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>Основные настройки</CardTitle>
-                  <CardDescription>Настройте основные параметры отображения</CardDescription>
+                  <CardTitle>{t("courtVmixSettings.basicSettings")}</CardTitle>
+                  <CardDescription>{t("courtVmixSettings.configureBasicParams")}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="theme">Тема</Label>
+                    <Label htmlFor="theme">{t("courtVmixSettings.theme")}</Label>
                     <Select value={theme} onValueChange={setTheme}>
                       <SelectTrigger id="theme">
-                        <SelectValue placeholder="Выберите тему" />
+                        <SelectValue placeholder={t("courtVmixSettings.selectTheme")} />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="custom">Пользовательская</SelectItem>
-                        <SelectItem value="transparent">Прозрачная</SelectItem>
+                        <SelectItem value="custom">{t("courtVmixSettings.customTheme")}</SelectItem>
+                        <SelectItem value="transparent">{t("courtVmixSettings.transparentTheme")}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="fontSize">Размер шрифта</Label>
+                    <Label htmlFor="fontSize">{t("courtVmixSettings.fontSize")}</Label>
                     <Select value={fontSize} onValueChange={setFontSize}>
                       <SelectTrigger id="fontSize">
-                        <SelectValue placeholder="Выберите размер шрифта" />
+                        <SelectValue placeholder={t("courtVmixSettings.selectFontSize")} />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="small">Маленький</SelectItem>
-                        <SelectItem value="normal">Средний</SelectItem>
-                        <SelectItem value="large">Большой</SelectItem>
-                        <SelectItem value="xlarge">Очень большой</SelectItem>
+                        <SelectItem value="small">{t("courtVmixSettings.smallSize")}</SelectItem>
+                        <SelectItem value="normal">{t("courtVmixSettings.mediumSize")}</SelectItem>
+                        <SelectItem value="large">{t("courtVmixSettings.largeSize")}</SelectItem>
+                        <SelectItem value="xlarge">{t("courtVmixSettings.xlargeSize")}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="playerNamesFontSize">Размер шрифта имен игроков: {playerNamesFontSize}em</Label>
+                    <Label htmlFor="playerNamesFontSize">
+                      {t("courtVmixSettings.playerNamesFontSize").replace("{size}", playerNamesFontSize.toString())}
+                    </Label>
                     <Slider
                       id="playerNamesFontSize"
                       min={0.6}
@@ -444,7 +450,9 @@ export default function CourtVmixSettingsPage({ params }) {
 
                   {theme !== "transparent" && (
                     <div className="space-y-2">
-                      <Label htmlFor="bgOpacity">Прозрачность фона: {Math.round(bgOpacity * 100)}%</Label>
+                      <Label htmlFor="bgOpacity">
+                        {t("courtVmixSettings.bgOpacity").replace("{opacity}", Math.round(bgOpacity * 100).toString())}
+                      </Label>
                       <Slider
                         id="bgOpacity"
                         min={0}
@@ -457,7 +465,7 @@ export default function CourtVmixSettingsPage({ params }) {
                   )}
 
                   <div className="space-y-2">
-                    <Label htmlFor="textColor">Цвет текста</Label>
+                    <Label htmlFor="textColor">{t("courtVmixSettings.textColor")}</Label>
                     <div className="flex items-center space-x-2">
                       <div className="w-6 h-6 rounded-full border" style={{ backgroundColor: textColor }}></div>
                       <Input
@@ -477,7 +485,7 @@ export default function CourtVmixSettingsPage({ params }) {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="accentColor">Цвет индикатора подачи</Label>
+                    <Label htmlFor="accentColor">{t("courtVmixSettings.serveIndicatorColor")}</Label>
                     <div className="flex items-center space-x-2">
                       <div className="w-6 h-6 rounded-full border" style={{ backgroundColor: accentColor }}></div>
                       <Input
@@ -544,7 +552,7 @@ export default function CourtVmixSettingsPage({ params }) {
                       <Switch
                         id="showCountry"
                         checked={showCountry}
-                        onCheckedChange={setShowCountry}
+                        onCheckedChange={showCountry}
                         className="data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-red-500"
                       />
                     </div>
@@ -558,15 +566,15 @@ export default function CourtVmixSettingsPage({ params }) {
               {theme !== "transparent" && (
                 <Card>
                   <CardHeader>
-                    <CardTitle>Цвета и градиенты</CardTitle>
-                    <CardDescription>Настройте цвета и градиенты для различных блоков</CardDescription>
+                    <CardTitle>{t("courtVmixSettings.colorsAndGradients")}</CardTitle>
+                    <CardDescription>{t("courtVmixSettings.configureColorsAndGradients")}</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-6">
                     {/* Имена игроков */}
                     <div className="space-y-4 border-b pb-4">
-                      <h3 className="font-medium">Блок имен игроков</h3>
+                      <h3 className="font-medium">{t("courtVmixSettings.playerNamesBlock")}</h3>
                       <div className="space-y-2">
-                        <Label htmlFor="namesBgColor">Цвет фона имен игроков</Label>
+                        <Label htmlFor="namesBgColor">{t("courtVmixSettings.playerNamesBgColor")}</Label>
                         <div className="flex items-center space-x-2">
                           <div className="w-6 h-6 rounded-full border" style={{ backgroundColor: namesBgColor }}></div>
                           <Input
@@ -586,7 +594,7 @@ export default function CourtVmixSettingsPage({ params }) {
                       </div>
 
                       <div className="flex items-center justify-between">
-                        <Label htmlFor="namesGradient">Использовать градиент для имен</Label>
+                        <Label htmlFor="namesGradient">{t("courtVmixSettings.useGradientForNames")}</Label>
                         <Switch
                           id="namesGradient"
                           checked={namesGradient}
@@ -598,7 +606,7 @@ export default function CourtVmixSettingsPage({ params }) {
                       {namesGradient && (
                         <>
                           <div className="space-y-2">
-                            <Label htmlFor="namesGradientFrom">Начальный цвет градиента имен</Label>
+                            <Label htmlFor="namesGradientFrom">{t("courtVmixSettings.namesGradientStartColor")}</Label>
                             <div className="flex items-center space-x-2">
                               <div
                                 className="w-6 h-6 rounded-full border"
@@ -621,7 +629,7 @@ export default function CourtVmixSettingsPage({ params }) {
                           </div>
 
                           <div className="space-y-2">
-                            <Label htmlFor="namesGradientTo">Конечный цвет градиента имен</Label>
+                            <Label htmlFor="namesGradientTo">{t("courtVmixSettings.namesGradientEndColor")}</Label>
                             <div className="flex items-center space-x-2">
                               <div
                                 className="w-6 h-6 rounded-full border"
@@ -655,9 +663,9 @@ export default function CourtVmixSettingsPage({ params }) {
 
                     {/* Страны игроков */}
                     <div className="space-y-4 border-b pb-4">
-                      <h3 className="font-medium">Блок стран игроков</h3>
+                      <h3 className="font-medium">{t("courtVmixSettings.countriesBlock")}</h3>
                       <div className="space-y-2">
-                        <Label htmlFor="countryBgColor">Цвет фона стран игроков</Label>
+                        <Label htmlFor="countryBgColor">{t("courtVmixSettings.countriesBgColor")}</Label>
                         <div className="flex items-center space-x-2">
                           <div
                             className="w-6 h-6 rounded-full border"
@@ -680,7 +688,7 @@ export default function CourtVmixSettingsPage({ params }) {
                       </div>
 
                       <div className="flex items-center justify-between">
-                        <Label htmlFor="countryGradient">Использовать градиент для стран</Label>
+                        <Label htmlFor="countryGradient">{t("courtVmixSettings.useGradientForCountries")}</Label>
                         <Switch
                           id="countryGradient"
                           checked={countryGradient}
@@ -692,7 +700,9 @@ export default function CourtVmixSettingsPage({ params }) {
                       {countryGradient && (
                         <>
                           <div className="space-y-2">
-                            <Label htmlFor="countryGradientFrom">Начальный цвет градиента стран</Label>
+                            <Label htmlFor="countryGradientFrom">
+                              {t("courtVmixSettings.countriesGradientStartColor")}
+                            </Label>
                             <div className="flex items-center space-x-2">
                               <div
                                 className="w-6 h-6 rounded-full border"
@@ -715,7 +725,9 @@ export default function CourtVmixSettingsPage({ params }) {
                           </div>
 
                           <div className="space-y-2">
-                            <Label htmlFor="countryGradientTo">Конечный цвет градиента стран</Label>
+                            <Label htmlFor="countryGradientTo">
+                              {t("courtVmixSettings.countriesGradientEndColor")}
+                            </Label>
                             <div className="flex items-center space-x-2">
                               <div
                                 className="w-6 h-6 rounded-full border"
@@ -749,9 +761,9 @@ export default function CourtVmixSettingsPage({ params }) {
 
                     {/* Индикатор подачи */}
                     <div className="space-y-4 border-b pb-4">
-                      <h3 className="font-medium">Блок индикатора подачи</h3>
+                      <h3 className="font-medium">{t("courtVmixSettings.serveIndicatorBlock")}</h3>
                       <div className="space-y-2">
-                        <Label htmlFor="serveBgColor">Цвет фона индикатора подачи</Label>
+                        <Label htmlFor="serveBgColor">{t("courtVmixSettings.serveIndicatorBgColor")}</Label>
                         <div className="flex items-center space-x-2">
                           <div className="w-6 h-6 rounded-full border" style={{ backgroundColor: serveBgColor }}></div>
                           <Input
@@ -771,7 +783,7 @@ export default function CourtVmixSettingsPage({ params }) {
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="accentColor">Цвет индикатора подачи</Label>
+                        <Label htmlFor="accentColor">{t("courtVmixSettings.serveIndicatorColor")}</Label>
                         <div className="flex items-center space-x-2">
                           <div className="w-6 h-6 rounded-full border" style={{ backgroundColor: accentColor }}></div>
                           <Input
@@ -791,7 +803,7 @@ export default function CourtVmixSettingsPage({ params }) {
                       </div>
 
                       <div className="flex items-center justify-between">
-                        <Label htmlFor="serveGradient">Использовать градиент для фона индикатора подачи</Label>
+                        <Label htmlFor="serveGradient">{t("courtVmixSettings.useGradientForServeIndicator")}</Label>
                         <Switch
                           id="serveGradient"
                           checked={serveGradient}
@@ -803,7 +815,9 @@ export default function CourtVmixSettingsPage({ params }) {
                       {serveGradient && (
                         <>
                           <div className="space-y-2">
-                            <Label htmlFor="serveGradientFrom">Начальный цвет градиента фона индикатора</Label>
+                            <Label htmlFor="serveGradientFrom">
+                              {t("courtVmixSettings.serveIndicatorGradientStartColor")}
+                            </Label>
                             <div className="flex items-center space-x-2">
                               <div
                                 className="w-6 h-6 rounded-full border"
@@ -826,7 +840,9 @@ export default function CourtVmixSettingsPage({ params }) {
                           </div>
 
                           <div className="space-y-2">
-                            <Label htmlFor="serveGradientTo">Конечный цвет градиента фона индикатора</Label>
+                            <Label htmlFor="serveGradientTo">
+                              {t("courtVmixSettings.serveIndicatorGradientEndColor")}
+                            </Label>
                             <div className="flex items-center space-x-2">
                               <div
                                 className="w-6 h-6 rounded-full border"
@@ -870,15 +886,15 @@ export default function CourtVmixSettingsPage({ params }) {
                         >
                           <span style={{ fontSize: "2em", lineHeight: "0.5" }}>&bull;</span>
                         </div>
-                        <span className="text-sm">Пример индикатора подачи</span>
+                        <span className="text-sm">{t("courtVmixSettings.serveIndicatorExample")}</span>
                       </div>
                     </div>
 
                     {/* Текущий счет */}
                     <div className="space-y-4 border-b pb-4">
-                      <h3 className="font-medium">Блок текущего счета</h3>
+                      <h3 className="font-medium">{t("courtVmixSettings.currentScoreBlock")}</h3>
                       <div className="space-y-2">
-                        <Label htmlFor="pointsBgColor">Цвет фона текущего счета</Label>
+                        <Label htmlFor="pointsBgColor">{t("courtVmixSettings.currentScoreBgColor")}</Label>
                         <div className="flex items-center space-x-2">
                           <div className="w-6 h-6 rounded-full border" style={{ backgroundColor: pointsBgColor }}></div>
                           <Input
@@ -898,7 +914,7 @@ export default function CourtVmixSettingsPage({ params }) {
                       </div>
 
                       <div className="flex items-center justify-between">
-                        <Label htmlFor="pointsGradient">Использовать градиент для счета</Label>
+                        <Label htmlFor="pointsGradient">{t("courtVmixSettings.useGradientForCurrentScore")}</Label>
                         <Switch
                           id="pointsGradient"
                           checked={pointsGradient}
@@ -910,7 +926,9 @@ export default function CourtVmixSettingsPage({ params }) {
                       {pointsGradient && (
                         <>
                           <div className="space-y-2">
-                            <Label htmlFor="pointsGradientFrom">Начальный цвет градиента счета</Label>
+                            <Label htmlFor="pointsGradientFrom">
+                              {t("courtVmixSettings.currentScoreGradientStartColor")}
+                            </Label>
                             <div className="flex items-center space-x-2">
                               <div
                                 className="w-6 h-6 rounded-full border"
@@ -933,7 +951,9 @@ export default function CourtVmixSettingsPage({ params }) {
                           </div>
 
                           <div className="space-y-2">
-                            <Label htmlFor="pointsGradientTo">Конечный цвет градиента счета</Label>
+                            <Label htmlFor="pointsGradientTo">
+                              {t("courtVmixSettings.currentScoreGradientEndColor")}
+                            </Label>
                             <div className="flex items-center space-x-2">
                               <div
                                 className="w-6 h-6 rounded-full border"
@@ -967,9 +987,9 @@ export default function CourtVmixSettingsPage({ params }) {
 
                     {/* Счет в сетах */}
                     <div className="space-y-4 border-b pb-4">
-                      <h3 className="font-medium">Блок счета в сетах</h3>
+                      <h3 className="font-medium">{t("courtVmixSettings.setsScoreBlock")}</h3>
                       <div className="space-y-2">
-                        <Label htmlFor="setsBgColor">Цвет фона счета сетов</Label>
+                        <Label htmlFor="setsBgColor">{t("courtVmixSettings.setsBgColor")}</Label>
                         <div className="flex items-center space-x-2">
                           <div className="w-6 h-6 rounded-full border" style={{ backgroundColor: setsBgColor }}></div>
                           <Input
@@ -989,7 +1009,7 @@ export default function CourtVmixSettingsPage({ params }) {
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="setsTextColor">Цвет текста счета сетов</Label>
+                        <Label htmlFor="setsTextColor">{t("courtVmixSettings.setsTextColor")}</Label>
                         <div className="flex items-center space-x-2">
                           <div className="w-6 h-6 rounded-full border" style={{ backgroundColor: setsTextColor }}></div>
                           <Input
@@ -1009,7 +1029,7 @@ export default function CourtVmixSettingsPage({ params }) {
                       </div>
 
                       <div className="flex items-center justify-between">
-                        <Label htmlFor="setsGradient">Использовать градиент для счета в сетах</Label>
+                        <Label htmlFor="setsGradient">{t("courtVmixSettings.useGradientForSets")}</Label>
                         <Switch
                           id="setsGradient"
                           checked={setsGradient}
@@ -1021,7 +1041,7 @@ export default function CourtVmixSettingsPage({ params }) {
                       {setsGradient && (
                         <>
                           <div className="space-y-2">
-                            <Label htmlFor="setsGradientFrom">Начальный цвет градиента счета в сетах</Label>
+                            <Label htmlFor="setsGradientFrom">{t("courtVmixSettings.setsGradientStartColor")}</Label>
                             <div className="flex items-center space-x-2">
                               <div
                                 className="w-6 h-6 rounded-full border"
@@ -1044,7 +1064,7 @@ export default function CourtVmixSettingsPage({ params }) {
                           </div>
 
                           <div className="space-y-2">
-                            <Label htmlFor="setsGradientTo">Конечный цвет градиента счета в сетах</Label>
+                            <Label htmlFor="setsGradientTo">{t("courtVmixSettings.setsGradientEndColor")}</Label>
                             <div className="flex items-center space-x-2">
                               <div
                                 className="w-6 h-6 rounded-full border"
@@ -1078,9 +1098,9 @@ export default function CourtVmixSettingsPage({ params }) {
 
                     {/* Индикатор важных моментов */}
                     <div className="space-y-4">
-                      <h3 className="font-medium">Индикатор важных моментов</h3>
+                      <h3 className="font-medium">{t("courtVmixSettings.importantMomentsIndicator")}</h3>
                       <div className="space-y-2">
-                        <Label htmlFor="indicatorBgColor">Цвет фона индикатора</Label>
+                        <Label htmlFor="indicatorBgColor">{t("courtVmixSettings.indicatorBgColor")}</Label>
                         <div className="flex items-center space-x-2">
                           <div
                             className="w-6 h-6 rounded-full border"
@@ -1103,7 +1123,7 @@ export default function CourtVmixSettingsPage({ params }) {
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="indicatorTextColor">Цвет текста индикатора</Label>
+                        <Label htmlFor="indicatorTextColor">{t("courtVmixSettings.indicatorTextColor")}</Label>
                         <div className="flex items-center space-x-2">
                           <div
                             className="w-6 h-6 rounded-full border"
@@ -1126,7 +1146,7 @@ export default function CourtVmixSettingsPage({ params }) {
                       </div>
 
                       <div className="flex items-center justify-between">
-                        <Label htmlFor="indicatorGradient">Использовать градиент для индикатора</Label>
+                        <Label htmlFor="indicatorGradient">{t("courtVmixSettings.useGradientForIndicator")}</Label>
                         <Switch
                           id="indicatorGradient"
                           checked={indicatorGradient}
@@ -1138,7 +1158,9 @@ export default function CourtVmixSettingsPage({ params }) {
                       {indicatorGradient && (
                         <>
                           <div className="space-y-2">
-                            <Label htmlFor="indicatorGradientFrom">Начальный цвет градиента индикатора</Label>
+                            <Label htmlFor="indicatorGradientFrom">
+                              {t("courtVmixSettings.indicatorGradientStartColor")}
+                            </Label>
                             <div className="flex items-center space-x-2">
                               <div
                                 className="w-6 h-6 rounded-full border"
@@ -1161,7 +1183,9 @@ export default function CourtVmixSettingsPage({ params }) {
                           </div>
 
                           <div className="space-y-2">
-                            <Label htmlFor="indicatorGradientTo">Конечный цвет градиента индикатора</Label>
+                            <Label htmlFor="indicatorGradientTo">
+                              {t("courtVmixSettings.indicatorGradientEndColor")}
+                            </Label>
                             <div className="flex items-center space-x-2">
                               <div
                                 className="w-6 h-6 rounded-full border"
@@ -1216,29 +1240,29 @@ export default function CourtVmixSettingsPage({ params }) {
               {/* Кнопки действий */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Действия</CardTitle>
-                  <CardDescription>Предпросмотр и использование настроек</CardDescription>
+                  <CardTitle>{t("courtVmixSettings.actions")}</CardTitle>
+                  <CardDescription>{t("courtVmixSettings.previewAndUseSettings")}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <Button onClick={handlePreview} className="w-full">
                     <Eye className="mr-2 h-4 w-4" />
-                    Предпросмотр с текущими настройками
+                    {t("courtVmixSettings.preview")}
                   </Button>
                   <Button onClick={handleOpenVmix} className="w-full">
                     <ExternalLink className="mr-2 h-4 w-4" />
-                    Открыть в новом окне
+                    {t("courtVmixSettings.openInNewWindow")}
                   </Button>
                   <Button onClick={handleOpenVmixInCurrentWindow} className="w-full">
                     <ArrowRight className="mr-2 h-4 w-4" />
-                    Открыть в текущем окне
+                    {t("courtVmixSettings.openInCurrentWindow")}
                   </Button>
                   <Button onClick={handleCopyUrl} className="w-full" disabled={copying}>
                     <Copy className="mr-2 h-4 w-4" />
-                    {copying ? "Копирование..." : "Скопировать URL"}
+                    {copying ? t("courtVmixSettings.copying") : t("courtVmixSettings.copyUrl")}
                   </Button>
                   <Button onClick={saveSettings} className="w-full" variant="secondary">
                     <Save className="mr-2 h-4 w-4" />
-                    Сохранить настройки
+                    {t("courtVmixSettings.saveSettings")}
                   </Button>
                 </CardContent>
               </Card>
@@ -1249,12 +1273,12 @@ export default function CourtVmixSettingsPage({ params }) {
         <TabsContent value="api">
           <Card>
             <CardHeader>
-              <CardTitle>JSON API для vMix</CardTitle>
-              <CardDescription>Используйте этот API для получения данных матча в формате JSON</CardDescription>
+              <CardTitle>{t("courtVmixSettings.jsonApiForVmix")}</CardTitle>
+              <CardDescription>{t("courtVmixSettings.useApiForVmixData")}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label>URL для JSON API</Label>
+                <Label>{t("courtVmixSettings.jsonApiUrl")}</Label>
                 <div className="flex items-center space-x-2">
                   <Input readOnly value={generateJsonUrl()} />
                   <Button variant="outline" onClick={handleCopyJsonUrl} disabled={copying}>
@@ -1264,32 +1288,32 @@ export default function CourtVmixSettingsPage({ params }) {
               </div>
 
               <div className="space-y-2">
-                <Label>Инструкция по использованию в vMix</Label>
+                <Label>{t("courtVmixSettings.instructionsForVmix")}</Label>
                 <div className="bg-gray-100 p-4 rounded-md text-sm">
-                  <p className="font-semibold mb-2">Настройка Data Source в vMix:</p>
+                  <p className="font-semibold mb-2">{t("courtVmixSettings.dataSourceSetup")}</p>
                   <ol className="list-decimal pl-5 space-y-1 mb-4">
-                    <li>В vMix перейдите в меню "Settings" → "Data Sources"</li>
-                    <li>Нажмите "Add" и выберите "Web"</li>
-                    <li>Вставьте URL API в поле "URL"</li>
-                    <li>Установите "Update Interval" на 1-2 секунды</li>
-                    <li>Нажмите "OK" для сохранения</li>
+                    {t("courtVmixSettings.dataSourceSteps")
+                      .split("\n")
+                      .map((step, index) => (
+                        <li key={index}>{step}</li>
+                      ))}
                   </ol>
 
-                  <p className="font-semibold mb-2">Использование в Title Designer:</p>
+                  <p className="font-semibold mb-2">{t("courtVmixSettings.titleDesignerUsage")}</p>
                   <ol className="list-decimal pl-5 space-y-1">
-                    <li>Создайте новый Title или откройте существующий</li>
-                    <li>Добавьте текстовые поля для отображения данных</li>
-                    <li>В свойствах текстового поля выберите "Data Binding"</li>
-                    <li>Выберите вашу Data Source и нужное поле (например, "teamA_name")</li>
-                    <li>Повторите для всех нужных полей</li>
+                    {t("courtVmixSettings.titleDesignerSteps")
+                      .split("\n")
+                      .map((step, index) => (
+                        <li key={index}>{step}</li>
+                      ))}
                   </ol>
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label>Доступные поля данных</Label>
+                <Label>{t("courtVmixSettings.availableDataFields")}</Label>
                 <div className="bg-gray-100 p-4 rounded-md text-sm">
-                  <p className="font-semibold mb-2">Команда A:</p>
+                  <p className="font-semibold mb-2">{t("courtVmixSettings.teamA")}</p>
                   <ul className="list-disc pl-5 space-y-1 mb-3">
                     <li>
                       <code>teamA_name</code> - имена игроков команды A
@@ -1311,7 +1335,7 @@ export default function CourtVmixSettingsPage({ params }) {
                     </li>
                   </ul>
 
-                  <p className="font-semibold mb-2">Команда B:</p>
+                  <p className="font-semibold mb-2">{t("courtVmixSettings.teamB")}</p>
                   <ul className="list-disc pl-5 space-y-1 mb-3">
                     <li>
                       <code>teamB_name</code> - имена игроков команды B
@@ -1333,7 +1357,7 @@ export default function CourtVmixSettingsPage({ params }) {
                     </li>
                   </ul>
 
-                  <p className="font-semibold mb-2">Общие данные:</p>
+                  <p className="font-semibold mb-2">{t("courtVmixSettings.generalData")}</p>
                   <ul className="list-disc pl-5 space-y-1">
                     <li>
                       <code>match_id</code> - идентификатор матча

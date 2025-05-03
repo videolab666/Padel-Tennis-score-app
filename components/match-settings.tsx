@@ -655,10 +655,10 @@ export function MatchSettings({ match, updateMatch, type, settings, onChange }: 
             {match.score.currentSet.isTiebreak && (
               <div className="grid grid-cols-2 gap-2 mt-2">
                 <Button variant="outline" onClick={() => endTiebreak("teamA")} disabled={match.isCompleted}>
-                  {t("match.teamAWonTiebreak")}
+                  {t("match.teamWonTiebreak")} A
                 </Button>
                 <Button variant="outline" onClick={() => endTiebreak("teamB")} disabled={match.isCompleted}>
-                  {t("match.teamBWonTiebreak")}
+                  {t("match.teamWonTiebreak")} B
                 </Button>
               </div>
             )}
@@ -737,7 +737,7 @@ export function MatchSettings({ match, updateMatch, type, settings, onChange }: 
                 </div>
 
                 <div>
-                  <Label>{t("match.tiebreakAtScore")}</Label>
+                  <Label>{t("match.tiebreakAt")}</Label>
                   <Select value={tiebreakAt} onValueChange={setTiebreakAt} disabled={match.isCompleted}>
                     <SelectTrigger>
                       <SelectValue placeholder={t("match.selectTiebreakScore")} />
@@ -753,7 +753,7 @@ export function MatchSettings({ match, updateMatch, type, settings, onChange }: 
             )}
 
             <div className="flex items-center justify-between">
-              <Label htmlFor="final-set-tiebreak">{t("match.finalSetTiebreak")}</Label>
+              <Label htmlFor="final-set-tiebreak">{t("newMatch.finalSetTiebreak")}</Label>
               <Switch
                 id="final-set-tiebreak"
                 checked={finalSetTiebreak}
@@ -818,7 +818,7 @@ export function MatchSettings({ match, updateMatch, type, settings, onChange }: 
                 variant="destructive"
                 className="w-full mt-2"
                 onClick={() => {
-                  if (confirm(t("match.endMatchConfirmation"))) {
+                  if (confirm(t("match.confirmEndMatch"))) {
                     endMatch()
                   }
                 }}
