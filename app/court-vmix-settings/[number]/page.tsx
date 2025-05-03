@@ -1324,63 +1324,79 @@ export default function CourtVmixSettingsPage({ params }) {
                   <p className="font-semibold mb-2">{t("courtVmixSettings.teamA")}</p>
                   <ul className="list-disc pl-5 space-y-1 mb-3">
                     <li>
-                      <code>teamA_name</code> - имена игроков команды A
+                      <code>teamA_name</code> - {language === "ru" ? "имена игроков команды A" : "team A player names"}
                     </li>
                     <li>
-                      <code>teamA_score</code> - общий счет команды A
+                      <code>teamA_score</code> - {language === "ru" ? "общий счет команды A" : "team A total score"}
                     </li>
                     <li>
-                      <code>teamA_game_score</code> - текущий счет в гейме (0, 15, 30, 40, Ad)
+                      <code>teamA_game_score</code> -{" "}
+                      {language === "ru"
+                        ? "текущий счет в гейме (0, 15, 30, 40, Ad)"
+                        : "current game score (0, 15, 30, 40, Ad)"}
                     </li>
                     <li>
-                      <code>teamA_current_set</code> - счет в текущем сете
+                      <code>teamA_current_set</code> -{" "}
+                      {language === "ru" ? "счет в текущем сете" : "score in current set"}
                     </li>
                     <li>
-                      <code>teamA_serving</code> - подает ли команда A ("Да"/"Нет")
+                      <code>teamA_serving</code> -{" "}
+                      {language === "ru" ? 'подает ли команда A ("Да"/"Нет")' : 'is team A serving ("Yes"/"No")'}
                     </li>
                     <li>
-                      <code>teamA_set1</code>, <code>teamA_set2</code>, <code>teamA_set3</code> - счет по сетам
+                      <code>teamA_set1</code>, <code>teamA_set2</code>, <code>teamA_set3</code> -{" "}
+                      {language === "ru" ? "счет по сетам" : "score by sets"}
                     </li>
                   </ul>
 
                   <p className="font-semibold mb-2">{t("courtVmixSettings.teamB")}</p>
                   <ul className="list-disc pl-5 space-y-1 mb-3">
                     <li>
-                      <code>teamB_name</code> - имена игроков команды B
+                      <code>teamB_name</code> - {language === "ru" ? "имена игроков команды B" : "team B player names"}
                     </li>
                     <li>
-                      <code>teamB_score</code> - общий счет команды B
+                      <code>teamB_score</code> - {language === "ru" ? "общий счет команды B" : "team B total score"}
                     </li>
                     <li>
-                      <code>teamB_game_score</code> - текущий счет в гейме (0, 15, 30, 40, Ad)
+                      <code>teamB_game_score</code> -{" "}
+                      {language === "ru"
+                        ? "текущий счет в гейме (0, 15, 30, 40, Ad)"
+                        : "current game score (0, 15, 30, 40, Ad)"}
                     </li>
                     <li>
-                      <code>teamB_current_set</code> - счет в текущем сете
+                      <code>teamB_current_set</code> -{" "}
+                      {language === "ru" ? "счет в текущем сете" : "score in current set"}
                     </li>
                     <li>
-                      <code>teamB_serving</code> - подает ли команда B ("Да"/"Нет")
+                      <code>teamB_serving</code> -{" "}
+                      {language === "ru" ? 'подает ли команда B ("Да"/"Нет")' : 'is team B serving ("Yes"/"No")'}
                     </li>
                     <li>
-                      <code>teamB_set1</code>, <code>teamB_set2</code>, <code>teamB_set3</code> - счет по сетам
+                      <code>teamB_set1</code>, <code>teamB_set2</code>, <code>teamB_set3</code> -{" "}
+                      {language === "ru" ? "счет по сетам" : "score by sets"}
                     </li>
                   </ul>
 
                   <p className="font-semibold mb-2">{t("courtVmixSettings.generalData")}</p>
                   <ul className="list-disc pl-5 space-y-1">
                     <li>
-                      <code>match_id</code> - идентификатор матча
+                      <code>match_id</code> - {language === "ru" ? "идентификатор матча" : "match identifier"}
                     </li>
                     <li>
-                      <code>is_tiebreak</code> - идет ли тай-брейк ("Да"/"Нет")
+                      <code>is_tiebreak</code> -{" "}
+                      {language === "ru" ? 'идет ли тай-брейк ("Да"/"Нет")' : 'is tiebreak in progress ("Yes"/"No")'}
                     </li>
                     <li>
-                      <code>is_completed</code> - завершен ли матч ("Да"/"Нет")
+                      <code>is_completed</code> -{" "}
+                      {language === "ru" ? 'завершен ли матч ("Да"/"Нет")' : 'is match completed ("Yes"/"No")'}
                     </li>
                     <li>
-                      <code>winner</code> - победитель матча (если есть)
+                      <code>winner</code> -{" "}
+                      {language === "ru" ? "победитель матча (если есть)" : "match winner (if any)"}
                     </li>
                     <li>
-                      <code>update_time</code> - время последнего обновления
+                      <code>update_time</code> -{" "}
+                      {language === "ru" ? "время последнего обновления" : "last update time"}
                     </li>
                   </ul>
                 </div>

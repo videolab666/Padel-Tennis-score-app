@@ -518,6 +518,28 @@ export const translations: { [key in Language]: TranslationKeys } = {
       joinByCode: "Присоединиться по цифровому коду",
       diagnostics: "Диагностика",
     },
+    // В объекте courtVmixSettings для русского языка
+    apiFields: {
+      teamAName: "имена игроков команды A",
+      teamAScore: "общий счет команды A",
+      teamAGameScore: "текущий счет в гейме (0, 15, 30, 40, Ad)",
+      teamACurrentSet: "счет в текущем сете",
+      teamAServing: "подает ли команда A (\"Да\"/\"Нет\")",
+      teamASetScores: "счет по сетам",
+
+      teamBName: "имена игроков команды B",
+      teamBScore: "общий счет команды B",
+      teamBGameScore: "текущий счет в гейме (0, 15, 30, 40, Ad)",
+      teamBCurrentSet: "счет в текущем сете",
+      teamBServing: "подает ли команда B (\"Да\"/\"Нет\")",
+      teamBSetScores: "счет по сетам",
+
+      matchId: "идентификатор матча",
+      isTiebreak: "идет ли тай-брейк (\"Да\"/\"Нет\")",
+      isCompleted: "завершен ли матч (\"Да\"/\"Нет\")",
+      winner: "победитель матча (если есть)",
+      updateTime: "время последнего обновления"
+    },
     match: {
       score: "Счет",
       set: "Сет",
@@ -1067,6 +1089,28 @@ export const translations: { [key in Language]: TranslationKeys } = {
       current: "Current",
       tiebreak: "Tiebreak",
       of: "of",
+    },
+        // В объекте courtVmixSettings для английского языка
+    apiFields: {
+      teamAName: "team A player names",
+      teamAScore: "team A total score",
+      teamAGameScore: "current game score (0, 15, 30, 40, Ad)",
+      teamACurrentSet: "score in current set",
+      teamAServing: "is team A serving (\"Yes\"/\"No\")",
+      teamASetScores: "score by sets",
+
+      teamBName: "team B player names",
+      teamBScore: "team B total score",
+      teamBGameScore: "current game score (0, 15, 30, 40, Ad)",
+      teamBCurrentSet: "score in current set",
+      teamBServing: "is team B serving (\"Yes\"/\"No\")",
+      teamBSetScores: "score by sets",
+
+      matchId: "match identifier",
+      isTiebreak: "is tiebreak in progress (\"Yes\"/\"No\")",
+      isCompleted: "is match completed (\"Yes\"/\"No\")",
+      winner: "match winner (if any)",
+      updateTime: "last update time"
     },
     matchPage: {
       loadingMatch: "Loading match...",
