@@ -753,6 +753,70 @@ export const translations: { [key in Language]: TranslationKeys } = {
     },
     vmixSettings: {
       title: "Настройки vMix для матча",
+        // Новые недостающие ключи
+  playerNameBgColor: "Цвет фона имени игрока",
+  nameGradientStartColor: "Начальный цвет градиента имени",
+  nameGradientEndColor: "Конечный цвет градиента имени",
+  playerCountryBlock: "Блок стран игроков",
+  playerCountryBgColor: "Цвет фона стран игроков",
+  countryGradientStartColor: "Начальный цвет градиента стран",
+  countryGradientEndColor: "Конечный цвет градиента стран",
+  servingIndicatorBlock: "Блок индикатора подачи",
+  servingIndicatorBgColor: "Цвет фона индикатора подачи",
+  servingIndicatorColor: "Цвет индикатора подачи",
+  useGradientForServingIndicator: "Использовать градиент для индикатора подачи",
+  servingIndicatorGradientStartColor: "Начальный цвет градиента индикатора подачи",
+  servingIndicatorGradientEndColor: "Конечный цвет градиента индикатора подачи",  
+  // Дополнительные ключи для блока текущего счета
+  currentScoreBlock: "Блок текущего счета",
+  currentScoreBgColor: "Цвет фона текущего счета",
+  currentScoreTextColor: "Цвет текста текущего счета",
+  useGradientForCurrentScore: "Использовать градиент для текущего счета",
+  currentScoreGradientStartColor: "Начальный цвет градиента текущего счета",
+  currentScoreGradientEndColor: "Конечный цвет градиента текущего счета",
+  
+  // Дополнительные ключи для блока сетов
+  setsBlock: "Блок сетов",
+  setsBgColor: "Цвет фона сетов",
+  setsTextColor: "Цвет текста сетов",
+  useGradientForSets: "Использовать градиент для сетов",
+  setsGradientStartColor: "Начальный цвет градиента сетов",
+  setsGradientEndColor: "Конечный цвет градиента сетов",
+  
+  // Дополнительные ключи для индикатора важных моментов
+  importantMomentsBlock: "Блок важных моментов",
+  importantMomentsBgColor: "Цвет фона важных моментов",
+  importantMomentsTextColor: "Цвет текста важных моментов",
+  useGradientForImportantMoments: "Использовать градиент для важных моментов",
+  importantMomentsGradientStartColor: "Начальный цвет градиента важных моментов",
+  importantMomentsGradientEndColor: "Конечный цвет градиента важных моментов",
+  
+  // Дополнительные ключи для предпросмотра
+  previewSettings: "Предпросмотр настроек",
+  openPreviewInNewWindow: "Открыть предпросмотр в новом окне",
+  openPreviewInCurrentWindow: "Открыть предпросмотр в текущем окне",
+  
+  // Дополнительные ключи для API и URL
+  apiSettings: "Настройки API",
+  apiUrl: "URL API",
+  copyApiUrl: "Скопировать URL API",
+  apiInstructions: "Инструкции по использованию API",
+  
+  // Дополнительные ключи для действий
+  actionSettings: "Настройки действий",
+  saveAndApply: "Сохранить и применить",
+  resetToDefaults: "Сбросить к значениям по умолчанию",
+  
+  // Дополнительные ключи для общих настроек
+  generalSettings: "Общие настройки",
+  appearanceSettings: "Настройки внешнего вида",
+  advancedSettings: "Расширенные настройки",
+  
+  // Дополнительные ключи для уведомлений
+  settingsSaved: "Настройки сохранены",
+  settingsSaveFailed: "Не удалось сохранить настройки",
+  settingsApplied: "Настройки применены",
+  settingsResetToDefaults: "Настройки сброшены к значениям по умолчанию",
         // Дополнительные ключи для блока текущего счета
       currentScoreBlock: "Блок текущего счета",
       currentScoreBgColor: "Цвет фона текущего счета",
@@ -1312,6 +1376,56 @@ export const translations: { [key in Language]: TranslationKeys } = {
     },
     vmixSettings: {
       title: "vMix Settings for Match",
+        // Дополнительные ключи для блока текущего счета
+  currentScoreBlock: "Current Score Block",
+  currentScoreBgColor: "Current score background color",
+  currentScoreTextColor: "Current score text color",
+  useGradientForCurrentScore: "Use gradient for current score",
+  currentScoreGradientStartColor: "Current score gradient start color",
+  currentScoreGradientEndColor: "Current score gradient end color",
+  
+  // Дополнительные ключи для блока сетов
+  setsBlock: "Sets Block",
+  setsBgColor: "Sets background color",
+  setsTextColor: "Sets text color",
+  useGradientForSets: "Use gradient for sets",
+  setsGradientStartColor: "Sets gradient start color",
+  setsGradientEndColor: "Sets gradient end color",
+  
+  // Дополнительные ключи для индикатора важных моментов
+  importantMomentsBlock: "Important Moments Block",
+  importantMomentsBgColor: "Important moments background color",
+  importantMomentsTextColor: "Important moments text color",
+  useGradientForImportantMoments: "Use gradient for important moments",
+  importantMomentsGradientStartColor: "Important moments gradient start color",
+  importantMomentsGradientEndColor: "Important moments gradient end color",
+  
+  // Дополнительные ключи для предпросмотра
+  previewSettings: "Preview Settings",
+  openPreviewInNewWindow: "Open preview in new window",
+  openPreviewInCurrentWindow: "Open preview in current window",
+  
+  // Дополнительные ключи для API и URL
+  apiSettings: "API Settings",
+  apiUrl: "API URL",
+  copyApiUrl: "Copy API URL",
+  apiInstructions: "API Usage Instructions",
+  
+  // Дополнительные ключи для действий
+  actionSettings: "Action Settings",
+  saveAndApply: "Save and Apply",
+  resetToDefaults: "Reset to Defaults",
+  
+  // Дополнительные ключи для общих настроек
+  generalSettings: "General Settings",
+  appearanceSettings: "Appearance Settings",
+  advancedSettings: "Advanced Settings",
+  
+  // Дополнительные ключи для уведомлений
+  settingsSaved: "Settings saved",
+  settingsSaveFailed: "Failed to save settings",
+  settingsApplied: "Settings applied",
+  settingsResetToDefaults: "Settings reset to defaults",
         // Дополнительные ключи для блока текущего счета
       currentScoreBlock: "Current Score Block",
       currentScoreBgColor: "Current score background color",
