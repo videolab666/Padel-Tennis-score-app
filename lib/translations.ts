@@ -1377,55 +1377,55 @@ export const translations: { [key in Language]: TranslationKeys } = {
     vmixSettings: {
       title: "vMix Settings for Match",
         // Дополнительные ключи для блока текущего счета
-  currentScoreBlock: "Current Score Block",
-  currentScoreBgColor: "Current score background color",
-  currentScoreTextColor: "Current score text color",
-  useGradientForCurrentScore: "Use gradient for current score",
-  currentScoreGradientStartColor: "Current score gradient start color",
-  currentScoreGradientEndColor: "Current score gradient end color",
+      currentScoreBlock: "Current Score Block",
+      currentScoreBgColor: "Current score background color",
+      currentScoreTextColor: "Current score text color",
+      useGradientForCurrentScore: "Use gradient for current score",
+      currentScoreGradientStartColor: "Current score gradient start color",
+      currentScoreGradientEndColor: "Current score gradient end color",
   
-  // Дополнительные ключи для блока сетов
-  setsBlock: "Sets Block",
-  setsBgColor: "Sets background color",
-  setsTextColor: "Sets text color",
-  useGradientForSets: "Use gradient for sets",
-  setsGradientStartColor: "Sets gradient start color",
-  setsGradientEndColor: "Sets gradient end color",
+      // Дополнительные ключи для блока сетов
+      setsBlock: "Sets Block",
+      setsBgColor: "Sets background color",
+      setsTextColor: "Sets text color",
+      useGradientForSets: "Use gradient for sets",
+      setsGradientStartColor: "Sets gradient start color",
+      setsGradientEndColor: "Sets gradient end color",
   
-  // Дополнительные ключи для индикатора важных моментов
-  importantMomentsBlock: "Important Moments Block",
-  importantMomentsBgColor: "Important moments background color",
-  importantMomentsTextColor: "Important moments text color",
-  useGradientForImportantMoments: "Use gradient for important moments",
-  importantMomentsGradientStartColor: "Important moments gradient start color",
-  importantMomentsGradientEndColor: "Important moments gradient end color",
-  
+      // Дополнительные ключи для индикатора важных моментов
+      importantMomentsBlock: "Important Moments Block",
+      importantMomentsBgColor: "Important moments background color",
+      importantMomentsTextColor: "Important moments text color",
+      useGradientForImportantMoments: "Use gradient for important moments",
+      importantMomentsGradientStartColor: "Important moments gradient start color",
+      importantMomentsGradientEndColor: "Important moments gradient end color",
+
   // Дополнительные ключи для предпросмотра
-  previewSettings: "Preview Settings",
-  openPreviewInNewWindow: "Open preview in new window",
-  openPreviewInCurrentWindow: "Open preview in current window",
-  
+      previewSettings: "Preview Settings",
+      openPreviewInNewWindow: "Open preview in new window",
+      openPreviewInCurrentWindow: "Open preview in current window",
+
   // Дополнительные ключи для API и URL
-  apiSettings: "API Settings",
-  apiUrl: "API URL",
-  copyApiUrl: "Copy API URL",
-  apiInstructions: "API Usage Instructions",
+      apiSettings: "API Settings",
+      apiUrl: "API URL",
+      copyApiUrl: "Copy API URL",
+      apiInstructions: "API Usage Instructions",
+
+      // Дополнительные ключи для действий
+      actionSettings: "Action Settings",
+      saveAndApply: "Save and Apply",
+      resetToDefaults: "Reset to Defaults",
+
+      // Дополнительные ключи для общих настроек
+      generalSettings: "General Settings",
+      appearanceSettings: "Appearance Settings",
+      advancedSettings: "Advanced Settings",
   
-  // Дополнительные ключи для действий
-  actionSettings: "Action Settings",
-  saveAndApply: "Save and Apply",
-  resetToDefaults: "Reset to Defaults",
-  
-  // Дополнительные ключи для общих настроек
-  generalSettings: "General Settings",
-  appearanceSettings: "Appearance Settings",
-  advancedSettings: "Advanced Settings",
-  
-  // Дополнительные ключи для уведомлений
-  settingsSaved: "Settings saved",
-  settingsSaveFailed: "Failed to save settings",
-  settingsApplied: "Settings applied",
-  settingsResetToDefaults: "Settings reset to defaults",
+      // Дополнительные ключи для уведомлений
+      settingsSaved: "Settings saved",
+      settingsSaveFailed: "Failed to save settings",
+      settingsApplied: "Settings applied",
+      settingsResetToDefaults: "Settings reset to defaults",
         // Дополнительные ключи для блока текущего счета
       currentScoreBlock: "Current Score Block",
       currentScoreBgColor: "Current score background color",
