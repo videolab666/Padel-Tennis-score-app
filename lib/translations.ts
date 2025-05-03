@@ -1411,6 +1411,7 @@ export const translations: { [key in Language]: TranslationKeys } = {
     },
     vmixSettings: {
       title: "vMix Settings for Match",
+      openInCurrentWindow: "Open in current window",
       playerNameBgColor: "Player name background color",
       nameGradientStartColor: "Name gradient start color",
       nameGradientEndColor: "Name gradient end color",
