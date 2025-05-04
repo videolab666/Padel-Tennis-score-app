@@ -477,7 +477,7 @@ export function ScoreBoard({ match, updateMatch }) {
           <div className="grid grid-cols-[1fr_auto_1fr] gap-4 items-center">
             <div className="text-center">
               <button
-                className={`text-2xl font-bold px-4 py-2 rounded-md transition-colors ${
+                className={`text-6xl font-bold px-8 py-4 rounded-md transition-colors ${
                   currentSet.isTiebreak ? "bg-red-50 hover:bg-red-100" : "bg-blue-50 hover:bg-blue-100"
                 }`}
                 onClick={() => handleScoreClick("teamA")}
@@ -496,7 +496,7 @@ export function ScoreBoard({ match, updateMatch }) {
             </div>
             <div className="text-center">
               <button
-                className={`text-2xl font-bold px-4 py-2 rounded-md transition-colors ${
+                className={`text-6xl font-bold px-8 py-4 rounded-md transition-colors ${
                   currentSet.isTiebreak ? "bg-red-50 hover:bg-red-100" : "bg-blue-50 hover:bg-blue-100"
                 }`}
                 onClick={() => handleScoreClick("teamB")}
