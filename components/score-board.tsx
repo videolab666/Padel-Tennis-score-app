@@ -474,7 +474,7 @@ export function ScoreBoard({ match, updateMatch }) {
 
       <Card>
         <CardContent className="p-3">
-          <div className="grid grid-cols-[1fr_auto_1fr] gap-4 items-center">
+          <div className="grid grid-cols-2 gap-4 items-center">
             <div className="text-center">
               <button
                 className={`text-6xl font-bold px-8 py-4 rounded-md transition-colors ${
@@ -484,15 +484,6 @@ export function ScoreBoard({ match, updateMatch }) {
               >
                 {getCurrentGameScore("teamA")}
               </button>
-            </div>
-            <div className="text-center text-muted-foreground">
-              {currentSet.isTiebreak
-                ? currentSet.isSuperTiebreak
-                  ? t("match.superTiebreak")
-                  : match.settings.tiebreakType === "championship"
-                    ? t("match.championshipTiebreak")
-                    : t("match.tiebreak")
-                : t("match.currentGame")}
             </div>
             <div className="text-center">
               <button
