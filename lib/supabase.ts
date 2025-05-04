@@ -278,7 +278,7 @@ export const getSupabaseConnectionInfo = async () => {
       clearTimeout(timeoutId)
       const endTime = Date.now()
 
-      // Проверяем суще��твование таблиц
+      // Проверяем существование таблиц
       const tablesStatus = await checkTablesExist()
 
       if (error && !error.message.includes("does not exist")) {
@@ -492,7 +492,7 @@ export const initializeDatabase = async () => {
   }
 }
 
-// Выполнение SQL-запро��а
+// Выполнение SQL-запроса
 export const executeSql = async (sql) => {
   try {
     const supabase = createClientSupabaseClient()

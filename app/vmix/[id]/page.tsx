@@ -594,7 +594,7 @@ export default function VmixPage({ params }: MatchParams) {
 
         // Если не нашли в localStorage, пробуем получить через getMatch
         if (!matchData) {
-          logEvent("info", `vMix страница: матч не на��ден в localStorage, пробуем getMatch`, "vmix-page", {
+          logEvent("info", `vMix страница: матч не найден в localStorage, пробуем getMatch`, "vmix-page", {
             matchId: params.id,
           })
           try {

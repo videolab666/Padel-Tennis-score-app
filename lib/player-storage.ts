@@ -158,7 +158,7 @@ export const deletePlayers = async (ids) => {
       removed: players.length - filteredPlayers.length,
     })
 
-    // Отправляем кастом��ое событие для обновления списка игроков
+    // Отправляем кастомное событие для обновления списка игроков
     window.dispatchEvent(new CustomEvent("players-updated"))
 
     return true

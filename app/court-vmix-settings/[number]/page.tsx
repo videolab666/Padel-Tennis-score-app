@@ -19,7 +19,7 @@ import { useLanguage } from "@/contexts/language-context"
 
 export default function CourtVmixSettingsPage({ params }) {
   const router = useRouter()
-  const { t, language } = useLanguage()
+  const { t } = useLanguage()
   const [match, setMatch] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
@@ -370,7 +370,7 @@ export default function CourtVmixSettingsPage({ params }) {
       </Button>
 
       <h1 className="text-2xl font-bold mb-4">
-        {t("courtVmixSettings.title")} - {t("matchList.court")} {courtNumber}
+        {t("courtVmixSettings.title")} - {t("courtVmixSettings.court")} {courtNumber}
       </h1>
 
       {error ? (
@@ -380,8 +380,8 @@ export default function CourtVmixSettingsPage({ params }) {
       ) : match ? (
         <div className="mb-4">
           <p className="font-medium">
-            {t("courtVmixSettings.matchOnCourt", { number: courtNumber })}:{" "}
-            {match.teamA.players.map((p) => p.name).join(" / ")} vs {match.teamB.players.map((p) => p.name).join(" / ")}
+            {t("courtVmixSettings.matchOnCourt")}: {match.teamA.players.map((p) => p.name).join(" / ")} vs{" "}
+            {match.teamB.players.map((p) => p.name).join(" / ")}
           </p>
         </div>
       ) : (
@@ -436,7 +436,7 @@ export default function CourtVmixSettingsPage({ params }) {
 
                   <div className="space-y-2">
                     <Label htmlFor="playerNamesFontSize">
-                      {t("courtVmixSettings.playerNamesFontSize").replace("{size}", playerNamesFontSize.toString())}
+                      {t("courtVmixSettings.playerNamesFontSize", { size: playerNamesFontSize })}
                     </Label>
                     <Slider
                       id="playerNamesFontSize"
@@ -451,7 +451,7 @@ export default function CourtVmixSettingsPage({ params }) {
                   {theme !== "transparent" && (
                     <div className="space-y-2">
                       <Label htmlFor="bgOpacity">
-                        {t("courtVmixSettings.bgOpacity").replace("{opacity}", Math.round(bgOpacity * 100).toString())}
+                        {t("courtVmixSettings.bgOpacity", { opacity: Math.round(bgOpacity * 100) })}
                       </Label>
                       <Slider
                         id="bgOpacity"
@@ -508,9 +508,7 @@ export default function CourtVmixSettingsPage({ params }) {
 
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <Label htmlFor="showNames">
-                        {t.language === "ru" ? "Показывать имена игроков" : "Show player names"}
-                      </Label>
+                      <Label htmlFor="showNames">Показывать имена игроков</Label>
                       <Switch
                         id="showNames"
                         checked={showNames}
@@ -520,9 +518,7 @@ export default function CourtVmixSettingsPage({ params }) {
                     </div>
 
                     <div className="flex items-center justify-between">
-                      <Label htmlFor="showPoints">
-                        {t.language === "ru" ? "Показывать текущие очки" : "Show current points"}
-                      </Label>
+                      <Label htmlFor="showPoints">Показывать текущие очки</Label>
                       <Switch
                         id="showPoints"
                         checked={showPoints}
@@ -532,9 +528,7 @@ export default function CourtVmixSettingsPage({ params }) {
                     </div>
 
                     <div className="flex items-center justify-between">
-                      <Label htmlFor="showSets">
-                        {t.language === "ru" ? "Показывать счет по сетам" : "Show sets score"}
-                      </Label>
+                      <Label htmlFor="showSets">Показывать счет по сетам</Label>
                       <Switch
                         id="showSets"
                         checked={showSets}
@@ -544,7 +538,7 @@ export default function CourtVmixSettingsPage({ params }) {
                     </div>
 
                     <div className="flex items-center justify-between">
-                      <Label htmlFor="showServer">{t.language === "ru" ? "Показывать подающего" : "Show server"}</Label>
+                      <Label htmlFor="showServer">Показывать подающего</Label>
                       <Switch
                         id="showServer"
                         checked={showServer}
@@ -554,13 +548,11 @@ export default function CourtVmixSettingsPage({ params }) {
                     </div>
 
                     <div className="flex items-center justify-between">
-                      <Label htmlFor="showCountry">
-                        {t.language === "ru" ? "Показывать страны" : "Show countries"}
-                      </Label>
+                      <Label htmlFor="showCountry">Показывать страны</Label>
                       <Switch
                         id="showCountry"
                         checked={showCountry}
-                        onCheckedChange={showCountry}
+                        onCheckedChange={setShowCountry}
                         className="data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-red-500"
                       />
                     </div>
@@ -1324,79 +1316,63 @@ export default function CourtVmixSettingsPage({ params }) {
                   <p className="font-semibold mb-2">{t("courtVmixSettings.teamA")}</p>
                   <ul className="list-disc pl-5 space-y-1 mb-3">
                     <li>
-                      <code>teamA_name</code> - {language === "ru" ? "имена игроков команды A" : "team A player names"}
+                      <code>teamA_name</code> - имена игроков команды A
                     </li>
                     <li>
-                      <code>teamA_score</code> - {language === "ru" ? "общий счет команды A" : "team A total score"}
+                      <code>teamA_score</code> - общий счет команды A
                     </li>
                     <li>
-                      <code>teamA_game_score</code> -{" "}
-                      {language === "ru"
-                        ? "текущий счет в гейме (0, 15, 30, 40, Ad)"
-                        : "current game score (0, 15, 30, 40, Ad)"}
+                      <code>teamA_game_score</code> - текущий счет в гейме (0, 15, 30, 40, Ad)
                     </li>
                     <li>
-                      <code>teamA_current_set</code> -{" "}
-                      {language === "ru" ? "счет в текущем сете" : "score in current set"}
+                      <code>teamA_current_set</code> - счет в текущем сете
                     </li>
                     <li>
-                      <code>teamA_serving</code> -{" "}
-                      {language === "ru" ? 'подает ли команда A ("Да"/"Нет")' : 'is team A serving ("Yes"/"No")'}
+                      <code>teamA_serving</code> - подает ли команда A ("Да"/"Нет")
                     </li>
                     <li>
-                      <code>teamA_set1</code>, <code>teamA_set2</code>, <code>teamA_set3</code> -{" "}
-                      {language === "ru" ? "счет по сетам" : "score by sets"}
+                      <code>teamA_set1</code>, <code>teamA_set2</code>, <code>teamA_set3</code> - счет по сетам
                     </li>
                   </ul>
 
                   <p className="font-semibold mb-2">{t("courtVmixSettings.teamB")}</p>
                   <ul className="list-disc pl-5 space-y-1 mb-3">
                     <li>
-                      <code>teamB_name</code> - {language === "ru" ? "имена игроков команды B" : "team B player names"}
+                      <code>teamB_name</code> - имена игроков команды B
                     </li>
                     <li>
-                      <code>teamB_score</code> - {language === "ru" ? "общий счет команды B" : "team B total score"}
+                      <code>teamB_score</code> - общий счет команды B
                     </li>
                     <li>
-                      <code>teamB_game_score</code> -{" "}
-                      {language === "ru"
-                        ? "текущий счет в гейме (0, 15, 30, 40, Ad)"
-                        : "current game score (0, 15, 30, 40, Ad)"}
+                      <code>teamB_game_score</code> - текущий счет в гейме (0, 15, 30, 40, Ad)
                     </li>
                     <li>
-                      <code>teamB_current_set</code> -{" "}
-                      {language === "ru" ? "счет в текущем сете" : "score in current set"}
+                      <code>teamB_current_set</code> - счет в текущем сете
                     </li>
                     <li>
-                      <code>teamB_serving</code> -{" "}
-                      {language === "ru" ? 'подает ли команда B ("Да"/"Нет")' : 'is team B serving ("Yes"/"No")'}
+                      <code>teamB_serving</code> - подает ли команда B ("Да"/"Нет")
                     </li>
                     <li>
-                      <code>teamB_set1</code>, <code>teamB_set2</code>, <code>teamB_set3</code> -{" "}
-                      {language === "ru" ? "счет по сетам" : "score by sets"}
+                      <code>teamB_set1</code>, <code>teamB_set2</code>, <code>teamB_set3</code> - счет по сетам
                     </li>
                   </ul>
 
                   <p className="font-semibold mb-2">{t("courtVmixSettings.generalData")}</p>
                   <ul className="list-disc pl-5 space-y-1">
                     <li>
-                      <code>match_id</code> - {language === "ru" ? "идентификатор матча" : "match identifier"}
+                      <code>match_id</code> - идентификатор матча
                     </li>
                     <li>
-                      <code>is_tiebreak</code> -{" "}
-                      {language === "ru" ? 'идет ли тай-брейк ("Да"/"Нет")' : 'is tiebreak in progress ("Yes"/"No")'}
+                      <code>is_tiebreak</code> - идет ли тай-брейк ("Да"/"Нет")
                     </li>
                     <li>
-                      <code>is_completed</code> -{" "}
-                      {language === "ru" ? 'завершен ли матч ("Да"/"Нет")' : 'is match completed ("Yes"/"No")'}
+                      <code>is_completed</code> - завершен ли матч ("Да"/"Нет")
                     </li>
                     <li>
-                      <code>winner</code> -{" "}
-                      {language === "ru" ? "победитель матча (если есть)" : "match winner (if any)"}
+                      <code>winner</code> - победитель матча (если есть)
                     </li>
                     <li>
-                      <code>update_time</code> -{" "}
-                      {language === "ru" ? "время последнего обновления" : "last update time"}
+                      <code>update_time</code> - время последнего обновления
                     </li>
                   </ul>
                 </div>

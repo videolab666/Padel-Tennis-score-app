@@ -729,7 +729,7 @@ export default function CourtVmixPage({ params }: CourtParams) {
     loadMatch()
   }, [courtNumber, outputFormat, showDebug])
 
-  // Эффект для отслеживания изменений важного момента и управлени�� анимацией
+  // Эффект для отслеживания изменений важного момента и управления анимацией
   useEffect(() => {
     if (!match) return
 

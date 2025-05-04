@@ -257,22 +257,6 @@ export type TranslationKeys = {
   }
   vmixSettings: {
     title: string
-    playerNameBgColor: string
-    playerCountryBlock: string
-    playerCountryBgColor: string
-    countryGradientStartColor: string
-    countryGradientEndColor: string
-    servingIndicatorBlock: string
-    servingIndicatorBgColor: string
-    servingIndicatorColor: string
-    useGradientForServingIndicator: string
-    servingIndicatorGradientStartColor: string
-    servingIndicatorGradientEndColor: string
-    OpenInCurrentWindow: string
-
-
-
-
     backToMatch: string
     settingsFor: string
     displaySettings: string
@@ -374,20 +358,6 @@ export type TranslationKeys = {
     copyCourtUrl: string
     actionsForCourtPage: string
     courtNotAssigned: string
-    matchNotAssignedToCourt: string
-    useApiToGetMatchData: string
-    usageInstructions: string
-    goToSettingsDataSources: string
-    clickAddAndSelectWeb: string
-    pasteApiUrl: string
-    setUpdateInterval: string
-    clickOkToSave: string
-    usingInTitleDesigner: string
-    createOrOpenTitle: string
-    addTextFields: string
-    inTextFieldPropertiesSelectDataBinding: string
-    selectDataSourceAndField: string
-    repeatForAllFields: string
   }
   courtVmixSettings: {
     title: string
@@ -534,28 +504,6 @@ export const translations: { [key in Language]: TranslationKeys } = {
       joinByCode: "Присоединиться по цифровому коду",
       diagnostics: "Диагностика",
     },
-    // В объекте courtVmixSettings для русского языка
-    apiFields: {
-      teamAName: "имена игроков команды A",
-      teamAScore: "общий счет команды A",
-      teamAGameScore: "текущий счет в гейме (0, 15, 30, 40, Ad)",
-      teamACurrentSet: "счет в текущем сете",
-      teamAServing: 'подает ли команда A ("Да"/"Нет")',
-      teamASetScores: "счет по сетам",
-
-      teamBName: "имена игроков команды B",
-      teamBScore: "общий счет команды B",
-      teamBGameScore: "текущий счет в гейме (0, 15, 30, 40, Ad)",
-      teamBCurrentSet: "счет в текущем сете",
-      teamBServing: 'подает ли команда B ("Да"/"Нет")',
-      teamBSetScores: "счет по сетам",
-
-      matchId: "идентификатор матча",
-      isTiebreak: 'идет ли тай-брейк ("Да"/"Нет")',
-      isCompleted: 'завершен ли матч ("Да"/"Нет")',
-      winner: "победитель матча (если есть)",
-      updateTime: "время последнего обновления",
-    },
     match: {
       score: "Счет",
       set: "Сет",
@@ -570,7 +518,7 @@ export const translations: { [key in Language]: TranslationKeys } = {
       settings: "Настройки",
       scoreCard: "Табло счета",
       scoreControls: "Управление счетом",
-      addPoint: "Очо",
+      addPoint: "Очко",
       switchServer: "Сменить подающего",
       switchSides: "Сменить стороны",
       leftSide: "Левая сторона",
@@ -769,133 +717,6 @@ export const translations: { [key in Language]: TranslationKeys } = {
     },
     vmixSettings: {
       title: "Настройки vMix для матча",
-      // Новые недостающие ключи
-      playerNameBgColor: "Цвет фона имени игрока",
-      nameGradientStartColor: "Начальный цвет градиента имени",
-      nameGradientEndColor: "Конечный цвет градиента имени",
-      playerCountryBlock: "Блок стран игроков",
-      playerCountryBgColor: "Цвет фона стран игроков",
-      countryGradientStartColor: "Начальный цвет градиента стран",
-      countryGradientEndColor: "Конечный цвет градиента стран",
-      servingIndicatorBlock: "Блок индикатора подачи",
-      servingIndicatorBgColor: "Цвет фона индикатора подачи",
-      servingIndicatorColor: "Цвет индикатора подачи",
-      useGradientForServingIndicator: "Использовать градиент для индикатора подачи",
-      servingIndicatorGradientStartColor: "Начальный цвет градиента индикатора подачи",
-      servingIndicatorGradientEndColor: "Конечный цвет градиента индикатора подачи",
-      // Дополнительные ключи для блока текущего счета
-      currentScoreBlock: "Блок текущего счета",
-      currentScoreBgColor: "Цвет фона текущего счета",
-      currentScoreTextColor: "Цвет текста текущего счета",
-      useGradientForCurrentScore: "Использовать градиент для текущего счета",
-      currentScoreGradientStartColor: "Начальный цвет градиента текущего счета",
-      currentScoreGradientEndColor: "Конечный цвет градиента текущего счета",
-
-      // Дополнительные ключи для блока сетов
-      setsBlock: "Блок сетов",
-      setsBgColor: "Цвет фона сетов",
-      setsTextColor: "Цвет текста сетов",
-      useGradientForSets: "Использовать градиент для сетов",
-      setsGradientStartColor: "Начальный цвет градиента сетов",
-      setsGradientEndColor: "Конечный цвет градиента сетов",
-
-      // Дополнительные ключи для индикатора важных моментов
-      importantMomentsBlock: "Блок важных моментов",
-      importantMomentsBgColor: "Цвет фона важных моментов",
-      importantMomentsTextColor: "Цвет текста важных моментов",
-      useGradientForImportantMoments: "Использовать градиент для важных моментов",
-      importantMomentsGradientStartColor: "Начальный цвет градиента важных моментов",
-      importantMomentsGradientEndColor: "Конечный цвет градиента важных моментов",
-
-      // Дополнительные ключи для предпросмотра
-      previewSettings: "Предпросмотр настроек",
-      openPreviewInNewWindow: "Открыть предпросмотр в новом окне",
-      openPreviewInCurrentWindow: "Открыть предпросмотр в текущем окне",
-
-      // Дополнительные ключи для API и URL
-      apiSettings: "Настройки API",
-      apiUrl: "URL API",
-      copyApiUrl: "Скопировать URL API",
-      apiInstructions: "Инструкции по использованию API",
-
-      // Дополнительные ключи для действий
-      actionSettings: "Настройки действий",
-      saveAndApply: "Сохранить и применить",
-      resetToDefaults: "Сбросить к значениям по умолчанию",
-
-      // Дополнительные ключи для общих настроек
-      generalSettings: "Общие настройки",
-      appearanceSettings: "Настройки внешнего вида",
-      advancedSettings: "Расширенные настройки",
-
-      // Дополнительные ключи для уведомлений
-      settingsSaved: "Настройки сохранены",
-      settingsSaveFailed: "Не удалось сохранить настройки",
-      settingsApplied: "Настройки применены",
-      settingsResetToDefaults: "Настройки сброшены к значениям по умолчанию",
-      // Дополнительные ключи для блока текущего счета
-      currentScoreBlock: "Блок текущего счета",
-      currentScoreBgColor: "Цвет фона текущего счета",
-      currentScoreTextColor: "Цвет текста текущего счета",
-      useGradientForCurrentScore: "Использовать градиент для текущего счета",
-      currentScoreGradientStartColor: "Начальный цвет градиента текущего счета",
-      currentScoreGradientEndColor: "Конечный цвет градиента текущего счета",
-
-      // Дополнительные ключи для блока сетов
-      setsBlock: "Блок сетов",
-      setsBgColor: "Цвет фона сетов",
-      setsTextColor: "Цвет текста сетов",
-      useGradientForSets: "Использовать градиент для сетов",
-      setsGradientStartColor: "Начальный цвет градиента сетов",
-      setsGradientEndColor: "Конечный цвет градиента сетов",
-
-      // Дополнительные ключи для индикатора важных моментов
-      importantMomentsBlock: "Блок важных моментов",
-      importantMomentsBgColor: "Цвет фона важных моментов",
-      importantMomentsTextColor: "Цвет текста важных моментов",
-      useGradientForImportantMoments: "Использовать градиент для важных моментов",
-      importantMomentsGradientStartColor: "Начальный цвет градиента важных моментов",
-      importantMomentsGradientEndColor: "Конечный цвет градиента важных моментов",
-
-      // Дополнительные ключи для предпросмотра
-      previewSettings: "Предпросмотр настроек",
-      openPreviewInNewWindow: "Открыть предпросмотр в новом окне",
-      openPreviewInCurrentWindow: "Открыть предпросмотр в текущем окне",
-
-      // Дополнительные ключи для API и URL
-      apiSettings: "Настройки API",
-      apiUrl: "URL API",
-      copyApiUrl: "Скопировать URL API",
-      apiInstructions: "Инструкции по использованию API",
-
-      // Дополнительные ключи для действий
-      actionSettings: "Настройки действий",
-      saveAndApply: "Сохранить и применить",
-      resetToDefaults: "Сбросить к значениям по умолчанию",
-
-      // Дополнительные ключи для общих настроек
-      generalSettings: "Общие настройки",
-      appearanceSettings: "Настройки внешнего вида",
-      advancedSettings: "Расширенные настройки",
-
-      // Дополнительные ключи для уведомлений
-      settingsSaved: "Настройки сохранены",
-      settingsSaveFailed: "Не удалось сохранить настройки",
-      settingsApplied: "Настройки применены",
-      settingsResetToDefaults: "Настройки сброшены к значениям по умолчанию",
-      servingIndicatorExample: "Пример индикатора подачи",
-      useGradientForScore: "Использовать градиент для счета",
-      scoreGradientStartColor: "Начальный цвет градиента счета",
-      scoreGradientEndColor: "Конечный цвет градиента счета",
-      setScoreBlock: "Блок счета в сетах",
-      setScoreBgColor: "Цвет фона счета сетов",
-      setScoreTextColor: "Цвет текста счета сетов",
-      useGradientForSetScore: "Использовать градиент для счета в сетах",
-      setScoreGradientStartColor: "Начальный цвет градиента счета в сетах",
-      setScoreGradientEndColor: "Конечный цвет градиента счета в сетах",
-      importantMomentIndicator: "Индикатор важных моментов",
-      previewWithCurrentSettings: "Предпросмотр с текущими настройками",
-      courtPageActions: "Действия для страницы корта",
       backToMatch: "Назад к матчу",
       settingsFor: "Настройки для матча",
       displaySettings: "Настройки отображения",
@@ -999,45 +820,13 @@ export const translations: { [key in Language]: TranslationKeys } = {
       copyCourtUrl: "Скопировать URL корта",
       actionsForCourtPage: "Действия для страницы корта:",
       courtNotAssigned: "Матч не назначен на корт. Назначьте матч на корт, чтобы использовать эти функции.",
-      useApiToGetMatchData: "Используйте этот API для получения данных матча в формате JSON",
-      usageInstructions: "Инструкция по использованию в vMix",
-      goToSettingsDataSources: 'В vMix перейдите в меню "Settings" → "Data Sources"',
-      clickAddAndSelectWeb: 'Нажмите "Add" и выберите "Web"',
-      pasteApiUrl: 'Вставьте URL API в поле "URL"',
-      setUpdateInterval: 'Установите "Update Interval" на 1-2 секунды',
-      clickOkToSave: 'Нажмите "OK" для сохранения',
-      usingInTitleDesigner: "Использование в Title Designer:",
-      createOrOpenTitle: "Создайте новый Title или откройте существующий",
-      addTextFields: "Добавьте текстовые поля для отображения данных",
-      inTextFieldPropertiesSelectDataBinding: 'В свойствах текстового поля выберите "Data Binding"',
-      selectDataSourceAndField: 'Выберите вашу Data Source и нужное поле (например, "teamA_name")',
-      repeatForAllFields: "Повторите для всех нужных полей",
-      playerNameBlock: "Блок имени игрока",
-      showCurrentPoints: "Показывать текущие очки",
-      showSetScore: "Показывать счет по сетам",
-      showServingPlayer: "Показывать подающего игрока",
-      showCountries: "Показывать страны",
-      openCourtPageNewWindow: "Открыть корт {courtNumber} в новом окне",
-      openCourtPageCurrentWindow: "Открыть корт {courtNumber} в текущем окне",
-      copyCourtPageUrl: "Скопировать URL корта {courtNumber}",
-      vmixUrlCopied: "URL vMix скопирован",
-      jsonApiUrlCopied: "URL JSON API скопирован",
-      failedToCopyUrl: "Не удалось скопировать URL",
-      courtUrlCopied: "URL корта скопирован",
-      loadingSettings: "Загрузка настроек...",
-      small: "Маленький",
-      normal: "Нормальный",
-      large: "Большой",
-      extraLarge: "Очень большой",
-      backgroundOpacity: "Прозрачность фона",
-      urlCopied: "URL скопирован",
     },
     courtVmixSettings: {
       title: "Настройки vMix для корта",
       backToMatch: "Назад",
       settingsForCourt: "Настройки vMix для корта {number}",
       noActiveMatches: "На корте {number} нет активных матчей",
-      matchOnCourt: "Матч на корте:",
+      matchOnCourt: "Матч на корте: {match}",
       displaySettings: "Настройки отображения",
       apiForVmix: "API для vMix",
       basicSettings: "Основные настройки",
@@ -1095,7 +884,7 @@ export const translations: { [key in Language]: TranslationKeys } = {
       previewAndUseSettings: "Предпросмотр и использование настроек",
       preview: "Предпросмотр с текущими настройками",
       openInNewWindow: "Открыть в новом окне",
-      openInCurrentWindow: "Открыть корт в текущем окне",
+      openInCurrentWindow: "Открыть в текущем окне",
       copyUrl: "Скопировать URL",
       copying: "Копирование...",
       saveSettings: "Сохранить настройки",
@@ -1252,28 +1041,6 @@ export const translations: { [key in Language]: TranslationKeys } = {
       tiebreak: "Tiebreak",
       of: "of",
     },
-    // В объекте courtVmixSettings для английского языка
-    apiFields: {
-      teamAName: "team A player names",
-      teamAScore: "team A total score",
-      teamAGameScore: "current game score (0, 15, 30, 40, Ad)",
-      teamACurrentSet: "score in current set",
-      teamAServing: 'is team A serving ("Yes"/"No")',
-      teamASetScores: "score by sets",
-
-      teamBName: "team B player names",
-      teamBScore: "team B total score",
-      teamBGameScore: "current game score (0, 15, 30, 40, Ad)",
-      teamBCurrentSet: "score in current set",
-      teamBServing: 'is team B serving ("Yes"/"No")',
-      teamBSetScores: "score by sets",
-
-      matchId: "match identifier",
-      isTiebreak: 'is tiebreak in progress ("Yes"/"No")',
-      isCompleted: 'is match completed ("Yes"/"No")',
-      winner: "match winner (if any)",
-      updateTime: "last update time",
-    },
     matchPage: {
       loadingMatch: "Loading match...",
       errorTitle: "Error",
@@ -1411,133 +1178,6 @@ export const translations: { [key in Language]: TranslationKeys } = {
     },
     vmixSettings: {
       title: "vMix Settings for Match",
-      openInCurrentWindow: "Open in current window",
-      playerNameBgColor: "Player name background color",
-      nameGradientStartColor: "Name gradient start color",
-      nameGradientEndColor: "Name gradient end color",
-      playerCountryBlock: "Player Countries Block",
-      playerCountryBgColor: "Player countries background color",
-      countryGradientStartColor: "Countries gradient start color",
-      countryGradientEndColor: "Countries gradient end color",
-      servingIndicatorBlock: "Serving Indicator Block",
-      servingIndicatorBgColor: "Serving indicator background color",
-      servingIndicatorColor: "Serving indicator color",
-      useGradientForServingIndicator: "Use gradient for serving indicator",
-      servingIndicatorGradientStartColor: "Serving indicator gradient start color",
-      servingIndicatorGradientEndColor: "Serving indicator gradient end color",
-      // Дополнительные ключи для блока текущего счета
-      currentScoreBlock: "Current Score Block",
-      currentScoreBgColor: "Current score background color",
-      currentScoreTextColor: "Current score text color",
-      useGradientForCurrentScore: "Use gradient for current score",
-      currentScoreGradientStartColor: "Current score gradient start color",
-      currentScoreGradientEndColor: "Current score gradient end color",
-
-      // Дополнительные ключи для блока сетов
-      setsBlock: "Sets Block",
-      setsBgColor: "Sets background color",
-      setsTextColor: "Sets text color",
-      useGradientForSets: "Use gradient for sets",
-      setsGradientStartColor: "Sets gradient start color",
-      setsGradientEndColor: "Sets gradient end color",
-
-      // Дополнительные ключи для индикатора важных моментов
-      importantMomentsBlock: "Important Moments Block",
-      importantMomentsBgColor: "Important moments background color",
-      importantMomentsTextColor: "Important moments text color",
-      useGradientForImportantMoments: "Use gradient for important moments",
-      importantMomentsGradientStartColor: "Important moments gradient start color",
-      importantMomentsGradientEndColor: "Important moments gradient end color",
-
-      // Дополнительные ключи для предпросмотра
-      previewSettings: "Preview Settings",
-      openPreviewInNewWindow: "Open preview in new window",
-      openPreviewInCurrentWindow: "Open preview in current window",
-
-      // Дополнительные ключи для API и URL
-      apiSettings: "API Settings",
-      apiUrl: "API URL",
-      copyApiUrl: "Copy API URL",
-      apiInstructions: "API Usage Instructions",
-
-      // Дополнительные ключи для действий
-      actionSettings: "Action Settings",
-      saveAndApply: "Save and Apply",
-      resetToDefaults: "Reset to Defaults",
-
-      // Дополнительные ключи для общих настроек
-      generalSettings: "General Settings",
-      appearanceSettings: "Appearance Settings",
-      advancedSettings: "Advanced Settings",
-
-      // Дополнительные ключи для уведомлений
-      settingsSaved: "Settings saved",
-      settingsSaveFailed: "Failed to save settings",
-      settingsApplied: "Settings applied",
-      settingsResetToDefaults: "Settings reset to defaults",
-      // Дополнительные ключи для блока текущего счета
-      currentScoreBlock: "Current Score Block",
-      currentScoreBgColor: "Current score background color",
-      currentScoreTextColor: "Current score text color",
-      useGradientForCurrentScore: "Use gradient for current score",
-      currentScoreGradientStartColor: "Current score gradient start color",
-      currentScoreGradientEndColor: "Current score gradient end color",
-
-      // Дополнительные ключи для блока сетов
-      setsBlock: "Sets Block",
-      setsBgColor: "Sets background color",
-      setsTextColor: "Sets text color",
-      useGradientForSets: "Use gradient for sets",
-      setsGradientStartColor: "Sets gradient start color",
-      setsGradientEndColor: "Sets gradient end color",
-
-      // Дополнительные ключи для индикатора важных моментов
-      importantMomentsBlock: "Important Moments Block",
-      importantMomentsBgColor: "Important moments background color",
-      importantMomentsTextColor: "Important moments text color",
-      useGradientForImportantMoments: "Use gradient for important moments",
-      importantMomentsGradientStartColor: "Important moments gradient start color",
-      importantMomentsGradientEndColor: "Important moments gradient end color",
-
-      // Дополнительные ключи для предпросмотра
-      previewSettings: "Preview Settings",
-      openPreviewInNewWindow: "Open preview in new window",
-      openPreviewInCurrentWindow: "Open preview in current window",
-
-      // Дополнительные ключи для API и URL
-      apiSettings: "API Settings",
-      apiUrl: "API URL",
-      copyApiUrl: "Copy API URL",
-      apiInstructions: "API Usage Instructions",
-
-      // Дополнительные ключи для действий
-      actionSettings: "Action Settings",
-      saveAndApply: "Save and Apply",
-      resetToDefaults: "Reset to Defaults",
-
-      // Дополнительные ключи для общих настроек
-      generalSettings: "General Settings",
-      appearanceSettings: "Appearance Settings",
-      advancedSettings: "Advanced Settings",
-
-      // Дополнительные ключи для уведомлений
-      settingsSaved: "Settings saved",
-      settingsSaveFailed: "Failed to save settings",
-      settingsApplied: "Settings applied",
-      settingsResetToDefaults: "Settings reset to defaults",
-      servingIndicatorExample: "Serve indicator example",
-      useGradientForScore: "Use gradient for score",
-      scoreGradientStartColor: "Score gradient start color",
-      scoreGradientEndColor: "Score gradient end color",
-      setScoreBlock: "Set Score Block",
-      setScoreBgColor: "Set score background color",
-      setScoreTextColor: "Set score text color",
-      useGradientForSetScore: "Use gradient for set score",
-      setScoreGradientStartColor: "Set score gradient start color",
-      setScoreGradientEndColor: "Set score gradient end color",
-      importantMomentIndicator: "Important Moment Indicator",
-      previewWithCurrentSettings: "Preview with current settings",
-      courtPageActions: "Actions for court page",
       backToMatch: "Back to Match",
       settingsFor: "Settings for Match",
       displaySettings: "Display Settings",
@@ -1597,7 +1237,7 @@ export const translations: { [key in Language]: TranslationKeys } = {
       previewAndUseSettings: "Preview and use settings",
       preview: "Preview with current settings",
       openInNewWindow: "Open in new window",
-      openCourtInCurrentWindow: "Open court in current window",
+      openInCurrentWindow: "Open in current window",
       copyUrl: "Copy URL",
       copying: "Copying...",
       saveSettings: "Save settings",
@@ -1641,46 +1281,13 @@ export const translations: { [key in Language]: TranslationKeys } = {
       copyCourtUrl: "Copy court URL",
       actionsForCourtPage: "Actions for court page:",
       courtNotAssigned: "Match is not assigned to a court. Assign the match to a court to use these features.",
-      matchNotAssignedToCourt: "Match is not assigned to a court. Assign the match to a court to use these features.",
-      useApiToGetMatchData: "Use this API to get match data in JSON format",
-      usageInstructions: "Instructions for using in vMix",
-      goToSettingsDataSources: 'In vMix, go to "Settings" → "Data Sources"',
-      clickAddAndSelectWeb: 'Click "Add" and select "Web"',
-      pasteApiUrl: 'Paste the API URL in the "URL" field',
-      setUpdateInterval: 'Set "Update Interval" to 1-2 seconds',
-      clickOkToSave: 'Click "OK" to save',
-      usingInTitleDesigner: "Using in Title Designer:",
-      createOrOpenTitle: "Create a new Title or open an existing one",
-      addTextFields: "Add text fields to display data",
-      inTextFieldPropertiesSelectDataBinding: 'In the text field properties, select "Data Binding"',
-      selectDataSourceAndField: 'Select your Data Source and the desired field (e.g., "teamA_name")',
-      repeatForAllFields: "Repeat for all needed fields",
-      playerNameBlock: "Player Name Block",
-      showCurrentPoints: "Show current points",
-      showSetScore: "Show set score",
-      showServingPlayer: "Show serving player",
-      showCountries: "Show countries",
-      openCourtPageNewWindow: "Open court {courtNumber} in new window",
-      openCourtPageCurrentWindow: "Open court {courtNumber} in current window",
-      copyCourtPageUrl: "Copy court {courtNumber} URL",
-      vmixUrlCopied: "vMix URL copied",
-      jsonApiUrlCopied: "JSON API URL copied",
-      failedToCopyUrl: "Failed to copy URL",
-      courtUrlCopied: "Court URL copied",
-      loadingSettings: "Loading settings...",
-      small: "Small",
-      large: "Large",
-      normal: "Normal",
-      extraLarge: "Extra Large",
-      backgroundOpacity: "Background opacity",
-      urlCopied: "URL copied",
     },
     courtVmixSettings: {
       title: "vMix Settings for Court",
       backToMatch: "Back",
       settingsForCourt: "vMix Settings for Court {number}",
       noActiveMatches: "No active matches on court {number}",
-      matchOnCourt: "Match on court",
+      matchOnCourt: "Match on court: {match}",
       displaySettings: "Display Settings",
       apiForVmix: "API for vMix",
       basicSettings: "Basic Settings",
@@ -1738,7 +1345,7 @@ export const translations: { [key in Language]: TranslationKeys } = {
       previewAndUseSettings: "Preview and use settings",
       preview: "Preview with current settings",
       openInNewWindow: "Open in new window",
-      openInCurrentWindow: "Open court in current window",
+      openInCurrentWindow: "Open in current window",
       copyUrl: "Copy URL",
       copying: "Copying...",
       saveSettings: "Save settings",

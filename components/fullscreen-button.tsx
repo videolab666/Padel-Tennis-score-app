@@ -181,7 +181,7 @@ export function FullscreenButton({
     // Генерируем URL с настройками
     const url = generateFullscreenUrl(courtNumber, settings)
 
-    // Переходим в теку��ем окне вместо открытия нового
+    // Переходим в текущем окне вместо открытия нового
     router.push(url)
   }
 
