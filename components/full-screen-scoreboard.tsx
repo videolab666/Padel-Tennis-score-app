@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge"
 import { getTennisPointName } from "@/lib/tennis-utils"
 import { Minimize2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { useLanguage } from "@/contexts/language-context"
 
 // Обновим компонент FullScreenScoreboard, чтобы учитывать настройку useCustomSizes
 
@@ -40,6 +41,7 @@ export function FullScreenScoreboard({
 }) {
   const [currentTime, setCurrentTime] = useState(new Date())
   const wrapperRef = useRef(null)
+  const { t } = useLanguage()
 
   // Деструктурируем настройки
   const {
@@ -246,18 +248,20 @@ export function FullScreenScoreboard({
                 <Minimize2 className="h-5 w-5" />
               </Button>
               <h1 className="text-2xl font-bold">
-                {match.type === "tennis" ? "Теннис" : "Падел"} -{" "}
-                {match.format === "singles" ? "Одиночная игра" : "Парная игра"}
+                {match.type === "tennis" ? t("scoreboard.tennis") : t("scoreboard.padel")} -{" "}
+                {match.format === "singles" ? t("scoreboard.singles") : t("scoreboard.doubles")}
               </h1>
             </div>
             <div className="flex items-center">
               <p className="text-base mr-4" style={dynamicStyles.tableHeader}>
-                {match.isCompleted ? "Матч завершен" : `Сет ${currentSetIndex + 1} из ${totalSets}`}
+                {match.isCompleted
+                  ? t("scoreboard.matchCompleted")
+                  : `${t("scoreboard.set")} ${currentSetIndex + 1} ${t("scoreboard.of")} ${totalSets}`}
               </p>
               <p className="text-2xl">{formatTime(currentTime)}</p>
               {match.isCompleted && (
                 <Badge variant="outline" className="ml-2 bg-green-900 text-green-100 border-green-700">
-                  Матч завершен
+                  {t("scoreboard.matchCompleted")}
                 </Badge>
               )}
             </div>
@@ -281,7 +285,7 @@ export function FullScreenScoreboard({
                       </th>
                     ))}
                   <th className="py-1 text-center" style={dynamicStyles.currentGameCell}>
-                    <span>{currentSet.isTiebreak ? "Тайбрейк" : "Гейм"}</span>
+                    <span>{currentSet.isTiebreak ? t("scoreboard.tiebreak") : t("scoreboard.game")}</span>
                   </th>
                 </tr>
               </thead>
@@ -488,7 +492,7 @@ export function FullScreenScoreboard({
                                     : "clamp(0.7rem, 1.5vw, 0.875rem)",
                                 }}
                               >
-                                Левая сторона корта
+                                {t("scoreboard.leftCourtSide")}
                               </h3>
                               <p
                                 className="font-bold truncate text-base"
@@ -518,7 +522,7 @@ export function FullScreenScoreboard({
                                     : "clamp(0.7rem, 1.5vw, 0.875rem)",
                                 }}
                               >
-                                Правая сторона корта
+                                {t("scoreboard.rightCourtSide")}
                               </h3>
                               <p
                                 className="font-bold truncate text-base"
@@ -556,7 +560,7 @@ export function FullScreenScoreboard({
                                   : "clamp(0.7rem, 1.5vw, 0.875rem)",
                               }}
                             >
-                              Текущая подача
+                              {t("scoreboard.currentServer")}
                             </h3>
                             <div className="flex items-center">
                               <span
@@ -578,8 +582,8 @@ export function FullScreenScoreboard({
                                 }}
                               >
                                 {match.currentServer.team === "teamA"
-                                  ? teamA.players[match.currentServer.playerIndex]?.name || "Игрок A"
-                                  : teamB.players[match.currentServer.playerIndex]?.name || "Игрок B"}
+                                  ? teamA.players[match.currentServer.playerIndex]?.name || t("scoreboard.playerA")
+                                  : teamB.players[match.currentServer.playerIndex]?.name || t("scoreboard.playerB")}
                               </p>
                             </div>
                           </div>
@@ -605,18 +609,20 @@ export function FullScreenScoreboard({
         >
           <div className="flex items-center">
             <h1 className="text-xl md:text-2xl lg:text-3xl font-bold">
-              {match.type === "tennis" ? "Теннис" : "Падел"} -{" "}
-              {match.format === "singles" ? "Одиночная игра" : "Парная игра"}
+              {match.type === "tennis" ? t("scoreboard.tennis") : t("scoreboard.padel")} -{" "}
+              {match.format === "singles" ? t("scoreboard.singles") : t("scoreboard.doubles")}
             </h1>
           </div>
           <div className="flex items-center">
             <p className="text-sm md:text-base mr-4" style={dynamicStyles.tableHeader}>
-              {match.isCompleted ? "Матч завершен" : `Сет ${currentSetIndex + 1} из ${totalSets}`}
+              {match.isCompleted
+                ? t("scoreboard.matchCompleted")
+                : `${t("scoreboard.set")} ${currentSetIndex + 1} ${t("scoreboard.of")} ${totalSets}`}
             </p>
             <p className="text-xl md:text-2xl">{formatTime(currentTime)}</p>
             {match.isCompleted && (
               <Badge variant="outline" className="ml-2 bg-green-900 text-green-100 border-green-700">
-                Матч завершен
+                {t("scoreboard.matchCompleted")}
               </Badge>
             )}
           </div>
@@ -641,7 +647,7 @@ export function FullScreenScoreboard({
                       </th>
                     ))}
                   <th className="py-1 text-center" style={dynamicStyles.currentGameCell}>
-                    <span>{currentSet.isTiebreak ? "Тайбрейк" : "Гейм"}</span>
+                    <span>{currentSet.isTiebreak ? t("scoreboard.tiebreak") : t("scoreboard.game")}</span>
                   </th>
                 </tr>
               </thead>
@@ -710,7 +716,10 @@ export function FullScreenScoreboard({
                               className="font-bold relative z-10"
                               style={{
                                 ...(useCustomSizes
-                                  ? { fontSize: `calc(min(6vh, 6vw) * ${setsScoreFontSize || 100} / 100)` }
+                                  ? {
+                                      fontSize: `calc(min(6vh, 6vw) * ${setsScoreFontSize || 100} / 100)`,
+                                      color: setsScoreTextColor,
+                                    }
                                   : { fontSize: "clamp(1rem, 3vw, 1.5rem)", color: setsScoreTextColor }),
                                 color: setsScoreTextColor,
                                 textShadow: "0px 0px 2px rgba(0,0,0,0.7)",
@@ -863,7 +872,7 @@ export function FullScreenScoreboard({
                                     : "clamp(0.7rem, 1.5vw, 0.875rem)",
                                 }}
                               >
-                                Левая сторона корта
+                                {t("scoreboard.leftCourtSide")}
                               </h3>
                               <p
                                 className="font-bold truncate"
@@ -893,7 +902,7 @@ export function FullScreenScoreboard({
                                     : "clamp(0.7rem, 1.5vw, 0.875rem)",
                                 }}
                               >
-                                Правая сторона корта
+                                {t("scoreboard.rightCourtSide")}
                               </h3>
                               <p
                                 className="font-bold truncate"
@@ -931,7 +940,7 @@ export function FullScreenScoreboard({
                                   : "clamp(0.7rem, 1.5vw, 0.875rem)",
                               }}
                             >
-                              Текущая подача
+                              {t("scoreboard.currentServer")}
                             </h3>
                             <div className="flex items-center">
                               <span
@@ -953,8 +962,8 @@ export function FullScreenScoreboard({
                                 }}
                               >
                                 {match.currentServer.team === "teamA"
-                                  ? teamA.players[match.currentServer.playerIndex]?.name || "Игрок A"
-                                  : teamB.players[match.currentServer.playerIndex]?.name || "Игрок B"}
+                                  ? teamA.players[match.currentServer.playerIndex]?.name || t("scoreboard.playerA")
+                                  : teamB.players[match.currentServer.playerIndex]?.name || t("scoreboard.playerB")}
                               </p>
                             </div>
                           </div>

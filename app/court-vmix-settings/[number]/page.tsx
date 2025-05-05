@@ -436,7 +436,7 @@ export default function CourtVmixSettingsPage({ params }) {
 
                   <div className="space-y-2">
                     <Label htmlFor="playerNamesFontSize">
-                      {t("courtVmixSettings.playerNamesFontSize", { size: playerNamesFontSize })}
+                      {t("courtVmixSettings.playerNamesFontSize").replace("{size}", playerNamesFontSize.toString())}
                     </Label>
                     <Slider
                       id="playerNamesFontSize"
@@ -451,7 +451,7 @@ export default function CourtVmixSettingsPage({ params }) {
                   {theme !== "transparent" && (
                     <div className="space-y-2">
                       <Label htmlFor="bgOpacity">
-                        {t("courtVmixSettings.bgOpacity", { opacity: Math.round(bgOpacity * 100) })}
+                        {t("courtVmixSettings.bgOpacity").replace("{opacity}", Math.round(bgOpacity * 100).toString())}
                       </Label>
                       <Slider
                         id="bgOpacity"
@@ -769,6 +769,12 @@ export default function CourtVmixSettingsPage({ params }) {
                           <Input
                             id="serveBgColor"
                             type="color"
+                            value={serveBgColor}
+                            onChange={(e) => setServeBgColor(e.target.value)}
+                            className="w-12 p-1 h-8"
+                          />
+                          <Input
+                            type="text"
                             value={serveBgColor}
                             onChange={(e) => setServeBgColor(e.target.value)}
                             className="w-12 p-1 h-8"

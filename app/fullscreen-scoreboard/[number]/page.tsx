@@ -585,7 +585,7 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
               >
                 {match.teamA.players.map((player, idx) => (
                   <div key={idx} className="player-name-container">
-                    <div className="player-name" title={player.name}>
+                    <div className="player-name pl-6" title={player.name}>
                       {player.name}
                     </div>
                   </div>
@@ -721,7 +721,7 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
               >
                 {match.teamB.players.map((player, idx) => (
                   <div key={idx} className="player-name-container">
-                    <div className="player-name" title={player.name}>
+                    <div className="player-name pl-6" title={player.name}>
                       {player.name}
                     </div>
                   </div>

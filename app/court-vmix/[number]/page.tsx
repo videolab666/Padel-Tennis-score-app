@@ -698,7 +698,7 @@ export default function CourtVmixPage({ params }: CourtParams) {
               }
 
               setError("")
-              logEvent("debug", "vMix страница корта: получено обновление матча", "court-vmix-page", {
+              logEvent("debug", "vMix страница корта: получено обновление ��атча", "court-vmix-page", {
                 matchId: updatedMatch.id,
                 scoreA: updatedMatch.score.teamA,
                 scoreB: updatedMatch.score.teamB,

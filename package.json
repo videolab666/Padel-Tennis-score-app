@@ -60,8 +60,8 @@
     "zod": "^3.24.1",
     "@supabase/supabase-js": "latest",
     "@supabase/auth-helpers-nextjs": "latest",
-    "uuid": "latest",
-    "lz-string": "latest"
+    "lz-string": "latest",
+    "uuid": "latest"
   },
   "devDependencies": {
     "@types/node": "^22",

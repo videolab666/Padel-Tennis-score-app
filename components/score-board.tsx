@@ -477,8 +477,10 @@ export function ScoreBoard({ match, updateMatch }) {
           <div className="grid grid-cols-2 gap-4 items-center">
             <div className="text-center">
               <button
-                className={`text-6xl font-bold px-8 py-4 rounded-md transition-colors ${
-                  currentSet.isTiebreak ? "bg-red-50 hover:bg-red-100" : "bg-blue-50 hover:bg-blue-100"
+                className={`text-6xl font-bold px-8 py-4 rounded-md transition-all transform active:scale-95 active:translate-y-1 active:shadow-inner ${
+                  currentSet.isTiebreak
+                    ? "bg-red-50 hover:bg-red-100 active:bg-red-200"
+                    : "bg-blue-50 hover:bg-blue-100 active:bg-blue-200"
                 }`}
                 onClick={() => handleScoreClick("teamA")}
               >
@@ -487,8 +489,10 @@ export function ScoreBoard({ match, updateMatch }) {
             </div>
             <div className="text-center">
               <button
-                className={`text-6xl font-bold px-8 py-4 rounded-md transition-colors ${
-                  currentSet.isTiebreak ? "bg-red-50 hover:bg-red-100" : "bg-blue-50 hover:bg-blue-100"
+                className={`text-6xl font-bold px-8 py-4 rounded-md transition-all transform active:scale-95 active:translate-y-1 active:shadow-inner ${
+                  currentSet.isTiebreak
+                    ? "bg-red-50 hover:bg-red-100 active:bg-red-200"
+                    : "bg-blue-50 hover:bg-blue-100 active:bg-blue-200"
                 }`}
                 onClick={() => handleScoreClick("teamB")}
               >

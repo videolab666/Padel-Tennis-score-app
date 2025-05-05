@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Slider } from "@/components/ui/slider"
 import { Settings, X, Check } from "lucide-react"
+import { useLanguage } from "@/contexts/language-context"
 
 // В начале файла, обновим предопределенные цветовые схемы
 const colorSchemes = {
@@ -62,6 +63,7 @@ const colorSchemes = {
 
 export function ScoreboardSettings({ settings, onSettingsChange }) {
   const [showSettings, setShowSettings] = useState(false)
+  const { t } = useLanguage()
 
   // Применение цветовой схемы
   const applyColorScheme = (scheme) => {
@@ -92,14 +94,14 @@ export function ScoreboardSettings({ settings, onSettingsChange }) {
         className="bg-gray-800 text-white border-gray-700 hover:bg-gray-700"
       >
         <Settings className="h-4 w-4 mr-1" />
-        Настройки
+        {t("match.settings")}
       </Button>
 
       {showSettings && (
         <div className="fixed inset-0 bg-black bg-opacity-70 z-50 flex items-center justify-center p-4">
           <div className="bg-white text-black rounded-lg shadow-lg p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold">Настройки отображения</h2>
+              <h2 className="text-xl font-bold">{t("scoreboardSettings.title")}</h2>
               <Button variant="ghost" size="sm" onClick={() => setShowSettings(false)}>
                 <X className="h-5 w-5" />
               </Button>
@@ -107,11 +109,11 @@ export function ScoreboardSettings({ settings, onSettingsChange }) {
 
             <Tabs defaultValue="presets">
               <TabsList className="mb-4">
-                <TabsTrigger value="presets">Готовые схемы</TabsTrigger>
-                <TabsTrigger value="colors">Цвета</TabsTrigger>
-                <TabsTrigger value="display">Отображение</TabsTrigger>
-                <TabsTrigger value="sizes">Размеры</TabsTrigger>
-                <TabsTrigger value="advanced-colors">Доп. цвета</TabsTrigger>
+                <TabsTrigger value="presets">{t("scoreboardSettings.presets")}</TabsTrigger>
+                <TabsTrigger value="colors">{t("scoreboardSettings.colors")}</TabsTrigger>
+                <TabsTrigger value="display">{t("scoreboardSettings.display")}</TabsTrigger>
+                <TabsTrigger value="sizes">{t("scoreboardSettings.sizes")}</TabsTrigger>
+                <TabsTrigger value="advanced-colors">{t("scoreboardSettings.advancedColors")}</TabsTrigger>
               </TabsList>
 
               <TabsContent value="presets">
@@ -131,7 +133,7 @@ export function ScoreboardSettings({ settings, onSettingsChange }) {
                         style={getGradientStyle(colorSchemes.dark.teamB.from, colorSchemes.dark.teamB.to)}
                       ></div>
                     </div>
-                    <span>Темная</span>
+                    <span>{t("scoreboardSettings.darkTheme")}</span>
                   </Button>
 
                   <Button
@@ -149,7 +151,7 @@ export function ScoreboardSettings({ settings, onSettingsChange }) {
                         style={getGradientStyle(colorSchemes.light.teamB.from, colorSchemes.light.teamB.to)}
                       ></div>
                     </div>
-                    <span>Светлая</span>
+                    <span>{t("scoreboardSettings.lightTheme")}</span>
                   </Button>
 
                   <Button
@@ -167,7 +169,7 @@ export function ScoreboardSettings({ settings, onSettingsChange }) {
                         style={getGradientStyle(colorSchemes.contrast.teamB.from, colorSchemes.contrast.teamB.to)}
                       ></div>
                     </div>
-                    <span>Контрастная</span>
+                    <span>{t("scoreboardSettings.contrastTheme")}</span>
                   </Button>
 
                   <Button
@@ -185,7 +187,7 @@ export function ScoreboardSettings({ settings, onSettingsChange }) {
                         style={getGradientStyle(colorSchemes.neutral.teamB.from, colorSchemes.neutral.teamB.to)}
                       ></div>
                     </div>
-                    <span>Нейтральная</span>
+                    <span>{t("scoreboardSettings.neutralTheme")}</span>
                   </Button>
                 </div>
               </TabsContent>
@@ -194,7 +196,7 @@ export function ScoreboardSettings({ settings, onSettingsChange }) {
                 <div className="space-y-6">
                   <div>
                     <Label htmlFor="bg-color" className="block mb-2">
-                      Цвет фона
+                      {t("scoreboardSettings.backgroundColor")}
                     </Label>
                     <div className="flex items-center gap-2">
                       <input
@@ -210,7 +212,7 @@ export function ScoreboardSettings({ settings, onSettingsChange }) {
 
                   <div>
                     <Label htmlFor="text-color" className="block mb-2">
-                      Цвет текста
+                      {t("scoreboardSettings.textColor")}
                     </Label>
                     <div className="flex items-center gap-2">
                       <input
@@ -225,12 +227,12 @@ export function ScoreboardSettings({ settings, onSettingsChange }) {
                   </div>
 
                   <div className="border-t pt-4">
-                    <Label className="block mb-2 text-lg font-medium">Цвета команды A</Label>
+                    <Label className="block mb-2 text-lg font-medium">{t("scoreboardSettings.teamAColors")}</Label>
 
                     <div className="grid grid-cols-2 gap-4 mb-4">
                       <div>
                         <Label htmlFor="teamA-from-color" className="block mb-2">
-                          Начальный цвет
+                          {t("scoreboardSettings.startColor")}
                         </Label>
                         <div className="flex items-center gap-2">
                           <input
@@ -246,7 +248,7 @@ export function ScoreboardSettings({ settings, onSettingsChange }) {
 
                       <div>
                         <Label htmlFor="teamA-to-color" className="block mb-2">
-                          Конечный цвет
+                          {t("scoreboardSettings.endColor")}
                         </Label>
                         <div className="flex items-center gap-2">
                           <input
@@ -271,12 +273,12 @@ export function ScoreboardSettings({ settings, onSettingsChange }) {
                   </div>
 
                   <div className="border-t pt-4">
-                    <Label className="block mb-2 text-lg font-medium">Цвета команды B</Label>
+                    <Label className="block mb-2 text-lg font-medium">{t("scoreboardSettings.teamBColors")}</Label>
 
                     <div className="grid grid-cols-2 gap-4 mb-4">
                       <div>
                         <Label htmlFor="teamB-from-color" className="block mb-2">
-                          Начальный цвет
+                          {t("scoreboardSettings.startColor")}
                         </Label>
                         <div className="flex items-center gap-2">
                           <input
@@ -292,7 +294,7 @@ export function ScoreboardSettings({ settings, onSettingsChange }) {
 
                       <div>
                         <Label htmlFor="teamB-to-color" className="block mb-2">
-                          Конечный цвет
+                          {t("scoreboardSettings.endColor")}
                         </Label>
                         <div className="flex items-center gap-2">
                           <input
@@ -321,7 +323,7 @@ export function ScoreboardSettings({ settings, onSettingsChange }) {
               <TabsContent value="display">
                 <div className="space-y-6">
                   <div className="flex items-center justify-between">
-                    <Label htmlFor="show-court-sides">Показывать стороны корта</Label>
+                    <Label htmlFor="show-court-sides">{t("scoreboardSettings.showCourtSides")}</Label>
                     <Switch
                       id="show-court-sides"
                       checked={settings.showCourtSides}
@@ -331,7 +333,7 @@ export function ScoreboardSettings({ settings, onSettingsChange }) {
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <Label htmlFor="show-current-server">Показывать блок текущей подачи</Label>
+                    <Label htmlFor="show-current-server">{t("scoreboardSettings.showCurrentServer")}</Label>
                     <Switch
                       id="show-current-server"
                       checked={settings.showCurrentServer}
@@ -341,7 +343,7 @@ export function ScoreboardSettings({ settings, onSettingsChange }) {
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <Label htmlFor="show-server-indicator">Показывать индикатор подачи у имен</Label>
+                    <Label htmlFor="show-server-indicator">{t("scoreboardSettings.showServerIndicator")}</Label>
                     <Switch
                       id="show-server-indicator"
                       checked={settings.showServerIndicator !== false}
@@ -351,7 +353,7 @@ export function ScoreboardSettings({ settings, onSettingsChange }) {
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <Label htmlFor="show-sets-score">Показывать счет сетов</Label>
+                    <Label htmlFor="show-sets-score">{t("scoreboardSettings.showSetsScore")}</Label>
                     <Switch
                       id="show-sets-score"
                       checked={settings.showSetsScore}
@@ -365,7 +367,7 @@ export function ScoreboardSettings({ settings, onSettingsChange }) {
               <TabsContent value="sizes">
                 <div className="space-y-6">
                   <div className="flex items-center justify-between mb-4 pb-4 border-b">
-                    <Label htmlFor="use-custom-sizes">Использовать настройки размеров</Label>
+                    <Label htmlFor="use-custom-sizes">{t("scoreboardSettings.useCustomSizes")}</Label>
                     <Switch
                       id="use-custom-sizes"
                       checked={settings.useCustomSizes !== false}
@@ -378,7 +380,7 @@ export function ScoreboardSettings({ settings, onSettingsChange }) {
                     <>
                       <div>
                         <Label htmlFor="font-size" className="block mb-2">
-                          Общий размер шрифта: {settings.fontSize}%
+                          {t("scoreboardSettings.fontSize")}: {settings.fontSize}%
                         </Label>
                         <Slider
                           id="font-size"
@@ -393,7 +395,7 @@ export function ScoreboardSettings({ settings, onSettingsChange }) {
 
                       <div>
                         <Label htmlFor="player-cell-width" className="block mb-2">
-                          Ширина ячейки имен игроков: {settings.playerCellWidth || 60}%
+                          {t("scoreboardSettings.playerCellWidth")}: {settings.playerCellWidth || 60}%
                         </Label>
                         <Slider
                           id="player-cell-width"
@@ -408,7 +410,7 @@ export function ScoreboardSettings({ settings, onSettingsChange }) {
 
                       <div>
                         <Label htmlFor="player-names-font-size" className="block mb-2">
-                          Размер шрифта имен игроков: {settings.playerNamesFontSize || 100}%
+                          {t("scoreboardSettings.playerNamesFontSize")}: {settings.playerNamesFontSize || 100}%
                         </Label>
                         <Slider
                           id="player-names-font-size"
@@ -423,7 +425,7 @@ export function ScoreboardSettings({ settings, onSettingsChange }) {
 
                       <div>
                         <Label htmlFor="game-score-font-size" className="block mb-2">
-                          Размер шрифта счета в гейме: {settings.gameScoreFontSize || 100}%
+                          {t("scoreboardSettings.gameScoreFontSize")}: {settings.gameScoreFontSize || 100}%
                         </Label>
                         <Slider
                           id="game-score-font-size"
@@ -438,7 +440,7 @@ export function ScoreboardSettings({ settings, onSettingsChange }) {
 
                       <div>
                         <Label htmlFor="sets-score-font-size" className="block mb-2">
-                          Размер шрифта счета в сетах: {settings.setsScoreFontSize || 100}%
+                          {t("scoreboardSettings.setsScoreFontSize")}: {settings.setsScoreFontSize || 100}%
                         </Label>
                         <Slider
                           id="sets-score-font-size"
@@ -453,7 +455,7 @@ export function ScoreboardSettings({ settings, onSettingsChange }) {
 
                       <div>
                         <Label htmlFor="info-block-font-size" className="block mb-2">
-                          Размер шрифта информационных блоков: {settings.infoBlockFontSize || 100}%
+                          {t("scoreboardSettings.infoBlockFontSize")}: {settings.infoBlockFontSize || 100}%
                         </Label>
                         <Slider
                           id="info-block-font-size"
@@ -474,7 +476,7 @@ export function ScoreboardSettings({ settings, onSettingsChange }) {
                 <div className="space-y-6">
                   <div>
                     <Label htmlFor="game-score-text-color" className="block mb-2">
-                      Цвет текста счета в гейме
+                      {t("scoreboardSettings.gameScoreTextColor")}
                     </Label>
                     <div className="flex items-center gap-2">
                       <input
@@ -490,7 +492,7 @@ export function ScoreboardSettings({ settings, onSettingsChange }) {
 
                   <div>
                     <Label htmlFor="game-cell-bg-color" className="block mb-2">
-                      Цвет фона ячейки гейма
+                      {t("scoreboardSettings.gameCellBgColor")}
                     </Label>
                     <div className="flex items-center gap-2">
                       <input
@@ -506,7 +508,7 @@ export function ScoreboardSettings({ settings, onSettingsChange }) {
 
                   <div>
                     <Label htmlFor="tiebreak-cell-bg-color" className="block mb-2">
-                      Цвет фона ячейки тай-брейка
+                      {t("scoreboardSettings.tiebreakCellBgColor")}
                     </Label>
                     <div className="flex items-center gap-2">
                       <input
@@ -522,7 +524,7 @@ export function ScoreboardSettings({ settings, onSettingsChange }) {
 
                   <div>
                     <Label htmlFor="sets-score-text-color" className="block mb-2">
-                      Цвет текста счета в сетах
+                      {t("scoreboardSettings.setsScoreTextColor")}
                     </Label>
                     <div className="flex items-center gap-2">
                       <input
@@ -542,7 +544,7 @@ export function ScoreboardSettings({ settings, onSettingsChange }) {
             <div className="flex justify-end mt-6">
               <Button onClick={() => setShowSettings(false)}>
                 <Check className="h-4 w-4 mr-2" />
-                Готово
+                {t("scoreboardSettings.done")}
               </Button>
             </div>
           </div>

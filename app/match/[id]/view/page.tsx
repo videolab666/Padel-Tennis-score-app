@@ -10,6 +10,7 @@ import { ScoreboardSettings } from "@/components/scoreboard-settings"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { useSoundEffects } from "@/hooks/use-sound-effects"
 import { SoundToggle } from "@/components/sound-toggle"
+import { useLanguage } from "@/contexts/language-context"
 
 type MatchParams = {
   params: {
@@ -19,6 +20,7 @@ type MatchParams = {
 
 export default function MatchViewPage({ params }: MatchParams) {
   const router = useRouter()
+  const { t } = useLanguage()
   const [match, setMatch] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
@@ -189,7 +191,8 @@ export default function MatchViewPage({ params }: MatchParams) {
             className="text-white border-gray-700 hover:bg-gray-800 bg-gray-800"
             onClick={() => router.push(`/match/${params.id}`)}
           >
-            <ArrowLeft className="mr-2 h-4 w-4" />К управлению матчем
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            {t("matchPage.backToMatchControl")}
           </Button>
           <div className="flex gap-2">
             <ScoreboardSettings settings={settings} onSettingsChange={setSettings} />
@@ -200,7 +203,7 @@ export default function MatchViewPage({ params }: MatchParams) {
               onClick={handleShare}
             >
               <Share2 className="mr-2 h-4 w-4" />
-              Поделиться
+              {t("matchPage.share")}
             </Button>
             <Button
               variant="outline"
@@ -208,7 +211,7 @@ export default function MatchViewPage({ params }: MatchParams) {
               onClick={toggleFullScreen}
             >
               <ExternalLink className="mr-2 h-4 w-4" />
-              Полноэкранный режим
+              {t("common.fullscreen")}
             </Button>
           </div>
         </div>

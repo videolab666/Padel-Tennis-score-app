@@ -14,11 +14,11 @@ export function SoundToggle({ enabled, onToggle }: SoundToggleProps) {
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button variant="outline" size="icon" onClick={onToggle} className="h-8 w-8">
-            {enabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
+          <Button variant="default" size="icon" onClick={onToggle} className="h-8 w-8">
+            {enabled ? <Volume2 className="h-4 w-4 text-white" /> : <VolumeX className="h-4 w-4 text-white" />}
           </Button>
         </TooltipTrigger>
-        <TooltipContent>
+        <TooltipContent className="bg-gray-800 text-white border-gray-700">
           <p>{enabled ? "Отключить звуки" : "Включить звуки"}</p>
         </TooltipContent>
       </Tooltip>

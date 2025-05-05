@@ -25,10 +25,12 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { logEvent } from "@/lib/error-logger"
+import { useLanguage } from "@/contexts/language-context"
 
 // Добавляем состояние для страны игрока
 export default function PlayersPage() {
   const router = useRouter()
+  const { t } = useLanguage()
   const [players, setPlayers] = useState([])
   const [loading, setLoading] = useState(true)
   const [newPlayerName, setNewPlayerName] = useState("")
@@ -120,7 +122,7 @@ export default function PlayersPage() {
       }
     } catch (error) {
       console.error("Ошибка при добавлении игрока:", error)
-      showNotification("Произошла ошибка при добавлении игрока", "error")
+      showNotification(t("players.errorAddingPlayer"), "error")
       logEvent("error", "Ошибка при добавлении игрока", "PlayersPage", error)
     } finally {
       setIsAddingPlayer(false)
@@ -153,7 +155,7 @@ export default function PlayersPage() {
       }
     } catch (error) {
       console.error("Ошибка при удалении игроков:", error)
-      showNotification("Произошла ошибка при удалении игроков", "error")
+      showNotification(t("players.errorDeletingPlayers"), "error")
       logEvent("error", "Ошибка при удалении игроков", "PlayersPage", error)
     } finally {
       setIsDeletingPlayers(false)
@@ -205,7 +207,11 @@ export default function PlayersPage() {
           }`}
         >
           <AlertTitle>
-            {alertType === "success" ? "Успешно" : alertType === "error" ? "Ошибка" : "Предупреждение"}
+            {alertType === "success"
+              ? t("common.success")
+              : alertType === "error"
+                ? t("common.error")
+                : t("common.warning")}
           </AlertTitle>
           <AlertDescription
             className={
@@ -220,7 +226,7 @@ export default function PlayersPage() {
       <div className="flex justify-between items-center mb-4">
         <Button variant="ghost" onClick={() => router.push("/")}>
           <ArrowLeft className="mr-2 h-4 w-4" />
-          На главную
+          {t("matchPage.home")}
         </Button>
         <SupabaseStatus />
       </div>
@@ -229,14 +235,14 @@ export default function PlayersPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-center">Управление игроками</CardTitle>
+          <CardTitle className="text-center">{t("players.title")}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="space-y-4">
             <div className="space-y-2">
               <div className="flex gap-2">
                 <Input
-                  placeholder="Имя нового игрока"
+                  placeholder={t("players.name")}
                   value={newPlayerName}
                   onChange={(e) => setNewPlayerName(e.target.value)}
                   disabled={isAddingPlayer}
@@ -244,7 +250,7 @@ export default function PlayersPage() {
               </div>
               <div className="flex gap-2">
                 <Input
-                  placeholder="Аббревиатура страны (ENG, RUS, ESP...)"
+                  placeholder={t("players.countryAbbreviation")}
                   value={newPlayerCountry}
                   onChange={(e) => setNewPlayerCountry(e.target.value.toUpperCase())}
                   maxLength={3}
@@ -257,7 +263,7 @@ export default function PlayersPage() {
                   ) : (
                     <Plus className="mr-2 h-4 w-4" />
                   )}
-                  Добавить
+                  {t("common.add")}
                 </Button>
               </div>
             </div>
@@ -272,7 +278,7 @@ export default function PlayersPage() {
                   disabled={players.length === 0 || isDeletingPlayers}
                 />
                 <Label htmlFor="select-all" className="text-sm">
-                  Выбрать всех
+                  {t("players.selectAll")}
                 </Label>
               </div>
 
@@ -288,17 +294,17 @@ export default function PlayersPage() {
                 ) : (
                   <Trash2 className="mr-2 h-4 w-4" />
                 )}
-                Удалить выбранных ({selectedPlayers.length})
+                {t("players.deleteSelected")} ({selectedPlayers.length})
               </Button>
             </div>
 
             {loading ? (
               <div className="text-center py-4 text-muted-foreground">
                 <Loader2 className="h-6 w-6 animate-spin mx-auto mb-2" />
-                Загрузка игроков...
+                {t("players.loadingPlayers")}
               </div>
             ) : players.length === 0 ? (
-              <div className="text-center py-4 text-muted-foreground">Список игроков пуст</div>
+              <div className="text-center py-4 text-muted-foreground">{t("players.emptyList")}</div>
             ) : (
               <div className="border rounded-md divide-y">
                 {players.map((player) => (
@@ -340,8 +346,12 @@ export default function PlayersPage() {
           </div>
         </CardContent>
         <CardFooter className="flex justify-between">
-          <div className="text-sm text-muted-foreground">Всего игроков: {players.length}</div>
-          <div className="text-sm text-muted-foreground">Выбрано: {selectedPlayers.length}</div>
+          <div className="text-sm text-muted-foreground">
+            {t("players.totalPlayers")}: {players.length}
+          </div>
+          <div className="text-sm text-muted-foreground">
+            {t("players.selected")}: {selectedPlayers.length}
+          </div>
         </CardFooter>
       </Card>
 
@@ -349,14 +359,14 @@ export default function PlayersPage() {
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Удаление игроков</AlertDialogTitle>
+            <AlertDialogTitle>{t("players.deletePlayers")}</AlertDialogTitle>
             <AlertDialogDescription>
-              Вы уверены, что хотите удалить выбранных игроков ({selectedPlayers.length})? Это действие нельзя отменить.
+              {t("players.deletePlayersConfirm")} ({selectedPlayers.length})? {t("players.deletePlayersWarning")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Отмена</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeletePlayers}>Удалить</AlertDialogAction>
+            <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeletePlayers}>{t("common.delete")}</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
