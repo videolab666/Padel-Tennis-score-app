@@ -41,7 +41,6 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
 
   // Параметры отображения из URL
   const theme = searchParams.get("theme") || "default"
-  const language = (searchParams.get("language") as Language) || "ru"
   const showNames = searchParams.get("showNames") !== "false"
   const showPoints = searchParams.get("showPoints") !== "false"
   const showSets = searchParams.get("showSets") !== "false"
@@ -83,6 +82,31 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
   const indicatorGradientFrom = parseColorParam(searchParams.get("indicatorGradientFrom"), "#7c2d12")
   const indicatorGradientTo = parseColorParam(searchParams.get("indicatorGradientTo"), "#991b1b")
 
+  // Заменить эту строку:
+  // const language = (searchParams.get("language") as Language) || "ru"
+  // На следующую, которая будет проверять параметр URL, а затем использовать localStorage:
+  const [language, setLanguage] = useState<Language>("ru")
+
+  useEffect(() => {
+    // Сначала проверяем URL параметр
+    const urlLang = searchParams.get("language") as Language
+    if (urlLang && Object.keys(translations).includes(urlLang)) {
+      setLanguage(urlLang)
+      return
+    }
+
+    // Затем проверяем localStorage
+    try {
+      const storedLang = localStorage.getItem("language") as Language
+      if (storedLang && Object.keys(translations).includes(storedLang)) {
+        setLanguage(storedLang)
+      }
+    } catch (e) {
+      // Игнорируем ошибки localStorage (например, в режиме инкогнито)
+      console.error("Error accessing localStorage:", e)
+    }
+  }, [searchParams])
+
   // Функция для переключения полноэкранного режима
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
@@ -94,7 +118,7 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
             setIsFullscreen(true)
           })
           .catch((err) => {
-            console.error(`Ошибка при переходе в полноэкранный режим: ${err.message}`)
+            console.error(`${translations[language].common.error}: ${err.message}`)
           })
       }
     } else {
@@ -106,7 +130,7 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
             setIsFullscreen(false)
           })
           .catch((err) => {
-            console.error(`Ошибка при выходе из полноэкранного режима: ${err.message}`)
+            console.error(`${translations[language].common.error}: ${err.message}`)
           })
       }
     }
@@ -129,9 +153,13 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
     const loadMatch = async () => {
       try {
         if (isNaN(courtNumber) || courtNumber < 1 || courtNumber > 10) {
-          setError("Некорректный номер корта")
+          setError(
+            translations[language].common.error +
+              ": " +
+              (translations[language].scoreboard.invalidCourt || "Invalid court number"),
+          )
           setLoading(false)
-          logEvent("error", "Fullscreen Scoreboard: некорректный номер корта", "fullscreen-scoreboard")
+          logEvent("error", "Fullscreen Scoreboard: invalid court number", "fullscreen-scoreboard")
           return
         }
 
@@ -175,15 +203,18 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
             }
           }
         } else {
-          setError(`На корте ${courtNumber} нет активных матчей`)
-          logEvent(
-            "warn",
-            `Fullscreen Scoreboard: на корте ${courtNumber} нет активных матчей`,
-            "fullscreen-scoreboard",
+          setError(
+            translations[language].scoreboard.noActiveMatches?.replace("{number}", courtNumber) ||
+              `No active matches on court ${courtNumber}`,
           )
+          logEvent("warn", `Fullscreen Scoreboard: no active matches on court ${courtNumber}`, "fullscreen-scoreboard")
         }
       } catch (err) {
-        setError("Ошибка загрузки матча")
+        setError(
+          translations[language].common.error +
+            ": " +
+            (translations[language].scoreboard.loadError || "Error loading match"),
+        )
         logEvent("error", "Ошибка загрузки матча для Fullscreen Scoreboard", "fullscreen-scoreboard", err)
       } finally {
         setLoading(false)
@@ -191,7 +222,7 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
     }
 
     loadMatch()
-  }, [courtNumber])
+  }, [courtNumber, language])
 
   // Получаем текущий счет в виде строки (0, 15, 30, 40, Ad)
   const getCurrentGameScore = (team) => {
@@ -514,7 +545,7 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
 
     // Проверяем, завершен ли матч
     if (match.isCompleted) {
-      return "MATCH IS OVER"
+      return translations[language].scoreboard.matchCompleted || "MATCH IS OVER"
     }
 
     const importantPoint = getImportantPoint(match)
@@ -547,11 +578,50 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
     return null // ничья (не должно происходить в теннисе/паделе)
   }
 
+  // Добавить в начало функции render (перед return)
+  if (showDebug) {
+    console.log("Current language:", language)
+    console.log("Available translations:", Object.keys(translations))
+    console.log("Checking translations for current language:")
+    const translationsToCheck = [
+      "common.back",
+      "common.loading",
+      "common.error",
+      "common.exitFullscreen",
+      "common.enterFullscreen",
+      "scoreboard.tennis",
+      "scoreboard.padel",
+      "scoreboard.singles",
+      "scoreboard.doubles",
+      "scoreboard.court",
+      "scoreboard.invalidCourt",
+      "scoreboard.noActiveMatches",
+      "scoreboard.loadError",
+      "scoreboard.matchCompleted",
+    ]
+
+    translationsToCheck.forEach((key) => {
+      const parts = key.split(".")
+      let result = translations[language]
+      let exists = true
+
+      for (const part of parts) {
+        if (!result || !result[part]) {
+          exists = false
+          break
+        }
+        result = result[part]
+      }
+
+      console.log(`Translation '${key}': ${exists ? "EXISTS" : "MISSING"}`)
+    })
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen w-screen bg-black text-white">
         <div className="text-center">
-          <div className="mb-4 text-xl">Загрузка данных матча на корте {courtNumber}...</div>
+          <div className="mb-4 text-xl">{getTranslation("common.loading", "Loading...", language)}</div>
           <div className="w-16 h-16 border-4 border-gray-300 border-t-white rounded-full animate-spin mx-auto"></div>
         </div>
       </div>
@@ -636,7 +706,7 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
 
         .team-row {
           display: grid;
-          grid-template-columns: ${showNames ? "5fr " : ""}${showCountry ? "1fr " : ""}${showServer ? "0.5fr " : ""}${showSets ? `repeat(${(match.score.sets?.length || 0) + (match.score.currentSet ? 1 : 0)}, 1fr) ` : ""}${showPoints ? "1.5fr" : ""};
+          grid-template-columns: ${showNames ? "5fr " : ""}${showCountry ? "1fr " : ""}${showServer ? "0.5fr " : ""}${showSets ? `repeat(${(match.score.sets?.length || 0) + (match.score.currentSet ? 1 : 0)}, 0.8fr) ` : ""}${showPoints ? "2.1fr" : ""};
           height: 100%;
           gap: 2px;
         }
@@ -713,6 +783,7 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
         .set-cell {
           font-weight: bold;
           font-size: 10vh; /* Увеличено в 2 раза */
+          padding: 0 0.5vw; /* Уменьшенные отступы по бокам */
         }
 
         .points-cell {
@@ -802,26 +873,29 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
           <div className="flex items-center">
             <Link href="/" className="mr-4 text-white hover:text-gray-300 transition-colors flex items-center">
               <ArrowLeft size={24} />
-              <span className="ml-1">{translations[language].common.back}</span>
             </Link>
             <div className="text-2xl font-bold">
               {match.type === "tennis"
-                ? translations[language].scoreboard.tennis
-                : translations[language].scoreboard.padel}{" "}
+                ? getTranslation("scoreboard.tennis", "Tennis", language)
+                : getTranslation("scoreboard.padel", "Padel", language)}{" "}
               -{" "}
               {match.format === "singles"
-                ? translations[language].scoreboard.singles
-                : translations[language].scoreboard.doubles}
+                ? getTranslation("scoreboard.singles", "Singles", language)
+                : getTranslation("scoreboard.doubles", "Doubles", language)}
             </div>
           </div>
           <div className="flex items-center">
             <div className="text-xl">
-              Корт {courtNumber} - {new Date().toLocaleTimeString()}
+              {getTranslation("scoreboard.court", "Court", language)} {courtNumber} - {new Date().toLocaleTimeString()}
             </div>
             <button
               className="fullscreen-button"
               onClick={toggleFullscreen}
-              title={isFullscreen ? "Выйти из полноэкранного режима" : "Перейти в полноэкранный режим"}
+              title={
+                isFullscreen
+                  ? getTranslation("common.exitFullscreen", "Exit fullscreen", language)
+                  : getTranslation("common.enterFullscreen", "Enter fullscreen", language)
+              }
             >
               {isFullscreen ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
             </button>
@@ -1128,4 +1202,20 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
       </div>
     </>
   )
+}
+
+// Добавить эту функцию после объявления компонента FullscreenScoreboard
+const getTranslation = (path: string, fallback: string, lang: Language): string => {
+  const parts = path.split(".")
+  let result = translations[lang]
+
+  for (const part of parts) {
+    if (!result || !result[part]) {
+      console.warn(`Missing translation: ${path} for language ${lang}`)
+      return fallback
+    }
+    result = result[part]
+  }
+
+  return result as string
 }
