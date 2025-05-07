@@ -370,7 +370,7 @@ export default function CourtVmixSettingsPage({ params }) {
       </Button>
 
       <h1 className="text-2xl font-bold mb-4">
-        {t("courtVmixSettings.title")} - {t("courtVmixSettings.court")} {courtNumber}
+        {t("courtVmixSettings.title")} - {courtNumber}
       </h1>
 
       {error ? (
@@ -508,7 +508,7 @@ export default function CourtVmixSettingsPage({ params }) {
 
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <Label htmlFor="showNames">Показывать имена игроков</Label>
+                      <Label htmlFor="showNames">{t("courtVmixSettings.showPlayerNames")}</Label>
                       <Switch
                         id="showNames"
                         checked={showNames}
@@ -518,7 +518,7 @@ export default function CourtVmixSettingsPage({ params }) {
                     </div>
 
                     <div className="flex items-center justify-between">
-                      <Label htmlFor="showPoints">Показывать текущие очки</Label>
+                      <Label htmlFor="showPoints">{t("courtVmixSettings.showCurrentPoints")}</Label>
                       <Switch
                         id="showPoints"
                         checked={showPoints}
@@ -528,7 +528,7 @@ export default function CourtVmixSettingsPage({ params }) {
                     </div>
 
                     <div className="flex items-center justify-between">
-                      <Label htmlFor="showSets">Показывать счет по сетам</Label>
+                      <Label htmlFor="showSets">{t("courtVmixSettings.showSetsScore")}</Label>
                       <Switch
                         id="showSets"
                         checked={showSets}
@@ -538,7 +538,7 @@ export default function CourtVmixSettingsPage({ params }) {
                     </div>
 
                     <div className="flex items-center justify-between">
-                      <Label htmlFor="showServer">Показывать подающего</Label>
+                      <Label htmlFor="showServer">{t("courtVmixSettings.showServer")}</Label>
                       <Switch
                         id="showServer"
                         checked={showServer}
@@ -548,7 +548,7 @@ export default function CourtVmixSettingsPage({ params }) {
                     </div>
 
                     <div className="flex items-center justify-between">
-                      <Label htmlFor="showCountry">Показывать страны</Label>
+                      <Label htmlFor="showCountry">{t("courtVmixSettings.showCountries")}</Label>
                       <Switch
                         id="showCountry"
                         checked={showCountry}
@@ -783,6 +783,24 @@ export default function CourtVmixSettingsPage({ params }) {
                             type="text"
                             value={serveBgColor}
                             onChange={(e) => setServeBgColor(e.target.value)}
+                            className="w-12 p-1 h-8"
+                          />
+                          <Input
+                            type="text"
+                            value={serveBgColor}
+                            onChange={(e) => setServeBgColor(e.target.value)}
+                            className="w-12 p-1 h-8"
+                          />
+                          <Input
+                            type="text"
+                            value={serveBgColor}
+                            onChange={(e) => setServeBgColor(e.target.value)}
+                            className="w-12 p-1 h-8"
+                          />
+                          <Input
+                            type="text"
+                            value={serveBgColor}
+                            onChange={(e) => setServeBgColor(e.target.value)}
                             className="flex-1"
                           />
                         </div>
@@ -970,12 +988,6 @@ export default function CourtVmixSettingsPage({ params }) {
                                 type="color"
                                 value={pointsGradientTo}
                                 onChange={(e) => setPointsGradientTo(e.target.value)}
-                                className="w-12 p-1 h-8"
-                              />
-                              <Input
-                                type="text"
-                                value={pointsGradientTo}
-                                onChange={(e) => setPointsGradientTo(e.target.value)}
                                 className="flex-1"
                               />
                             </div>
@@ -1081,12 +1093,6 @@ export default function CourtVmixSettingsPage({ params }) {
                                 type="color"
                                 value={setsGradientTo}
                                 onChange={(e) => setSetsGradientTo(e.target.value)}
-                                className="w-12 p-1 h-8"
-                              />
-                              <Input
-                                type="text"
-                                value={setsGradientTo}
-                                onChange={(e) => setSetsGradientTo(e.target.value)}
                                 className="flex-1"
                               />
                             </div>
@@ -1138,12 +1144,6 @@ export default function CourtVmixSettingsPage({ params }) {
                           <Input
                             id="indicatorTextColor"
                             type="color"
-                            value={indicatorTextColor}
-                            onChange={(e) => setIndicatorTextColor(e.target.value)}
-                            className="w-12 p-1 h-8"
-                          />
-                          <Input
-                            type="text"
                             value={indicatorTextColor}
                             onChange={(e) => setIndicatorTextColor(e.target.value)}
                             className="flex-1"
@@ -1200,12 +1200,6 @@ export default function CourtVmixSettingsPage({ params }) {
                               <Input
                                 id="indicatorGradientTo"
                                 type="color"
-                                value={indicatorGradientTo}
-                                onChange={(e) => setIndicatorGradientTo(e.target.value)}
-                                className="w-12 p-1 h-8"
-                              />
-                              <Input
-                                type="text"
                                 value={indicatorGradientTo}
                                 onChange={(e) => setIndicatorGradientTo(e.target.value)}
                                 className="flex-1"
