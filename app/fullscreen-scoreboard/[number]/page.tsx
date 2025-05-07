@@ -6,7 +6,7 @@ import { getMatchByCourtNumber } from "@/lib/court-utils"
 import { getTennisPointName } from "@/lib/tennis-utils"
 import { logEvent } from "@/lib/error-logger"
 import { subscribeToMatchUpdates } from "@/lib/match-storage"
-import { Maximize2, Minimize2 } from "lucide-react"
+import { Maximize2, Minimize2, Trophy } from "lucide-react"
 
 type FullscreenScoreboardParams = {
   params: {
@@ -229,68 +229,43 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
     return tiebreakScores
   }
 
+  // Заменим функции определения важных событий на более надежные версии
+
+  // Заменить функции isMatchPoint, isSetPoint, isGamePoint и getImportantEvent на следующие:
+
   // Определяем важные события (game point, set point, match point)
   const getImportantEvent = () => {
-    if (!match || !match.score || !match.score.currentSet) return null
+    if (!match || !match.score) return null
+
+    // Проверяем, завершен ли матч
+    if (match.isCompleted) {
+      return "MATCH IS OVER"
+    }
+
+    if (!match.score.currentSet) return null
 
     const currentSet = match.score.currentSet
     const setsWonA = (match.score.sets || []).filter((set) => set.teamA > set.teamB).length
     const setsWonB = (match.score.sets || []).filter((set) => set.teamB > set.teamA).length
     const setsToWin = match.bestOf === 3 ? 2 : 3
 
-    // Проверка на match point
-    if (
-      (setsWonA === setsToWin - 1 && currentSet.teamA > currentSet.teamB) ||
-      (setsWonB === setsToWin - 1 && currentSet.teamB > currentSet.teamA)
-    ) {
-      if (
-        (currentSet.teamA >= 5 && currentSet.teamA - currentSet.teamB >= 1) ||
-        (currentSet.teamB >= 5 && currentSet.teamB - currentSet.teamA >= 1) ||
-        (currentSet.isTiebreak &&
-          ((currentSet.currentGame.teamA >= 6 && currentSet.currentGame.teamA - currentSet.currentGame.teamB >= 1) ||
-            (currentSet.currentGame.teamB >= 6 && currentSet.currentGame.teamB - currentSet.currentGame.teamA >= 1)))
-      ) {
-        return "MATCH POINT"
-      }
+    // Проверяем, находится ли одна из команд в одном сете от победы
+    const teamAOneSetFromWin = setsWonA === setsToWin - 1
+    const teamBOneSetFromWin = setsWonB === setsToWin - 1
+
+    // Определяем, является ли текущий момент матч-поинтом
+    if ((teamAOneSetFromWin || teamBOneSetFromWin) && isPointAwayFromWinningSet()) {
+      return "MATCH POINT"
     }
 
-    // Проверка на set point
-    if (!currentSet.isTiebreak) {
-      if (
-        (currentSet.teamA >= 5 &&
-          currentSet.teamA - currentSet.teamB >= 1 &&
-          currentSet.currentGame.teamA === 40 &&
-          currentSet.currentGame.teamB !== 40) ||
-        (currentSet.teamB >= 5 &&
-          currentSet.teamB - currentSet.teamA >= 1 &&
-          currentSet.currentGame.teamB === 40 &&
-          currentSet.currentGame.teamA !== 40) ||
-        (currentSet.teamA >= 5 && currentSet.teamA - currentSet.teamB >= 1 && currentSet.currentGame.teamA === "Ad") ||
-        (currentSet.teamB >= 5 && currentSet.teamB - currentSet.teamA >= 1 && currentSet.currentGame.teamB === "Ad")
-      ) {
-        return "SET POINT"
-      }
-    } else if (
-      (currentSet.currentGame.teamA >= 6 && currentSet.currentGame.teamA - currentSet.currentGame.teamB >= 1) ||
-      (currentSet.currentGame.teamB >= 6 && currentSet.currentGame.teamB - currentSet.currentGame.teamA >= 1)
-    ) {
+    // Определяем, является ли текущий момент сет-поинтом
+    if (isPointAwayFromWinningSet()) {
       return "SET POINT"
     }
 
-    // Проверка на game point
-    if (!currentSet.isTiebreak) {
-      if (
-        (currentSet.currentGame.teamA === 40 &&
-          currentSet.currentGame.teamB !== 40 &&
-          currentSet.currentGame.teamB !== "Ad") ||
-        (currentSet.currentGame.teamB === 40 &&
-          currentSet.currentGame.teamA !== 40 &&
-          currentSet.currentGame.teamA !== "Ad") ||
-        currentSet.currentGame.teamA === "Ad" ||
-        currentSet.currentGame.teamB === "Ad"
-      ) {
-        return "GAME POINT"
-      }
+    // Определяем, является ли текущий момент гейм-поинтом
+    if (isPointAwayFromWinningGame()) {
+      return "GAME POINT"
     }
 
     // Проверка на тайбрейк (самый низкий приоритет)
@@ -301,12 +276,98 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
     return null
   }
 
+  // Проверяем, находится ли команда в одном очке от выигрыша сета
+  const isPointAwayFromWinningSet = () => {
+    if (!match || !match.score || !match.score.currentSet) return false
+
+    const currentSet = match.score.currentSet
+
+    // Определяем, какая команда может выиграть сет
+    let potentialWinner = null
+    let opponent = null
+
+    if (currentSet.teamA > currentSet.teamB) {
+      potentialWinner = "teamA"
+      opponent = "teamB"
+    } else if (currentSet.teamB > currentSet.teamA) {
+      potentialWinner = "teamB"
+      opponent = "teamA"
+    } else {
+      return false // Ничья, никто не может выиграть сет на следующем очке
+    }
+
+    if (currentSet.isTiebreak) {
+      // Логика для тай-брейка
+      const winnerScore = currentSet.currentGame[potentialWinner]
+      const opponentScore = currentSet.currentGame[opponent]
+      const pointsToWin = match.tiebreakType === "regular" ? 7 : 10
+
+      // Сет-пойнт в тай-брейке: потенциальный победитель имеет на 1 очко меньше,
+      // чем нужно для победы, и ведет как минимум на 1 очко
+      return winnerScore >= pointsToWin - 1 && winnerScore - opponentScore >= 1
+    } else {
+      // Логика для обычного гейма
+      // Проверяем, близок ли потенциальный победитель к выигрышу сета
+      const isCloseToWinningSet =
+        (potentialWinner === "teamA" && currentSet.teamA >= 5 && currentSet.teamA - currentSet.teamB >= 1) ||
+        (potentialWinner === "teamB" && currentSet.teamB >= 5 && currentSet.teamB - currentSet.teamA >= 1)
+
+      if (!isCloseToWinningSet) return false
+
+      // Проверяем, находится ли потенциальный победитель в одном очке от победы в гейме
+      return isPointAwayFromWinningGame(potentialWinner)
+    }
+  }
+
+  // Проверяем, находится ли команда в одном очке от выигрыша гейма
+  const isPointAwayFromWinningGame = (specificTeam = null) => {
+    if (!match || !match.score || !match.score.currentSet) return false
+
+    const currentSet = match.score.currentSet
+
+    if (currentSet.isTiebreak) {
+      // В тай-брейке каждый розыгрыш - это гейм-пойнт
+      return true
+    } else {
+      // Логика для обычного гейма
+      const teamAGamePoint =
+        (currentSet.currentGame.teamA === 40 &&
+          (currentSet.currentGame.teamB === 0 ||
+            currentSet.currentGame.teamB === 15 ||
+            currentSet.currentGame.teamB === 30)) ||
+        currentSet.currentGame.teamA === "Ad"
+
+      const teamBGamePoint =
+        (currentSet.currentGame.teamB === 40 &&
+          (currentSet.currentGame.teamA === 0 ||
+            currentSet.currentGame.teamA === 15 ||
+            currentSet.currentGame.teamA === 30)) ||
+        currentSet.currentGame.teamB === "Ad"
+
+      if (specificTeam === "teamA") return teamAGamePoint
+      if (specificTeam === "teamB") return teamBGamePoint
+      return teamAGamePoint || teamBGamePoint
+    }
+  }
+
   // Получаем стиль градиента для фона
   const getGradientStyle = (useGradient, fromColor, toColor) => {
     if (!useGradient) return {}
     return {
       background: `linear-gradient(to bottom, ${fromColor}, ${toColor})`,
     }
+  }
+
+  // Определяем победителя матча
+  const getMatchWinner = () => {
+    if (!match || !match.isCompleted || !match.score || !match.score.sets) return null
+
+    const setsWonA = match.score.sets.filter((set) => set.teamA > set.teamB).length
+    const setsWonB = match.score.sets.filter((set) => set.teamB > set.teamA).length
+
+    if (setsWonA > setsWonB) return "teamA"
+    if (setsWonB > setsWonA) return "teamB"
+    return null // ничья (не должно происходить в теннисе/паделе)
   }
 
   if (loading) {
@@ -660,7 +721,7 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
                 </div>
               ))}
 
-            {showSets && match.score.currentSet && (
+            {showSets && match.score.currentSet && !match.isCompleted && (
               <div
                 className="cell set-cell"
                 style={{
@@ -676,7 +737,7 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
               </div>
             )}
 
-            {showPoints && match.score.currentSet && (
+            {showPoints && (
               <div
                 className="cell points-cell"
                 style={{
@@ -699,7 +760,15 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
                     fontSize: "0.9em", // Уменьшено на 10% от родительского размера
                   }}
                 >
-                  {getCurrentGameScore("teamA")}
+                  {match.isCompleted ? (
+                    getMatchWinner() === "teamA" ? (
+                      <Trophy size={48} />
+                    ) : (
+                      ""
+                    )
+                  ) : (
+                    getCurrentGameScore("teamA")
+                  )}
                 </span>
               </div>
             )}
@@ -796,7 +865,7 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
                 </div>
               ))}
 
-            {showSets && match.score.currentSet && (
+            {showSets && match.score.currentSet && !match.isCompleted && (
               <div
                 className="cell set-cell"
                 style={{
@@ -812,7 +881,7 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
               </div>
             )}
 
-            {showPoints && match.score.currentSet && (
+            {showPoints && (
               <div
                 className="cell points-cell"
                 style={{
@@ -835,7 +904,15 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
                     fontSize: "0.9em", // Уменьшено на 10% от родительского размера
                   }}
                 >
-                  {getCurrentGameScore("teamB")}
+                  {match.isCompleted ? (
+                    getMatchWinner() === "teamB" ? (
+                      <Trophy size={48} />
+                    ) : (
+                      ""
+                    )
+                  ) : (
+                    getCurrentGameScore("teamB")
+                  )}
                 </span>
               </div>
             )}
