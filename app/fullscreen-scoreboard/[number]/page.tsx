@@ -2,11 +2,13 @@
 
 import { useState, useEffect, useRef } from "react"
 import { useSearchParams } from "next/navigation"
+import Link from "next/link"
 import { getMatchByCourtNumber } from "@/lib/court-utils"
 import { getTennisPointName } from "@/lib/tennis-utils"
 import { logEvent } from "@/lib/error-logger"
 import { subscribeToMatchUpdates } from "@/lib/match-storage"
-import { Maximize2, Minimize2, Trophy } from "lucide-react"
+import { Maximize2, Minimize2, Trophy, ArrowLeft } from "lucide-react"
+import { translations, type Language } from "@/lib/translations"
 
 type FullscreenScoreboardParams = {
   params: {
@@ -39,11 +41,12 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
 
   // Параметры отображения из URL
   const theme = searchParams.get("theme") || "default"
+  const language = (searchParams.get("language") as Language) || "ru"
   const showNames = searchParams.get("showNames") !== "false"
   const showPoints = searchParams.get("showPoints") !== "false"
   const showSets = searchParams.get("showSets") !== "false"
   const showServer = searchParams.get("showServer") !== "false"
-  const showCountry = searchParams.get("showCountry") !== "false"
+  const showCountry = searchParams.get("showCountry") === "true"
   const textColor = parseColorParam(searchParams.get("textColor"), "#ffffff")
   const accentColor = parseColorParam(searchParams.get("accentColor"), "#a4fb23")
   const showDebug = searchParams.get("debug") === "true"
@@ -72,6 +75,13 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
   const serveGradient = searchParams.get("serveGradient") === "true"
   const serveGradientFrom = parseColorParam(searchParams.get("serveGradientFrom"), "#000000")
   const serveGradientTo = parseColorParam(searchParams.get("serveGradientTo"), "#1e1e1e")
+
+  // Параметры для индикатора важных событий
+  const indicatorBgColor = parseColorParam(searchParams.get("indicatorBgColor"), "#7c2d12")
+  const indicatorTextColor = parseColorParam(searchParams.get("indicatorTextColor"), "#ffffff")
+  const indicatorGradient = searchParams.get("indicatorGradient") === "true"
+  const indicatorGradientFrom = parseColorParam(searchParams.get("indicatorGradientFrom"), "#7c2d12")
+  const indicatorGradientTo = parseColorParam(searchParams.get("indicatorGradientTo"), "#991b1b")
 
   // Функция для переключения полноэкранного режима
   const toggleFullscreen = () => {
@@ -580,7 +590,7 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
 
         .fullscreen-container {
           display: grid;
-          grid-template-rows: auto 1fr;
+          grid-template-rows: auto 1fr auto;
           height: 100vh;
           width: 100vw;
           overflow: hidden;
@@ -707,6 +717,11 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
 
         .points-cell {
           font-weight: bold;
+          font-size: 19.  /* Увеличено в 2 раза */
+        }
+
+        .points-cell {
+          font-weight: bold;
           font-size: 19.2vh; /* Уменьшено на 40% от 32vh */
           width: 100%;
           text-align: center;
@@ -717,8 +732,7 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
         }
 
         .important-event {
-          background-color: #ff0000;
-          color: white;
+          color: ${indicatorTextColor};
           font-weight: bold;
           text-align: center;
           padding: 3px;
@@ -728,11 +742,12 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
           align-items: center;
           justify-content: center;
           transition: opacity 0.5s ease; /* Добавлен плавный переход */
-          position: absolute;
-          bottom: 0;
-          left: 0;
-          right: 0;
           z-index: 10;
+          ${
+            indicatorGradient
+              ? `background: linear-gradient(to bottom, ${indicatorGradientFrom}, ${indicatorGradientTo});`
+              : `background-color: ${indicatorBgColor};`
+          }
         }
 
         /* Responsive font sizes */
@@ -784,9 +799,20 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
 
       <div className="fullscreen-container" ref={containerRef}>
         <div className="header">
-          <div className="text-2xl font-bold">
-            {match.type === "tennis" ? "Теннис" : "Падел"} -{" "}
-            {match.format === "singles" ? "Одиночная игра" : "Парная игра"}
+          <div className="flex items-center">
+            <Link href="/" className="mr-4 text-white hover:text-gray-300 transition-colors flex items-center">
+              <ArrowLeft size={24} />
+              <span className="ml-1">{translations[language].common.back}</span>
+            </Link>
+            <div className="text-2xl font-bold">
+              {match.type === "tennis"
+                ? translations[language].scoreboard.tennis
+                : translations[language].scoreboard.padel}{" "}
+              -{" "}
+              {match.format === "singles"
+                ? translations[language].scoreboard.singles
+                : translations[language].scoreboard.doubles}
+            </div>
           </div>
           <div className="flex items-center">
             <div className="text-xl">
@@ -1093,7 +1119,10 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
         </div>
 
         {/* Строка важных событий - всегда видима, но прозрачна когда нет событий */}
-        <div className="important-event" style={{ opacity: getImportantEvent() ? 1 : 0 }}>
+        <div
+          className="important-event"
+          style={{ opacity: getImportantEvent() ? 1 : 0, display: getImportantEvent() ? "flex" : "flex" }}
+        >
           {getImportantEvent() || ""}
         </div>
       </div>
