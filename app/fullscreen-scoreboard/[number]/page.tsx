@@ -233,7 +233,272 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
 
   // Заменить функции isMatchPoint, isSetPoint, isGamePoint и getImportantEvent на следующие:
 
-  // Определяем важные события (game point, set point, match point)
+  // Функция для преобразования числового значения очков в теннисе в индекс
+  const getPointIndex = (point) => {
+    // Обработка строкового значения "Ad" (преимущество)
+    if (point === "Ad") return 4
+
+    // Преобразуем числовые значения очков (0, 15, 30, 40) в индексы (0, 1, 2, 3)
+    if (point === 0) return 0
+    if (point === 15) return 1
+    if (point === 30) return 2
+    if (point === 40) return 3
+
+    // Если значение больше 40, считаем это преимуществом (Ad)
+    if (typeof point === "number" && point > 40) return 4
+
+    // Если это числовое значение, но не стандартное, возвращаем его как есть
+    // (это может быть счет в тай-брейке)
+    return point
+  }
+
+  // Улучшенная функция для определения game point с подробным логированием
+  const isGamePoint = (match) => {
+    console.log("=== CHECKING GAME POINT ===")
+
+    if (!match || !match.score || !match.score.currentSet) {
+      console.log("No match data or current set")
+      return false
+    }
+
+    const currentSet = match.score.currentSet
+    const currentGame = currentSet.currentGame
+
+    if (!currentGame) {
+      console.log("No current game data")
+      return false
+    }
+
+    console.log("Current game score:", JSON.stringify(currentGame))
+    console.log("Is tiebreak:", currentSet.isTiebreak)
+    console.log("Team A points:", currentGame.teamA, "Team B points:", currentGame.teamB)
+    console.log("Team A points name:", getTennisPointName(currentGame.teamA))
+    console.log("Team B points name:", getTennisPointName(currentGame.teamB))
+
+    // Получаем индексы очков для правильного сравнения
+    const teamAIndex = getPointIndex(currentGame.teamA)
+    const teamBIndex = getPointIndex(currentGame.teamB)
+
+    console.log("Team A points index:", teamAIndex, "Team B points index:", teamBIndex)
+
+    // Для тай-брейка
+    if (currentSet.isTiebreak) {
+      console.log("Tiebreak logic")
+      // В тай-брейке обычно нужно набрать 7 очков с разницей в 2 очка
+      // Если команда A имеет 6 очков и ведет, это game point
+      if (currentGame.teamA >= 6 && currentGame.teamA >= currentGame.teamB + 1) {
+        console.log("Game point for teamA in tiebreak")
+        return "teamA"
+      }
+      // Если команда B имеет 6 очков и ведет, это game point
+      if (currentGame.teamB >= 6 && currentGame.teamB >= currentGame.teamA + 1) {
+        console.log("Game point for teamB in tiebreak")
+        return "teamB"
+      }
+      console.log("No game point in tiebreak")
+      return false
+    }
+
+    // Для обычного гейма - исправленная логика с использованием индексов
+
+    // Если у команды A преимущество (Ad)
+    if (teamAIndex === 4 && teamBIndex <= 3) {
+      console.log("Game point for teamA: Ad")
+      return "teamA"
+    }
+
+    // Если команда A имеет 40 (индекс 3) и команда B имеет меньше или равно 30 (индекс <= 2)
+    if (teamAIndex === 3 && teamBIndex <= 2) {
+      console.log("Game point for teamA: 40-x")
+      return "teamA"
+    }
+
+    // Если у команды B преимущество (Ad)
+    if (teamBIndex === 4 && teamAIndex <= 3) {
+      console.log("Game point for teamB: Ad")
+      return "teamB"
+    }
+
+    // Если команда B имеет 40 (индекс 3) и команда A имеет меньше или равно 30 (индекс <= 2)
+    if (teamBIndex === 3 && teamAIndex <= 2) {
+      console.log("Game point for teamB: 40-x")
+      return "teamB"
+    }
+
+    console.log("No game point detected")
+    return false
+  }
+
+  // Улучшенная функция для определения set point с подробным логированием
+  const isSetPoint = (match) => {
+    console.log("=== CHECKING SET POINT ===")
+
+    if (!match || !match.score || !match.score.currentSet) {
+      console.log("No match data or current set")
+      return false
+    }
+
+    const currentSet = match.score.currentSet
+    const teamAGames = currentSet.teamA
+    const teamBGames = currentSet.teamB
+
+    console.log("Current set score - Team A:", teamAGames, "Team B:", teamBGames)
+
+    // Если идет тай-брейк, проверяем особым образом
+    if (currentSet.isTiebreak) {
+      // Получаем, кто имеет гейм-поинт в тай-брейке
+      const gamePoint = isGamePoint(match)
+      console.log("Game point in tiebreak result:", gamePoint)
+
+      // Если есть гейм-поинт в тай-брейке, то это также и сет-поинт
+      if (gamePoint) {
+        console.log("Set point in tiebreak for", gamePoint)
+        return gamePoint
+      }
+
+      console.log("No set point in tiebreak")
+      return false
+    }
+
+    // Для обычного гейма
+    // Получаем, кто имеет гейм-поинт
+    const gamePoint = isGamePoint(match)
+    console.log("Game point result:", gamePoint)
+
+    if (!gamePoint) {
+      console.log("No game point, so no set point")
+      return false
+    }
+
+    // Для команды A
+    if (gamePoint === "teamA") {
+      // Если команда A ведет 5-x и выиграет этот гейм, то счет станет 6-x
+      if (teamAGames === 5 && teamBGames <= 4) {
+        console.log("Set point for teamA: 5-x")
+        return "teamA"
+      }
+      // Если команда A ведет 6-5 и выиграет этот гейм, то счет станет 7-5
+      if (teamAGames === 6 && teamBGames === 5) {
+        console.log("Set point for teamA: 6-5")
+        return "teamA"
+      }
+    }
+
+    // Для команды B
+    if (gamePoint === "teamB") {
+      // Если команда B ведет 5-x и выиграет этот гейм, то счет станет 6-x
+      if (teamBGames === 5 && teamAGames <= 4) {
+        console.log("Set point for teamB: 5-x")
+        return "teamB"
+      }
+      // Если команда B ведет 6-5 и выиграет этот гейм, то счет станет 7-5
+      if (teamBGames === 6 && teamAGames === 5) {
+        console.log("Set point for teamB: 6-5")
+        return "teamB"
+      }
+    }
+
+    console.log("No set point detected")
+    return false
+  }
+
+  // Улучшенная функция для определения match point с подробным логированием
+  const isMatchPoint = (match) => {
+    console.log("=== CHECKING MATCH POINT ===")
+
+    if (!match || !match.score || !match.score.currentSet) {
+      console.log("No match data or current set")
+      return false
+    }
+
+    // Определяем, сколько сетов нужно для победы (обычно 2 из 3)
+    const setsToWin = match.setsToWin || 2
+    console.log("Sets to win:", setsToWin)
+
+    // Получаем текущий счет по сетам
+    const teamASets = match.score.sets ? match.score.sets.filter((set) => set.teamA > set.teamB).length : 0
+    const teamBSets = match.score.sets ? match.score.sets.filter((set) => set.teamB > set.teamA).length : 0
+    console.log("Sets won - Team A:", teamASets, "Team B:", teamBSets)
+
+    // Проверяем, является ли текущий гейм сет-поинтом
+    const setPoint = isSetPoint(match)
+    console.log("Set point result:", setPoint)
+
+    // Если нет сет-поинта, то не может быть и матч-поинта
+    if (!setPoint) {
+      console.log("No set point, so no match point")
+      return false
+    }
+
+    // Для команды A
+    if (setPoint === "teamA" && teamASets === setsToWin - 1) {
+      console.log("Match point for teamA")
+      return "teamA"
+    }
+
+    // Для команды B
+    if (setPoint === "teamB" && teamBSets === setsToWin - 1) {
+      console.log("Match point for teamB")
+      return "teamB"
+    }
+
+    console.log("No match point detected")
+    return false
+  }
+
+  // Улучшенная функция для определения важного момента с подробным логированием
+  const getImportantPoint = (match) => {
+    console.log("=== GETTING IMPORTANT POINT ===")
+
+    // Для отладки - выводим текущий счет
+    if (match && match.score && match.score.currentSet) {
+      console.log("Current game score:", JSON.stringify(match.score.currentSet.currentGame))
+      console.log("Current set score:", {
+        teamA: match.score.currentSet.teamA,
+        teamB: match.score.currentSet.teamB,
+        isTiebreak: match.score.currentSet.isTiebreak,
+      })
+      if (match.score.sets) {
+        console.log("Sets:", JSON.stringify(match.score.sets))
+      }
+    } else {
+      console.log("No match data available")
+    }
+
+    // Проверяем, идет ли тай-брейк
+    const isTiebreak = match?.score?.currentSet?.isTiebreak || false
+
+    // Сначала проверяем match point (самый приоритетный)
+    const matchPoint = isMatchPoint(match)
+    if (matchPoint) {
+      console.log("MATCH POINT detected for", matchPoint)
+      return { type: "MATCH POINT", team: matchPoint }
+    }
+
+    // Затем проверяем set point
+    const setPoint = isSetPoint(match)
+    if (setPoint) {
+      console.log("SET POINT detected for", setPoint)
+      return { type: "SET POINT", team: setPoint }
+    }
+
+    // Затем проверяем game point
+    const gamePoint = isGamePoint(match)
+    if (gamePoint) {
+      console.log("GAME POINT detected for", gamePoint)
+      // Если идет тай-брейк, показываем "TIEBREAK POINT" вместо "GAME POINT"
+      if (isTiebreak) {
+        return { type: "TIEBREAK POINT", team: gamePoint }
+      }
+      return { type: "GAME POINT", team: gamePoint }
+    }
+
+    console.log("No important point detected")
+    // Если нет важного момента, возвращаем тип индикатора в зависимости от того, идет ли тай-брейк
+    return { type: isTiebreak ? "TIEBREAK" : "GAME", team: null }
+  }
+
+  // Обновленная функция getImportantEvent, которая использует логику из vMix
   const getImportantEvent = () => {
     if (!match || !match.score) return null
 
@@ -242,112 +507,14 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
       return "MATCH IS OVER"
     }
 
-    if (!match.score.currentSet) return null
+    const importantPoint = getImportantPoint(match)
 
-    const currentSet = match.score.currentSet
-    const setsWonA = (match.score.sets || []).filter((set) => set.teamA > set.teamB).length
-    const setsWonB = (match.score.sets || []).filter((set) => set.teamB > set.teamA).length
-    const setsToWin = match.bestOf === 3 ? 2 : 3
-
-    // Проверяем, находится ли одна из команд в одном сете от победы
-    const teamAOneSetFromWin = setsWonA === setsToWin - 1
-    const teamBOneSetFromWin = setsWonB === setsToWin - 1
-
-    // Определяем, является ли текущий момент матч-поинтом
-    if ((teamAOneSetFromWin || teamBOneSetFromWin) && isPointAwayFromWinningSet()) {
-      return "MATCH POINT"
-    }
-
-    // Определяем, является ли текущий момент сет-поинтом
-    if (isPointAwayFromWinningSet()) {
-      return "SET POINT"
-    }
-
-    // Определяем, является ли текущий момент гейм-поинтом
-    if (isPointAwayFromWinningGame()) {
-      return "GAME POINT"
-    }
-
-    // Проверка на тайбрейк (самый низкий приоритет)
-    if (currentSet.isTiebreak) {
-      return "TIE BREAK"
+    // Возвращаем тип важного события, если оно есть и это не обычный гейм
+    if (importantPoint.type && importantPoint.type !== "GAME") {
+      return importantPoint.type
     }
 
     return null
-  }
-
-  // Проверяем, находится ли команда в одном очке от выигрыша сета
-  const isPointAwayFromWinningSet = () => {
-    if (!match || !match.score || !match.score.currentSet) return false
-
-    const currentSet = match.score.currentSet
-
-    // Определяем, какая команда может выиграть сет
-    let potentialWinner = null
-    let opponent = null
-
-    if (currentSet.teamA > currentSet.teamB) {
-      potentialWinner = "teamA"
-      opponent = "teamB"
-    } else if (currentSet.teamB > currentSet.teamA) {
-      potentialWinner = "teamB"
-      opponent = "teamA"
-    } else {
-      return false // Ничья, никто не может выиграть сет на следующем очке
-    }
-
-    if (currentSet.isTiebreak) {
-      // Логика для тай-брейка
-      const winnerScore = currentSet.currentGame[potentialWinner]
-      const opponentScore = currentSet.currentGame[opponent]
-      const pointsToWin = match.tiebreakType === "regular" ? 7 : 10
-
-      // Сет-пойнт в тай-брейке: потенциальный победитель имеет на 1 очко меньше,
-      // чем нужно для победы, и ведет как минимум на 1 очко
-      return winnerScore >= pointsToWin - 1 && winnerScore - opponentScore >= 1
-    } else {
-      // Логика для обычного гейма
-      // Проверяем, близок ли потенциальный победитель к выигрышу сета
-      const isCloseToWinningSet =
-        (potentialWinner === "teamA" && currentSet.teamA >= 5 && currentSet.teamA - currentSet.teamB >= 1) ||
-        (potentialWinner === "teamB" && currentSet.teamB >= 5 && currentSet.teamB - currentSet.teamA >= 1)
-
-      if (!isCloseToWinningSet) return false
-
-      // Проверяем, находится ли потенциальный победитель в одном очке от победы в гейме
-      return isPointAwayFromWinningGame(potentialWinner)
-    }
-  }
-
-  // Проверяем, находится ли команда в одном очке от выигрыша гейма
-  const isPointAwayFromWinningGame = (specificTeam = null) => {
-    if (!match || !match.score || !match.score.currentSet) return false
-
-    const currentSet = match.score.currentSet
-
-    if (currentSet.isTiebreak) {
-      // В тай-брейке каждый розыгрыш - это гейм-пойнт
-      return true
-    } else {
-      // Логика для обычного гейма
-      const teamAGamePoint =
-        (currentSet.currentGame.teamA === 40 &&
-          (currentSet.currentGame.teamB === 0 ||
-            currentSet.currentGame.teamB === 15 ||
-            currentSet.currentGame.teamB === 30)) ||
-        currentSet.currentGame.teamA === "Ad"
-
-      const teamBGamePoint =
-        (currentSet.currentGame.teamB === 40 &&
-          (currentSet.currentGame.teamA === 0 ||
-            currentSet.currentGame.teamA === 15 ||
-            currentSet.currentGame.teamA === 30)) ||
-        currentSet.currentGame.teamB === "Ad"
-
-      if (specificTeam === "teamA") return teamAGamePoint
-      if (specificTeam === "teamB") return teamBGamePoint
-      return teamAGamePoint || teamBGamePoint
-    }
   }
 
   // Получаем стиль градиента для фона
@@ -413,10 +580,11 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
 
         .fullscreen-container {
           display: grid;
-          grid-template-rows: auto 1fr auto;
+          grid-template-rows: auto 1fr;
           height: 100vh;
           width: 100vw;
           overflow: hidden;
+          position: relative;
         }
 
         .header {
@@ -555,11 +723,16 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
           text-align: center;
           padding: 3px;
           font-size: 4vh;
-          max-height: 6vh;
+          height: 6vh;
           display: flex;
           align-items: center;
           justify-content: center;
           transition: opacity 0.5s ease; /* Добавлен плавный переход */
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          z-index: 10;
         }
 
         /* Responsive font sizes */
@@ -921,7 +1094,7 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
 
         {/* Строка важных событий - всегда видима, но прозрачна когда нет событий */}
         <div className="important-event" style={{ opacity: getImportantEvent() ? 1 : 0 }}>
-          {getImportantEvent() || "PLAY"}
+          {getImportantEvent() || ""}
         </div>
       </div>
     </>
