@@ -39,6 +39,8 @@ export async function GET(request: NextRequest, { params }: { params: { number: 
 
       // Данные команды A
       teamA_name: match.teamA.players.map((p) => p.name).join(" / "),
+      teamA_player1_name: match.teamA.players[0]?.name || "",
+      teamA_player2_name: match.teamA.players[1]?.name || "",
       teamA_score: match.score.teamA,
       teamA_game_score: match.score.currentSet
         ? match.score.currentSet.isTiebreak
@@ -50,6 +52,8 @@ export async function GET(request: NextRequest, { params }: { params: { number: 
 
       // Данные команды B
       teamB_name: match.teamB.players.map((p) => p.name).join(" / "),
+      teamB_player1_name: match.teamB.players[0]?.name || "",
+      teamB_player2_name: match.teamB.players[1]?.name || "",
       teamB_score: match.score.teamB,
       teamB_game_score: match.score.currentSet
         ? match.score.currentSet.isTiebreak

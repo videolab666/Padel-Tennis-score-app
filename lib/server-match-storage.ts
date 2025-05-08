@@ -50,7 +50,7 @@ export const getMatchFromServer = async (id) => {
 
     logEvent("info", "Матч успешно получен из Supabase (сервер)", "getMatchFromServer", { matchId: id })
 
-    // Преобраз��ем данные из Supabase
+    // Преобразуем данные из Supabase
     const match = transformMatchFromSupabase(data)
 
     // Убедимся, что структура матча полная
@@ -75,7 +75,7 @@ export const getMatchFromServer = async (id) => {
   }
 }
 
-// Добавим функцию для получения матча по номеру корта
+// Изменим функцию getMatchFromServerByCourtNumber, чтобы она возвращала и завершенные матчи
 export const getMatchFromServerByCourtNumber = async (courtNumber) => {
   try {
     logEvent("info", `Получение матча по номеру корта (сервер): ${courtNumber}`, "getMatchFromServerByCourtNumber")
@@ -83,8 +83,8 @@ export const getMatchFromServerByCourtNumber = async (courtNumber) => {
     // Создаем клиент Supabase для серверного компонента
     const supabase = createServerComponentClient({ cookies })
 
-    // Получаем матч из Supabase
-    const { data, error, status } = await supabase
+    // Сначала пытаемся получить активный (незавершенный) матч
+    let { data, error, status } = await supabase
       .from("matches")
       .select("*")
       .eq("court_number", courtNumber)
@@ -92,6 +92,28 @@ export const getMatchFromServerByCourtNumber = async (courtNumber) => {
       .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle()
+
+    // Если активный матч не найден, пытаемся получить последний завершенный матч
+    if (!data && !error) {
+      logEvent(
+        "info",
+        `Активный матч на корте ${courtNumber} не найден, ищем завершенный`,
+        "getMatchFromServerByCourtNumber",
+      )
+
+      const completedMatchResult = await supabase
+        .from("matches")
+        .select("*")
+        .eq("court_number", courtNumber)
+        .eq("is_completed", true)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle()
+
+      data = completedMatchResult.data
+      error = completedMatchResult.error
+      status = completedMatchResult.status
+    }
 
     if (error) {
       logEvent("error", `Ошибка при получении матча из Supabase: ${error.message}`, "getMatchFromServerByCourtNumber", {
@@ -110,6 +132,7 @@ export const getMatchFromServerByCourtNumber = async (courtNumber) => {
     logEvent("info", "Матч успешно получен из Supabase (сервер)", "getMatchFromServerByCourtNumber", {
       matchId: data.id,
       courtNumber,
+      isCompleted: data.is_completed,
     })
 
     // Преобразуем данные из Supabase
