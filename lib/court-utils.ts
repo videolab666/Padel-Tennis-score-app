@@ -67,6 +67,7 @@ export const getMatchByCourtNumber = async (courtNumber) => {
       const controller = new AbortController()
       const timeoutId = setTimeout(() => controller.abort(), 5000) // 5 секунд таймаут
 
+      // Сначала пытаемся получить активный (незавершенный) матч
       const { data, error } = await supabase
         .from("matches")
         .select("*")
@@ -87,12 +88,82 @@ export const getMatchByCourtNumber = async (courtNumber) => {
         return null
       }
 
+      // Если активный матч не найден, пытаемся получить последний завершенный матч
       if (!data) {
-        logEvent("warn", "Матч не найден в Supabase", "getMatchByCourtNumber", { courtNumber })
-        return null
+        logEvent("info", `Активный матч на корте ${courtNumber} не найден, ищем завершенный`, "getMatchByCourtNumber")
+
+        const controller2 = new AbortController()
+        const timeoutId2 = setTimeout(() => controller2.abort(), 5000) // 5 секунд таймаут
+
+        const { data: completedData, error: completedError } = await supabase
+          .from("matches")
+          .select("*")
+          .eq("court_number", courtNum)
+          .eq("is_completed", true)
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .maybeSingle()
+          .abortSignal(controller2.signal)
+
+        clearTimeout(timeoutId2)
+
+        if (completedError) {
+          logEvent(
+            "error",
+            `Ошибка при получении завершенного матча: ${completedError.message}`,
+            "getMatchByCourtNumber",
+            {
+              error: completedError,
+              courtNumber,
+            },
+          )
+          return null
+        }
+
+        if (!completedData) {
+          logEvent("warn", "Матч не найден в Supabase (ни активный, ни завершенный)", "getMatchByCourtNumber", {
+            courtNumber,
+          })
+          return null
+        }
+
+        // Преобразуем данные из Supabase
+        const completedMatch = {
+          id: completedData.id,
+          type: completedData.type,
+          format: completedData.format,
+          createdAt: completedData.created_at,
+          settings: completedData.settings,
+          teamA: completedData.team_a,
+          teamB: completedData.team_b,
+          score: completedData.score,
+          currentServer: completedData.current_server,
+          courtSides: completedData.court_sides,
+          shouldChangeSides: completedData.should_change_sides,
+          isCompleted: completedData.is_completed,
+          winner: completedData.winner,
+          courtNumber: completedData.court_number,
+          history: [],
+        }
+
+        // Убедимся, что структура матча полная
+        if (!completedMatch.score.sets) {
+          completedMatch.score.sets = []
+          logEvent("warn", "Инициализирован пустой массив sets для завершенного матча", "getMatchByCourtNumber", {
+            matchId: completedData.id,
+            courtNumber,
+          })
+        }
+
+        logEvent("info", "Получен завершенный матч по номеру корта", "getMatchByCourtNumber", {
+          matchId: completedData.id,
+          courtNumber,
+        })
+
+        return completedMatch
       }
 
-      // Преобразуем данные из Supabase
+      // Преобразуем данные из Supabase для активного матча
       const match = {
         id: data.id,
         type: data.type,

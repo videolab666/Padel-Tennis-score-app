@@ -7,7 +7,7 @@ import { getMatchByCourtNumber } from "@/lib/court-utils"
 import { getTennisPointName } from "@/lib/tennis-utils"
 import { logEvent } from "@/lib/error-logger"
 import { subscribeToMatchUpdates } from "@/lib/match-storage"
-import { Maximize2, Minimize2, Trophy, ArrowLeft } from "lucide-react"
+import { Maximize2, Minimize2, Trophy, ArrowLeft, Clock } from "lucide-react"
 import { translations, type Language } from "@/lib/translations"
 
 type FullscreenScoreboardParams = {
@@ -35,6 +35,7 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
   const [isFullscreen, setIsFullscreen] = useState(false)
+  const [isCompletedMatch, setIsCompletedMatch] = useState(false)
   const searchParams = useSearchParams()
   const containerRef = useRef(null)
   const courtNumber = Number.parseInt(params.number)
@@ -176,30 +177,46 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
           console.log("Loaded match data:", JSON.stringify(matchData, null, 2))
           setMatch(matchData)
           setError("")
-          logEvent("info", `Fullscreen Scoreboard: матч загружен: ${courtNumber}`, "fullscreen-scoreboard")
 
-          // Подписываемся на обновления матча
-          const unsubscribe = subscribeToMatchUpdates(matchData.id, (updatedMatch) => {
-            if (updatedMatch) {
-              console.log("Match update received:", JSON.stringify(updatedMatch, null, 2))
-              setMatch(updatedMatch)
-              setError("")
-              logEvent("debug", "Fullscreen Scoreboard: получено обновление матча", "fullscreen-scoreboard", {
-                matchId: updatedMatch.id,
-                scoreA: updatedMatch.score.teamA,
-                scoreB: updatedMatch.score.teamB,
-              })
-            } else {
-              setError("Матч не найден или был удален")
-              logEvent("warn", "Fullscreen Scoreboard: матч не найден при обновлении", "fullscreen-scoreboard", {
-                courtNumber,
-              })
-            }
+          // Отмечаем, если это завершенный матч
+          setIsCompletedMatch(matchData.isCompleted === true)
+
+          logEvent("info", `Fullscreen Scoreboard: матч загружен: ${courtNumber}`, "fullscreen-scoreboard", {
+            isCompleted: matchData.isCompleted,
           })
 
-          return () => {
-            if (unsubscribe) {
-              unsubscribe()
+          // Подписываемся на обновления матча только если матч не завершен
+          if (!matchData.isCompleted) {
+            const unsubscribe = subscribeToMatchUpdates(matchData.id, (updatedMatch) => {
+              if (updatedMatch) {
+                console.log("Match update received:", JSON.stringify(updatedMatch, null, 2))
+                setMatch(updatedMatch)
+                setError("")
+
+                // Обновляем статус завершения
+                setIsCompletedMatch(updatedMatch.isCompleted === true)
+
+                logEvent("debug", "Fullscreen Scoreboard: получено обновление матча", "fullscreen-scoreboard", {
+                  matchId: updatedMatch.id,
+                  scoreA: updatedMatch.score.teamA,
+                  scoreB: updatedMatch.score.teamB,
+                  isCompleted: updatedMatch.isCompleted,
+                })
+              } else {
+                // Не показываем ошибку, если матч был завершен
+                if (!matchData.isCompleted) {
+                  setError("Матч не найден или был удален")
+                  logEvent("warn", "Fullscreen Scoreboard: матч не найден при обновлении", "fullscreen-scoreboard", {
+                    courtNumber,
+                  })
+                }
+              }
+            })
+
+            return () => {
+              if (unsubscribe) {
+                unsubscribe()
+              }
             }
           }
         } else {
@@ -887,6 +904,12 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
           <div className="flex items-center">
             <div className="text-xl">
               {getTranslation("scoreboard.court", "Court", language)} {courtNumber} - {new Date().toLocaleTimeString()}
+              {isCompletedMatch && (
+                <span className="ml-2 flex items-center text-amber-400">
+                  <Clock size={16} className="mr-1" />
+                  {getTranslation("scoreboard.completedMatch", "Completed Match", language)}
+                </span>
+              )}
             </div>
             <button
               className="fullscreen-button"
