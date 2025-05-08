@@ -524,6 +524,30 @@ export type TranslationKeys = {
     winner: string
     updateTime: string
     copyJsonApiUrl: string
+    showPlayerNames: string
+    showCurrentPoints: string
+    showSetsScore: string
+    showServer: string
+    showCountries: string
+    savedSettings: string
+    selectSaveOrDeleteSettings: string
+    saveSettingsDialog: string
+    saveSettingsDescription: string
+    settingsName: string
+    settingsNamePlaceholder: string
+    useAsDefault: string
+    cancelButton: string
+    savingButton: string
+    saveButton: string
+    selectSettings: string
+    createNewSettings: string
+    updateSettings: string
+    deleteSettings: string
+    saveToDatabase: string
+    deletingButton: string
+    deleteButton: string
+    deleteSettingsDialog: string
+    deleteSettingsDescription: string
   }
 }
 
@@ -947,6 +971,17 @@ export const translations: { [key in Language]: TranslationKeys } = {
       copyCourtUrl: "Скопировать URL корта",
       actionsForCourtPage: "Действия для страницы корта:",
       courtNotAssigned: "Матч не назначен на корт. Назначьте матч на корт, чтобы использовать эти функции.",
+      selectSaveOrDeleteSettings: "Выберите, сохраните или удалите настройки vMix",
+      saveSettingsDialog: "Сохранение настроек vMix",
+      saveSettingsDescription: "Введите название для настроек и выберите, будут ли они использоваться по умолчанию",
+      settingsName: "Название настроек",
+      settingsNamePlaceholder: "Введите название настроек",
+      useAsDefault: "Использовать по умолчанию",
+      cancelButton: "Отмена",
+      savingButton: "Сохранение...",
+      saveButton: "Сохранить",
+      savedSettings: "Сохраненные настройки",
+      selectSettings: "Выберите настройки",
     },
     courtVmixSettings: {
       title: "Настройки vMix для корта",
@@ -1051,11 +1086,31 @@ export const translations: { [key in Language]: TranslationKeys } = {
       winner: "Переможець",
       updateTime: "Час оновлення",
       copyJsonApiUrl: "Скопіювати URL JSON API",
-      showPlayerNames: "Показывать имена игроков",
-      showCurrentPoints: "Показывать текущие очки",
-      showSetsScore: "Показывать счет по сетам",
-      showServer: "Показывать подающего",
-      showCountries: "Показывать страны",
+      showPlayerNames: "Показувати імена гравців",
+      showCurrentPoints: "Показувати поточні очки",
+      showSetsScore: "Показувати рахунок по сетах",
+      showServer: "Показувати подаючого",
+      showCountries: "Показувати країни",
+      savedSettings: "Збережені налаштування",
+      selectSaveOrDeleteSettings: "Виберіть, збережіть або видаліть налаштування vMix",
+      saveSettingsDialog: "Збереження налаштувань vMix",
+      saveSettingsDescription:
+        "Введіть назву для налаштувань і виберіть, чи будуть вони використовуватися за замовчуванням",
+      settingsName: "Назва налаштувань",
+      settingsNamePlaceholder: "Введіть назву налаштувань",
+      useAsDefault: "Використовувати за замовчуванням",
+      cancelButton: "Скасувати",
+      savingButton: "Збереження...",
+      saveButton: "Зберегти",
+      selectSettings: "Виберіть налаштування",
+      createNewSettings: "Создать новые",
+      updateSettings: "Обновить",
+      deleteSettings: "Удалить",
+      saveToDatabase: "Сохранить в базу данных",
+      deletingButton: "Удаление...",
+      deleteButton: "Удалить",
+      deleteSettingsDialog: "Удаление настроек",
+      deleteSettingsDescription: "Вы уверены, что хотите удалить эти настройки? Это действие нельзя отменить.",
     },
   },
   en: {
@@ -1473,6 +1528,17 @@ export const translations: { [key in Language]: TranslationKeys } = {
       copyJsonApiUrl: "Copy JSON API URL",
       actionsForCourtPage: "Actions for court page:",
       courtNotAssigned: "Match is not assigned to a court. Assign the match to a court to use these features.",
+      selectSaveOrDeleteSettings: "Select, save or delete vMix settings",
+      saveSettingsDialog: "Save vMix Settings",
+      saveSettingsDescription: "Enter a name for the settings and choose if they should be used as default",
+      settingsName: "Settings name",
+      settingsNamePlaceholder: "Enter settings name",
+      useAsDefault: "Use as default",
+      cancelButton: "Cancel",
+      savingButton: "Saving...",
+      saveButton: "Save",
+      savedSettings: "Saved Settings",
+      selectSettings: "Select settings",
     },
     courtVmixSettings: {
       title: "vMix Settings for Court",
@@ -1558,7 +1624,7 @@ export const translations: { [key in Language]: TranslationKeys } = {
       dataFormatExample: "Data format example",
       settingsSaved: "Settings saved",
       errorSavingSettings: "Failed to save settings",
-      loadingSettings: "Загрузка настроек...",
+      loadingSettings: "Loading settings...",
       teamAName: "Team A name",
       teamAScore: "Team A score",
       teamAGameScore: "Team A current game score",
@@ -1575,13 +1641,32 @@ export const translations: { [key in Language]: TranslationKeys } = {
       isTiebreak: "Is tiebreak",
       isCompleted: "Is completed",
       winner: "Winner",
-      updateTime: "Время обновления",
+      updateTime: "Update time",
       copyJsonApiUrl: "Copy JSON API URL",
       showPlayerNames: "Show player names",
       showCurrentPoints: "Show current points",
       showSetsScore: "Show sets score",
       showServer: "Show server",
       showCountries: "Show countries",
+      savedSettings: "Saved Settings",
+      selectSaveOrDeleteSettings: "Select, save or delete vMix settings",
+      saveSettingsDialog: "Save vMix Settings",
+      saveSettingsDescription: "Enter a name for the settings and choose if they should be used as default",
+      settingsName: "Settings name",
+      settingsNamePlaceholder: "Enter settings name",
+      useAsDefault: "Use as default",
+      cancelButton: "Cancel",
+      savingButton: "Saving...",
+      saveButton: "Save",
+      selectSettings: "Select settings",
+      createNewSettings: "Create new",
+      updateSettings: "Update",
+      deleteSettings: "Delete",
+      saveToDatabase: "Save to database",
+      deletingButton: "Deleting...",
+      deleteButton: "Delete",
+      deleteSettingsDialog: "Delete Settings",
+      deleteSettingsDescription: "Are you sure you want to delete these settings? This action cannot be undone.",
     },
   },
   uk: {
@@ -2000,6 +2085,18 @@ export const translations: { [key in Language]: TranslationKeys } = {
       copyJsonApiUrl: "Скопіювати URL JSON API",
       actionsForCourtPage: "Дії для сторінки корту:",
       courtNotAssigned: "Матч не призначено на корт. Призначте матч на корт, щоб використовувати ці функції.",
+      selectSaveOrDeleteSettings: "Виберіть, збережіть або видаліть налаштування vMix",
+      saveSettingsDialog: "Збереження налаштувань vMix",
+      saveSettingsDescription:
+        "Введіть назву для налаштувань і виберіть, чи будуть вони використовуватися за замовчуванням",
+      settingsName: "Назва налаштувань",
+      settingsNamePlaceholder: "Введіть назву налаштувань",
+      useAsDefault: "Використовувати за замовчуванням",
+      cancelButton: "Скасувати",
+      savingButton: "Збереження...",
+      saveButton: "Зберегти",
+      savedSettings: "Збережені налаштування",
+      selectSettings: "Виберіть налаштування",
     },
     courtVmixSettings: {
       title: "Налаштування vMix для корту",
@@ -2109,6 +2206,26 @@ export const translations: { [key in Language]: TranslationKeys } = {
       showSetsScore: "Показувати рахунок по сетах",
       showServer: "Показувати подаючого",
       showCountries: "Показувати країни",
+      savedSettings: "Збережені налаштування",
+      selectSaveOrDeleteSettings: "Виберіть, збережіть або видаліть налаштування vMix",
+      saveSettingsDialog: "Збереження налаштувань vMix",
+      saveSettingsDescription:
+        "Введіть назву для налаштувань і виберіть, чи будуть вони використовуватися за замовчуванням",
+      settingsName: "Назва налаштувань",
+      settingsNamePlaceholder: "Введіть назву налаштувань",
+      useAsDefault: "Використовувати за замовчуванням",
+      cancelButton: "Скасувати",
+      savingButton: "Збереження...",
+      saveButton: "Зберегти",
+      selectSettings: "Виберіть налаштування",
+      createNewSettings: "Створити нові",
+      updateSettings: "Оновити",
+      deleteSettings: "Видалити",
+      saveToDatabase: "Зберегти в базу даних",
+      deletingButton: "Видалення...",
+      deleteButton: "Видалити",
+      deleteSettingsDialog: "Видалення налаштувань",
+      deleteSettingsDescription: "Ви впевнені, що хочете видалити ці налаштування? Цю дію не можна скасувати.",
     },
   },
 }

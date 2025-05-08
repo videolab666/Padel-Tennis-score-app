@@ -1,5 +1,7 @@
 "use client"
 
+import { CardFooter } from "@/components/ui/card"
+
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -8,14 +10,23 @@ import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Slider } from "@/components/ui/slider"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { getMatchByCourtNumber } from "@/lib/court-utils"
 import { logEvent } from "@/lib/error-logger"
-import { ArrowLeft, Copy, ExternalLink, Eye, Save, ArrowRight } from "lucide-react"
+import { ArrowLeft, Copy, ExternalLink, Eye, Save, ArrowRight, Database, Trash2 } from "lucide-react"
 import { toast } from "@/components/ui/use-toast"
 import { Separator } from "@/components/ui/separator"
 import { useLanguage } from "@/contexts/language-context"
+import {
+  getAllVmixSettings,
+  getVmixSettingsById,
+  getDefaultVmixSettings,
+  saveVmixSettings,
+  deleteVmixSettings,
+  type VmixSettings,
+} from "@/lib/vmix-settings-storage"
+import { Checkbox } from "@/components/ui/checkbox"
 
 export default function CourtVmixSettingsPage({ params }) {
   const router = useRouter()
@@ -25,6 +36,17 @@ export default function CourtVmixSettingsPage({ params }) {
   const [error, setError] = useState("")
   const [copying, setCopying] = useState(false)
   const courtNumber = Number.parseInt(params.number)
+
+  // Состояние для работы с базой данных
+  const [savedSettings, setSavedSettings] = useState<VmixSettings[]>([])
+  const [selectedSettingsId, setSelectedSettingsId] = useState<string | null>(null)
+  const [settingsName, setSettingsName] = useState("Мои настройки")
+  const [isDefault, setIsDefault] = useState(false)
+  const [savingToDb, setSavingToDb] = useState(false)
+  const [loadingFromDb, setLoadingFromDb] = useState(false)
+  const [deletingFromDb, setDeletingFromDb] = useState(false)
+  const [showSaveDialog, setShowSaveDialog] = useState(false)
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
 
   // Настройки отображения
   const [theme, setTheme] = useState("custom")
@@ -58,7 +80,6 @@ export default function CourtVmixSettingsPage({ params }) {
   const [serveGradientFrom, setServeGradientFrom] = useState("#0369a1")
   const [serveGradientTo, setServeGradientTo] = useState("#0284c7")
   const [pointsGradient, setPointsGradient] = useState(true)
-
   const [pointsGradientFrom, setPointsGradientFrom] = useState("#0369a1")
   const [pointsGradientTo, setPointsGradientTo] = useState("#0284c7")
   const [setsGradient, setSetsGradient] = useState(true)
@@ -72,130 +93,331 @@ export default function CourtVmixSettingsPage({ params }) {
   const [indicatorGradientFrom, setIndicatorGradientFrom] = useState("#7c2d12")
   const [indicatorGradientTo, setIndicatorGradientTo] = useState("#991b1b")
 
-  // Функция для сохранения настроек в localStorage
-  const saveSettings = () => {
-    try {
-      const settings = {
-        theme,
-        showNames,
-        showPoints,
-        showSets,
-        showServer,
-        showCountry,
-        fontSize,
-        bgOpacity,
-        textColor,
-        accentColor,
-        namesBgColor,
-        countryBgColor,
-        serveBgColor,
-        pointsBgColor,
-        setsBgColor,
-        setsTextColor,
-        namesGradient,
-        namesGradientFrom,
-        namesGradientTo,
-        countryGradient,
-        countryGradientFrom,
-        countryGradientTo,
-        serveGradient,
-        serveGradientFrom,
-        serveGradientTo,
-        pointsGradient,
-        pointsGradientFrom,
-        pointsGradientTo,
-        setsGradient,
-        setsGradientFrom,
-        setsGradientTo,
-        // Добавляем настройки индикатора
-        indicatorBgColor,
-        indicatorTextColor,
-        indicatorGradient,
-        indicatorGradientFrom,
-        indicatorGradientTo,
-        // Добавляем размер шрифта имен игроков
-        playerNamesFontSize,
-      }
+  // Функция для получения текущих настроек
+  const getCurrentSettings = () => {
+    return {
+      theme,
+      showNames,
+      showPoints,
+      showSets,
+      showServer,
+      showCountry,
+      fontSize,
+      bgOpacity,
+      textColor,
+      accentColor,
+      namesBgColor,
+      countryBgColor,
+      serveBgColor,
+      pointsBgColor,
+      setsBgColor,
+      setsTextColor,
+      namesGradient,
+      namesGradientFrom,
+      namesGradientTo,
+      countryGradient,
+      countryGradientFrom,
+      countryGradientTo,
+      serveGradient,
+      serveGradientFrom,
+      serveGradientTo,
+      pointsGradient,
+      pointsGradientFrom,
+      pointsGradientTo,
+      setsGradient,
+      setsGradientFrom,
+      setsGradientTo,
+      indicatorBgColor,
+      indicatorTextColor,
+      indicatorGradient,
+      indicatorGradientFrom,
+      indicatorGradientTo,
+      playerNamesFontSize,
+    }
+  }
 
+  // Функция для применения настроек
+  const applySettings = (settings) => {
+    if (!settings) return
+
+    // Применяем сохраненные настройки
+    setTheme(settings.theme || "custom")
+    setShowNames(settings.showNames !== undefined ? settings.showNames : true)
+    setShowPoints(settings.showPoints !== undefined ? settings.showPoints : true)
+    setShowSets(settings.showSets !== undefined ? settings.showSets : true)
+    setShowServer(settings.showServer !== undefined ? settings.showServer : true)
+    setShowCountry(settings.showCountry !== undefined ? settings.showCountry : false)
+    setFontSize(settings.fontSize || "normal")
+    setBgOpacity(settings.bgOpacity !== undefined ? settings.bgOpacity : 0.5)
+    setTextColor(settings.textColor || "#ffffff")
+    setAccentColor(settings.accentColor || "#fbbf24")
+
+    setNamesBgColor(settings.namesBgColor || "#0369a1")
+    setCountryBgColor(settings.countryBgColor || "#0369a1")
+    setServeBgColor(settings.serveBgColor || "#0369a1")
+    setPointsBgColor(settings.pointsBgColor || "#0369a1")
+    setSetsBgColor(settings.setsBgColor || "#ffffff")
+    setSetsTextColor(settings.setsTextColor || "#000000")
+
+    // Загружаем настройки градиентов
+    setNamesGradient(settings.namesGradient !== undefined ? settings.namesGradient : true)
+    setNamesGradientFrom(settings.namesGradientFrom || "#0369a1")
+    setNamesGradientTo(settings.namesGradientTo || "#0284c7")
+
+    setCountryGradient(settings.countryGradient !== undefined ? settings.countryGradient : true)
+    setCountryGradientFrom(settings.countryGradientFrom || "#0369a1")
+    setCountryGradientTo(settings.countryGradientTo || "#0284c7")
+
+    setServeGradient(settings.serveGradient !== undefined ? settings.serveGradient : true)
+    setServeGradientFrom(settings.serveGradientFrom || "#0369a1")
+    setServeGradientTo(settings.serveGradientTo || "#0284c7")
+
+    setPointsGradient(settings.pointsGradient !== undefined ? settings.pointsGradient : true)
+    setPointsGradientFrom(settings.pointsGradientFrom || "#0369a1")
+    setPointsGradientTo(settings.pointsGradientTo || "#0284c7")
+
+    setSetsGradient(settings.setsGradient !== undefined ? settings.setsGradient : true)
+    setSetsGradientFrom(settings.setsGradientFrom || "#ffffff")
+    setSetsGradientTo(settings.setsGradientTo || "#f0f0f0")
+
+    // Загружаем настройки индикатора
+    setIndicatorBgColor(settings.indicatorBgColor || "#7c2d12")
+    setIndicatorTextColor(settings.indicatorTextColor || "#ffffff")
+    setIndicatorGradient(settings.indicatorGradient !== undefined ? settings.indicatorGradient : true)
+    setIndicatorGradientFrom(settings.indicatorGradientFrom || "#7c2d12")
+    setIndicatorGradientTo(settings.indicatorGradientTo || "#991b1b")
+
+    // Загружаем размер шрифта имен игроков
+    setPlayerNamesFontSize(settings.playerNamesFontSize !== undefined ? settings.playerNamesFontSize : 1.2)
+  }
+
+  // Функция для сохранения настроек в localStorage
+  const saveSettingsToLocalStorage = () => {
+    try {
+      const settings = getCurrentSettings()
       localStorage.setItem("vmix_settings", JSON.stringify(settings))
       toast({
         title: t("courtVmixSettings.settingsSaved"),
         description: t("vmixSettings.settingsSaved"),
       })
-      logEvent("info", "Настройки vMix сохранены", "court-vmix-settings-save")
+      logEvent("info", "Настройки vMix сохранены в localStorage", "court-vmix-settings-save-local")
     } catch (error) {
       toast({
         title: t("common.error"),
         description: t("courtVmixSettings.errorSavingSettings"),
         variant: "destructive",
       })
-      logEvent("error", "Ошибка при сохранении настроек vMix", "court-vmix-settings-save", error)
+      logEvent("error", "Ошибка при сохранении настроек vMix в localStorage", "court-vmix-settings-save-local", error)
     }
   }
 
-  // Функция для загрузки сохраненных настроек
-  const loadSavedSettings = () => {
+  // Функция для загрузки сохраненных настроек из localStorage
+  const loadSettingsFromLocalStorage = () => {
     try {
       const savedSettings = localStorage.getItem("vmix_settings")
       if (savedSettings) {
         const settings = JSON.parse(savedSettings)
-
-        // Применяем сохраненные настройки
-        setTheme(settings.theme || "custom")
-        setShowNames(settings.showNames !== undefined ? settings.showNames : true)
-        setShowPoints(settings.showPoints !== undefined ? settings.showPoints : true)
-        setShowSets(settings.showSets !== undefined ? settings.showSets : true)
-        setShowServer(settings.showServer !== undefined ? settings.showServer : true)
-        setShowCountry(settings.showCountry !== undefined ? settings.showCountry : false)
-        setFontSize(settings.fontSize || "normal")
-        setBgOpacity(settings.bgOpacity !== undefined ? settings.bgOpacity : 0.5)
-        setTextColor(settings.textColor || "#ffffff")
-        setAccentColor(settings.accentColor || "#fbbf24")
-
-        setNamesBgColor(settings.namesBgColor || "#0369a1")
-        setCountryBgColor(settings.countryBgColor || "#0369a1")
-        setServeBgColor(settings.serveBgColor || "#0369a1")
-        setPointsBgColor(settings.pointsBgColor || "#0369a1")
-        setSetsBgColor(settings.setsBgColor || "#ffffff")
-        setSetsTextColor(settings.setsTextColor || "#000000")
-
-        // Загружаем настройки градиентов
-        setNamesGradient(settings.namesGradient !== undefined ? settings.namesGradient : true)
-        setNamesGradientFrom(settings.namesGradientFrom || "#0369a1")
-        setNamesGradientTo(settings.namesGradientTo || "#0284c7")
-
-        setCountryGradient(settings.countryGradient !== undefined ? settings.countryGradient : true)
-        setCountryGradientFrom(settings.countryGradientFrom || "#0369a1")
-        setCountryGradientTo(settings.countryGradientTo || "#0284c7")
-
-        setServeGradient(settings.serveGradient !== undefined ? settings.serveGradient : true)
-        setServeGradientFrom(settings.serveGradientFrom || "#0369a1")
-        setServeGradientTo(settings.serveGradientTo || "#0284c7")
-
-        setPointsGradient(settings.pointsGradient !== undefined ? settings.pointsGradient : true)
-
-        setPointsGradientFrom(settings.pointsGradientFrom || "#0369a1")
-        setPointsGradientTo(settings.pointsGradientTo || "#0284c7")
-
-        setSetsGradient(settings.setsGradient !== undefined ? settings.setsGradient : true)
-        setSetsGradientFrom(settings.setsGradientFrom || "#ffffff")
-        setSetsGradientTo(settings.setsGradientTo || "#f0f0f0")
-
-        // Загружаем настройки индикатора
-        setIndicatorBgColor(settings.indicatorBgColor || "#7c2d12")
-        setIndicatorTextColor(settings.indicatorTextColor || "#ffffff")
-        setIndicatorGradient(settings.indicatorGradient !== undefined ? settings.indicatorGradient : true)
-        setIndicatorGradientFrom(settings.indicatorGradientFrom || "#7c2d12")
-        setIndicatorGradientTo(settings.indicatorGradientTo || "#991b1b")
-
-        // Загружаем размер шрифта имен игроков
-        setPlayerNamesFontSize(settings.playerNamesFontSize !== undefined ? settings.playerNamesFontSize : 1.2)
-
-        logEvent("info", "Загружены сохраненные настройки vMix", "court-vmix-settings-load")
+        applySettings(settings)
+        logEvent("info", "Загружены сохраненные настройки vMix из localStorage", "court-vmix-settings-load-local")
       }
     } catch (error) {
-      logEvent("error", "Ошибка при загрузке сохраненных настроек vMix", "court-vmix-settings-load", error)
+      logEvent(
+        "error",
+        "Ошибка при загрузке сохраненных настроек vMix из localStorage",
+        "court-vmix-settings-load-local",
+        error,
+      )
     }
+  }
+
+  // Функция для сохранения настроек в базу данных
+  const saveSettingsToDatabase = async () => {
+    try {
+      setSavingToDb(true)
+      const settings = getCurrentSettings()
+
+      const vmixSettings: VmixSettings = {
+        id: selectedSettingsId || undefined,
+        name: settingsName,
+        settings: settings,
+        is_default: isDefault,
+      }
+
+      const result = await saveVmixSettings(vmixSettings)
+
+      if (result) {
+        toast({
+          title: "Настройки сохранены в базу данных",
+          description: `Настройки "${settingsName}" успешно сохранены`,
+        })
+
+        // Обновляем список настроек
+        loadSavedSettingsFromDatabase()
+
+        // Если это новые настройки, выбираем их
+        if (!selectedSettingsId) {
+          setSelectedSettingsId(result.id)
+        }
+
+        setShowSaveDialog(false)
+      } else {
+        toast({
+          title: "Ошибка",
+          description: "Не удалось сохранить настройки в базу данных",
+          variant: "destructive",
+        })
+      }
+    } catch (error) {
+      toast({
+        title: "Ошибка",
+        description: "Произошла ошибка при сохранении настроек",
+        variant: "destructive",
+      })
+      logEvent("error", "Ошибка при сохранении настроек vMix в базу данных", "court-vmix-settings-save-db", error)
+    } finally {
+      setSavingToDb(false)
+    }
+  }
+
+  // Функция для загрузки настроек из базы данных
+  const loadSettingsFromDatabase = async (id: string) => {
+    try {
+      setLoadingFromDb(true)
+      const settings = await getVmixSettingsById(id)
+
+      if (settings) {
+        applySettings(settings.settings)
+        setSettingsName(settings.name)
+        setIsDefault(settings.is_default || false)
+        setSelectedSettingsId(settings.id)
+
+        toast({
+          title: "Настройки загружены",
+          description: `Настройки "${settings.name}" успешно загружены`,
+        })
+      } else {
+        toast({
+          title: "Ошибка",
+          description: "Не удалось загрузить настройки из базы данных",
+          variant: "destructive",
+        })
+      }
+    } catch (error) {
+      toast({
+        title: "Ошибка",
+        description: "Произошла ошибка при загрузке настроек",
+        variant: "destructive",
+      })
+      logEvent("error", "Ошибка при загрузке настроек vMix из базы данных", "court-vmix-settings-load-db", error)
+    } finally {
+      setLoadingFromDb(false)
+    }
+  }
+
+  // Функция для загрузки настроек по умолчанию из базы данных
+  const loadDefaultSettingsFromDatabase = async () => {
+    try {
+      setLoadingFromDb(true)
+      const settings = await getDefaultVmixSettings()
+
+      if (settings) {
+        applySettings(settings.settings)
+        setSettingsName(settings.name)
+        setIsDefault(true)
+        setSelectedSettingsId(settings.id)
+
+        toast({
+          title: "Настройки по умолчанию загружены",
+          description: `Настройки "${settings.name}" успешно загружены`,
+        })
+      } else {
+        // Если настроек по умолчанию нет, загружаем из localStorage
+        loadSettingsFromLocalStorage()
+        toast({
+          title: "Настройки по умолчанию не найдены",
+          description: "Загружены локальные настройки",
+        })
+      }
+    } catch (error) {
+      toast({
+        title: "Ошибка",
+        description: "Произошла ошибка при загрузке настроек по умолчанию",
+        variant: "destructive",
+      })
+      logEvent("error", "Ошибка при загрузке настроек vMix по умолчанию", "court-vmix-settings-load-default", error)
+    } finally {
+      setLoadingFromDb(false)
+    }
+  }
+
+  // Функция для загрузки списка сохраненных настроек из базы данных
+  const loadSavedSettingsFromDatabase = async () => {
+    try {
+      const settings = await getAllVmixSettings()
+      setSavedSettings(settings)
+    } catch (error) {
+      logEvent("error", "Ошибка при загрузке списка настроек vMix", "court-vmix-settings-load-list", error)
+    }
+  }
+
+  // Функция для удаления настроек из базы данных
+  const deleteSettingsFromDatabase = async (id: string) => {
+    try {
+      setDeletingFromDb(true)
+      const success = await deleteVmixSettings(id)
+
+      if (success) {
+        toast({
+          title: "Настройки удалены",
+          description: "Настройки успешно удалены из базы данных",
+        })
+
+        // Обновляем список настроек
+        loadSavedSettingsFromDatabase()
+
+        // Если удалили текущие настройки, сбрасываем выбор
+        if (selectedSettingsId === id) {
+          setSelectedSettingsId(null)
+          setSettingsName("Мои настройки")
+          setIsDefault(false)
+        }
+
+        setShowDeleteDialog(false)
+      } else {
+        toast({
+          title: "Ошибка",
+          description: "Не удалось удалить настройки из базы данных",
+          variant: "destructive",
+        })
+      }
+    } catch (error) {
+      toast({
+        title: "Ошибка",
+        description: "Произошла ошибка при удалении настроек",
+        variant: "destructive",
+      })
+      logEvent("error", "Ошибка при удалении настроек vMix из базы данных", "court-vmix-settings-delete", error)
+    } finally {
+      setDeletingFromDb(false)
+    }
+  }
+
+  // Функция для открытия диалога сохранения настроек
+  const openSaveDialog = () => {
+    setShowSaveDialog(true)
+  }
+
+  // Функция для открытия диалога удаления настроек
+  const openDeleteDialog = () => {
+    setShowDeleteDialog(true)
+  }
+
+  // Функция для создания новых настроек
+  const createNewSettings = () => {
+    setSelectedSettingsId(null)
+    setSettingsName("Новые настройки")
+    setIsDefault(false)
+    openSaveDialog()
   }
 
   useEffect(() => {
@@ -225,8 +447,15 @@ export default function CourtVmixSettingsPage({ params }) {
     }
 
     loadMatch()
-    // Загружаем сохраненные настройки после загрузки матча
-    loadSavedSettings()
+
+    // Загружаем сохраненные настройки из localStorage
+    loadSettingsFromLocalStorage()
+
+    // Загружаем список настроек из базы данных
+    loadSavedSettingsFromDatabase()
+
+    // Загружаем настройки по умолчанию из базы данных
+    loadDefaultSettingsFromDatabase()
   }, [courtNumber])
 
   const handleBack = () => {
@@ -389,6 +618,58 @@ export default function CourtVmixSettingsPage({ params }) {
           <p className="font-medium">{t("courtVmixSettings.noActiveMatches", { number: courtNumber })}</p>
         </div>
       )}
+
+      {/* Карточка с сохраненными настройками */}
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle>{t("courtVmixSettings.savedSettings")}</CardTitle>
+          <CardDescription>{t("courtVmixSettings.selectSaveOrDeleteSettings")}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="savedSettings">{t("courtVmixSettings.selectSettings")}</Label>
+              <Select
+                value={selectedSettingsId || ""}
+                onValueChange={(value) => {
+                  if (value) {
+                    loadSettingsFromDatabase(value)
+                  }
+                }}
+              >
+                <SelectTrigger id="savedSettings">
+                  <SelectValue placeholder="Выберите сохраненные настройки" />
+                </SelectTrigger>
+                <SelectContent>
+                  {savedSettings.map((setting) => (
+                    <SelectItem key={setting.id} value={setting.id || ""}>
+                      {setting.name} {setting.is_default && "⭐"}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex items-end gap-2">
+              <Button onClick={createNewSettings} className="flex-1">
+                {t("courtVmixSettings.createNewSettings")}
+              </Button>
+              <Button onClick={openSaveDialog} disabled={!selectedSettingsId} variant="outline" className="flex-1">
+                <Save className="mr-2 h-4 w-4" />
+                {t("courtVmixSettings.updateSettings")}
+              </Button>
+              <Button
+                onClick={openDeleteDialog}
+                disabled={!selectedSettingsId}
+                variant="destructive"
+                className="flex-1"
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                {t("courtVmixSettings.deleteSettings")}
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       <Tabs defaultValue="settings">
         <TabsList className="mb-4">
@@ -777,30 +1058,6 @@ export default function CourtVmixSettingsPage({ params }) {
                             type="text"
                             value={serveBgColor}
                             onChange={(e) => setServeBgColor(e.target.value)}
-                            className="w-12 p-1 h-8"
-                          />
-                          <Input
-                            type="text"
-                            value={serveBgColor}
-                            onChange={(e) => setServeBgColor(e.target.value)}
-                            className="w-12 p-1 h-8"
-                          />
-                          <Input
-                            type="text"
-                            value={serveBgColor}
-                            onChange={(e) => setServeBgColor(e.target.value)}
-                            className="w-12 p-1 h-8"
-                          />
-                          <Input
-                            type="text"
-                            value={serveBgColor}
-                            onChange={(e) => setServeBgColor(e.target.value)}
-                            className="w-12 p-1 h-8"
-                          />
-                          <Input
-                            type="text"
-                            value={serveBgColor}
-                            onChange={(e) => setServeBgColor(e.target.value)}
                             className="flex-1"
                           />
                         </div>
@@ -988,6 +1245,12 @@ export default function CourtVmixSettingsPage({ params }) {
                                 type="color"
                                 value={pointsGradientTo}
                                 onChange={(e) => setPointsGradientTo(e.target.value)}
+                                className="w-12 p-1 h-8"
+                              />
+                              <Input
+                                type="text"
+                                value={pointsGradientTo}
+                                onChange={(e) => setPointsGradientTo(e.target.value)}
                                 className="flex-1"
                               />
                             </div>
@@ -1093,6 +1356,12 @@ export default function CourtVmixSettingsPage({ params }) {
                                 type="color"
                                 value={setsGradientTo}
                                 onChange={(e) => setSetsGradientTo(e.target.value)}
+                                className="w-12 p-1 h-8"
+                              />
+                              <Input
+                                type="text"
+                                value={setsGradientTo}
+                                onChange={(e) => setSetsGradientTo(e.target.value)}
                                 className="flex-1"
                               />
                             </div>
@@ -1144,6 +1413,12 @@ export default function CourtVmixSettingsPage({ params }) {
                           <Input
                             id="indicatorTextColor"
                             type="color"
+                            value={indicatorTextColor}
+                            onChange={(e) => setIndicatorTextColor(e.target.value)}
+                            className="w-12 p-1 h-8"
+                          />
+                          <Input
+                            type="text"
                             value={indicatorTextColor}
                             onChange={(e) => setIndicatorTextColor(e.target.value)}
                             className="flex-1"
@@ -1200,6 +1475,12 @@ export default function CourtVmixSettingsPage({ params }) {
                               <Input
                                 id="indicatorGradientTo"
                                 type="color"
+                                value={indicatorGradientTo}
+                                onChange={(e) => setIndicatorGradientTo(e.target.value)}
+                                className="w-12 p-1 h-8"
+                              />
+                              <Input
+                                type="text"
                                 value={indicatorGradientTo}
                                 onChange={(e) => setIndicatorGradientTo(e.target.value)}
                                 className="flex-1"
@@ -1260,9 +1541,13 @@ export default function CourtVmixSettingsPage({ params }) {
                     <Copy className="mr-2 h-4 w-4" />
                     {copying ? t("courtVmixSettings.copying") : t("courtVmixSettings.copyUrl")}
                   </Button>
-                  <Button onClick={saveSettings} className="w-full" variant="secondary">
+                  <Button onClick={saveSettingsToLocalStorage} className="w-full" variant="secondary">
                     <Save className="mr-2 h-4 w-4" />
                     {t("courtVmixSettings.saveSettings")}
+                  </Button>
+                  <Button onClick={openSaveDialog} className="w-full" variant="outline">
+                    <Database className="mr-2 h-4 w-4" />
+                    {t("courtVmixSettings.saveToDatabase")}
                   </Button>
                 </CardContent>
               </Card>
@@ -1328,10 +1613,16 @@ export default function CourtVmixSettingsPage({ params }) {
                       <code>teamA_current_set</code> - счет в текущем сете
                     </li>
                     <li>
-                      <code>teamA_serving</code> - подает ли команда A ("Да"/"Нет")
+                      <code>teamA_set1</code> - счет команды A в первом сете
                     </li>
                     <li>
-                      <code>teamA_set1</code>, <code>teamA_set2</code>, <code>teamA_set3</code> - счет по сетам
+                      <code>teamA_set2</code> - счет команды A во втором сете
+                    </li>
+                    <li>
+                      <code>teamA_set3</code> - счет команды A в третьем сете
+                    </li>
+                    <li>
+                      <code>teamA_serving</code> - подает ли команда A (true/false)
                     </li>
                   </ul>
 
@@ -1350,43 +1641,109 @@ export default function CourtVmixSettingsPage({ params }) {
                       <code>teamB_current_set</code> - счет в текущем сете
                     </li>
                     <li>
-                      <code>teamB_serving</code> - подает ли команда B ("Да"/"Нет")
+                      <code>teamB_set1</code> - счет команды B в первом сете
                     </li>
                     <li>
-                      <code>teamB_set1</code>, <code>teamB_set2</code>, <code>teamB_set3</code> - счет по сетам
+                      <code>teamB_set2</code> - счет команды B во втором сете
+                    </li>
+                    <li>
+                      <code>teamB_set3</code> - счет команды B в третьем сете
+                    </li>
+                    <li>
+                      <code>teamB_serving</code> - подает ли команда B (true/false)
                     </li>
                   </ul>
 
-                  <p className="font-semibold mb-2">{t("courtVmixSettings.generalData")}</p>
+                  <p className="font-semibold mb-2">{t("courtVmixSettings.matchInfo")}</p>
                   <ul className="list-disc pl-5 space-y-1">
                     <li>
-                      <code>match_id</code> - идентификатор матча
+                      <code>current_set</code> - номер текущего сета
                     </li>
                     <li>
-                      <code>is_tiebreak</code> - идет ли тай-брейк ("Да"/"Нет")
+                      <code>match_status</code> - статус матча (in_progress, completed)
                     </li>
                     <li>
-                      <code>is_completed</code> - завершен ли матч ("Да"/"Нет")
+                      <code>match_time</code> - продолжительность матча
                     </li>
                     <li>
-                      <code>winner</code> - победитель матча (если есть)
+                      <code>important_moment</code> - важный момент (match_point, set_point, break_point, пусто)
                     </li>
                     <li>
-                      <code>update_time</code> - время последнего обновления
+                      <code>court_number</code> - номер корта
                     </li>
                   </ul>
                 </div>
               </div>
             </CardContent>
-            <CardFooter>
-              <Button onClick={handleCopyJsonUrl} className="w-full" disabled={copying}>
-                <Copy className="mr-2 h-4 w-4" />
-                {copying ? "Копирование..." : "Скопировать URL для JSON API"}
-              </Button>
-            </CardFooter>
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Диалог сохранения настроек */}
+      {showSaveDialog && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <Card className="w-full max-w-md">
+            <CardHeader>
+              <CardTitle>{selectedSettingsId ? "Обновить настройки" : "Сохранить настройки"}</CardTitle>
+              <CardDescription>
+                {selectedSettingsId ? "Обновите существующие настройки" : "Сохраните текущие настройки в базу данных"}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="settingsName">Название настроек</Label>
+                <Input
+                  id="settingsName"
+                  value={settingsName}
+                  onChange={(e) => setSettingsName(e.target.value)}
+                  placeholder="Введите название настроек"
+                />
+              </div>
+              <div className="flex items-center space-x-2">
+                <Checkbox id="isDefault" checked={isDefault} onCheckedChange={setIsDefault} />
+                <Label htmlFor="isDefault">Использовать как настройки по умолчанию</Label>
+              </div>
+            </CardContent>
+            <CardFooter className="flex justify-between">
+              <Button variant="outline" onClick={() => setShowSaveDialog(false)}>
+                Отмена
+              </Button>
+              <Button onClick={saveSettingsToDatabase} disabled={savingToDb}>
+                {savingToDb ? "Сохранение..." : "Сохранить"}
+              </Button>
+            </CardFooter>
+          </Card>
+        </div>
+      )}
+
+      {/* Диалог удаления настроек */}
+      {showDeleteDialog && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <Card className="w-full max-w-md">
+            <CardHeader>
+              <CardTitle>Удалить настройки</CardTitle>
+              <CardDescription>Вы уверены, что хотите удалить эти настройки?</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p>
+                Настройки <strong>{settingsName}</strong> будут удалены безвозвратно.
+              </p>
+            </CardContent>
+            <CardFooter className="flex justify-between">
+              <Button variant="outline" onClick={() => setShowDeleteDialog(false)}>
+                Отмена
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={() => deleteSettingsFromDatabase(selectedSettingsId)}
+                disabled={deletingFromDb}
+              >
+                {deletingFromDb ? "Удаление..." : "Удалить"}
+              </Button>
+            </CardFooter>
+          </Card>
+        </div>
+      )}
     </div>
   )
 }
