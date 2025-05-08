@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Loader2, RefreshCw } from "lucide-react"
+import { Loader2, RefreshCw, ExternalLink } from "lucide-react"
 import { getOccupiedCourts, MAX_COURTS } from "@/lib/court-utils"
 import { VmixButton } from "@/components/vmix-button"
 import { FullscreenButton } from "@/components/fullscreen-button"
@@ -109,6 +109,15 @@ export function CourtsList() {
                           className="w-full text-xs"
                           iconClassName="mr-1"
                         />
+                        <Button
+                          variant="outline"
+                          onClick={() => window.open(`/api/court/${courtNumber}`, "_blank")}
+                          className="w-full text-xs"
+                          size="sm"
+                        >
+                          <ExternalLink className="mr-1 h-3 w-3" />
+                          {t("courtsList.jsonData")}
+                        </Button>
                       </div>
                     )}
                   </div>
