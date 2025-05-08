@@ -226,6 +226,13 @@ export async function GET(request: NextRequest, { params }: { params: { number: 
       )
     }
 
+    // Логируем структуру матча для отладки
+    logEvent("debug", `Court API: структура матча`, "court-api", {
+      matchId: match.id,
+      format: match.format,
+      settings: match.settings,
+    })
+
     // Получаем текущие сеты для обеих команд
     const teamASets = match.score.sets ? match.score.sets.map((set) => set.teamA) : []
     const teamBSets = match.score.sets ? match.score.sets.map((set) => set.teamB) : []
@@ -251,8 +258,44 @@ export async function GET(request: NextRequest, { params }: { params: { number: 
     const importantPoint = getImportantPoint(match)
 
     // Определяем общее количество сетов и сетов для победы
-    const totalSets = match.format?.totalSets || 3
-    const setsToWin = match.format?.setsToWin || 2
+    // Проверяем различные возможные структуры данных
+    let totalSets = 3 // По умолчанию 3 сета
+    let setsToWin = 2 // По умолчанию 2 сета для победы
+
+    // Проверяем различные возможные пути к данным о формате матча
+    if (match.format && typeof match.format === "object") {
+      if (match.format.totalSets) {
+        totalSets = match.format.totalSets
+      } else if (match.format.sets) {
+        totalSets = match.format.sets
+      }
+
+      if (match.format.setsToWin) {
+        setsToWin = match.format.setsToWin
+      } else if (match.format.bestOf) {
+        totalSets = match.format.bestOf
+        setsToWin = Math.ceil(match.format.bestOf / 2)
+      }
+    } else if (match.settings && typeof match.settings === "object") {
+      if (match.settings.totalSets) {
+        totalSets = match.settings.totalSets
+      } else if (match.settings.sets) {
+        totalSets = match.settings.sets
+      }
+
+      if (match.settings.setsToWin) {
+        setsToWin = match.settings.setsToWin
+      } else if (match.settings.bestOf) {
+        totalSets = match.settings.bestOf
+        setsToWin = Math.ceil(match.settings.bestOf / 2)
+      }
+    }
+
+    // Логируем определенные значения для отладки
+    logEvent("debug", `Court API: определены параметры матча`, "court-api", {
+      totalSets,
+      setsToWin,
+    })
 
     // Формируем базовый объект данных
     const flatVmixData = {
@@ -310,7 +353,9 @@ export async function GET(request: NextRequest, { params }: { params: { number: 
     }
 
     // Динамически добавляем данные о сетах в зависимости от настроек матча
-    for (let i = 0; i < totalSets; i++) {
+    // Гарантируем, что будет как минимум 5 сетов для совместимости с vMix
+    const maxSets = Math.max(5, totalSets)
+    for (let i = 0; i < maxSets; i++) {
       flatVmixData[`teamA_set${i + 1}`] = teamASets[i] !== undefined ? teamASets[i] : ""
       flatVmixData[`teamB_set${i + 1}`] = teamBSets[i] !== undefined ? teamBSets[i] : ""
     }
