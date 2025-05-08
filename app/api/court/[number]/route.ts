@@ -143,7 +143,7 @@ const isMatchPoint = (match) => {
   }
 
   // Определяем, сколько сетов нужно для победы
-  const setsToWin = match.format?.setsToWin || 2
+  const setsToWin = getSetsToWin(match)
 
   // Получаем текущий счет по сетам
   const teamASets = match.score.sets ? match.score.sets.filter((set) => set.teamA > set.teamB).length : 0
@@ -199,6 +199,85 @@ const getImportantPoint = (match) => {
 
   // Если нет важного момента, возвращаем тип индикатора в зависимости от того, идет ли тай-брейк
   return { type: isTiebreak ? "TIEBREAK" : "GAME", team: null }
+}
+
+// Функция для определения общего количества сетов
+const getTotalSets = (match) => {
+  // Проверяем различные возможные пути к данным о формате матча
+  if (match.format && typeof match.format === "object") {
+    // Прямое указание общего количества сетов
+    if (typeof match.format.totalSets === "number") {
+      return match.format.totalSets
+    }
+    if (typeof match.format.sets === "number") {
+      return match.format.sets
+    }
+    // Формат "best of X sets"
+    if (typeof match.format.bestOf === "number") {
+      return match.format.bestOf
+    }
+  }
+
+  // Проверяем настройки матча
+  if (match.settings && typeof match.settings === "object") {
+    // Прямое указание общего количества сетов
+    if (typeof match.settings.totalSets === "number") {
+      return match.settings.totalSets
+    }
+    if (typeof match.settings.sets === "number") {
+      return match.settings.sets
+    }
+    // Формат "best of X sets"
+    if (typeof match.settings.bestOf === "number") {
+      return match.settings.bestOf
+    }
+  }
+
+  // По умолчанию 3 сета
+  return 3
+}
+
+// Функция для определения количества сетов для победы
+const getSetsToWin = (match) => {
+  // Проверяем различные возможные пути к данным о формате матча
+  if (match.format && typeof match.format === "object") {
+    // Прямое указание количества сетов для победы
+    if (typeof match.format.setsToWin === "number") {
+      return match.format.setsToWin
+    }
+  }
+
+  // Проверяем настройки матча
+  if (match.settings && typeof match.settings === "object") {
+    // Прямое указание количества сетов для победы
+    if (typeof match.settings.setsToWin === "number") {
+      return match.settings.setsToWin
+    }
+  }
+
+  // Вычисляем на основе общего количества сетов
+  const totalSets = getTotalSets(match)
+  return Math.ceil(totalSets / 2)
+}
+
+// Функция для определения номера текущего сета
+const getCurrentSetNumber = (match) => {
+  if (!match || !match.score) {
+    return 1
+  }
+
+  // Если матч завершен, возвращаем последний сыгранный сет
+  if (match.isCompleted) {
+    return match.score.sets ? match.score.sets.length : 1
+  }
+
+  // Если есть массив сетов, текущий сет = количество завершенных сетов + 1
+  if (match.score.sets && Array.isArray(match.score.sets)) {
+    return match.score.sets.length + 1
+  }
+
+  // По умолчанию первый сет
+  return 1
 }
 
 export async function GET(request: NextRequest, { params }: { params: { number: string } }) {
@@ -258,43 +337,16 @@ export async function GET(request: NextRequest, { params }: { params: { number: 
     const importantPoint = getImportantPoint(match)
 
     // Определяем общее количество сетов и сетов для победы
-    // Проверяем различные возможные структуры данных
-    let totalSets = 3 // По умолчанию 3 сета
-    let setsToWin = 2 // По умолчанию 2 сета для победы
-
-    // Проверяем различные возможные пути к данным о формате матча
-    if (match.format && typeof match.format === "object") {
-      if (match.format.totalSets) {
-        totalSets = match.format.totalSets
-      } else if (match.format.sets) {
-        totalSets = match.format.sets
-      }
-
-      if (match.format.setsToWin) {
-        setsToWin = match.format.setsToWin
-      } else if (match.format.bestOf) {
-        totalSets = match.format.bestOf
-        setsToWin = Math.ceil(match.format.bestOf / 2)
-      }
-    } else if (match.settings && typeof match.settings === "object") {
-      if (match.settings.totalSets) {
-        totalSets = match.settings.totalSets
-      } else if (match.settings.sets) {
-        totalSets = match.settings.sets
-      }
-
-      if (match.settings.setsToWin) {
-        setsToWin = match.settings.setsToWin
-      } else if (match.settings.bestOf) {
-        totalSets = match.settings.bestOf
-        setsToWin = Math.ceil(match.settings.bestOf / 2)
-      }
-    }
+    const totalSets = getTotalSets(match)
+    const setsToWin = getSetsToWin(match)
+    const currentSetNumber = getCurrentSetNumber(match)
 
     // Логируем определенные значения для отладки
     logEvent("debug", `Court API: определены параметры матча`, "court-api", {
       totalSets,
       setsToWin,
+      currentSetNumber,
+      completedSets: match.score.sets ? match.score.sets.length : 0,
     })
 
     // Формируем базовый объект данных
@@ -334,6 +386,7 @@ export async function GET(request: NextRequest, { params }: { params: { number: 
       winner: match.winner || "",
       total_sets: totalSets,
       sets_to_win: setsToWin,
+      current_set_number: currentSetNumber,
 
       // Информация о победителе
       winner_team_name: winnerTeamName,
