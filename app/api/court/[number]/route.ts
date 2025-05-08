@@ -32,6 +32,23 @@ export async function GET(request: NextRequest, { params }: { params: { number: 
     const teamASets = match.score.sets ? match.score.sets.map((set) => set.teamA) : []
     const teamBSets = match.score.sets ? match.score.sets.map((set) => set.teamB) : []
 
+    // Определяем информацию о победителе
+    let winnerTeamName = ""
+    let winnerName1 = ""
+    let winnerName2 = ""
+
+    if (match.isCompleted && match.winner) {
+      if (match.winner === "teamA") {
+        winnerTeamName = match.teamA.players.map((p) => p.name).join(" / ")
+        winnerName1 = match.teamA.players[0]?.name || ""
+        winnerName2 = match.teamA.players[1]?.name || ""
+      } else if (match.winner === "teamB") {
+        winnerTeamName = match.teamB.players.map((p) => p.name).join(" / ")
+        winnerName1 = match.teamB.players[0]?.name || ""
+        winnerName2 = match.teamB.players[1]?.name || ""
+      }
+    }
+
     // Формируем "плоский" JSON для vMix без вложенных объектов
     const flatVmixData = {
       match_id: match.id,
@@ -67,6 +84,11 @@ export async function GET(request: NextRequest, { params }: { params: { number: 
       is_tiebreak: match.score.currentSet ? (match.score.currentSet.isTiebreak ? "True" : "False") : "False",
       is_completed: match.isCompleted ? "True" : "False",
       winner: match.winner || "",
+
+      // Информация о победителе
+      winner_team_name: winnerTeamName,
+      winner_name1: winnerName1,
+      winner_name2: winnerName2,
 
       // Данные сетов (до 3-х сетов)
       teamA_set1: teamASets[0] !== undefined ? teamASets[0] : "",
