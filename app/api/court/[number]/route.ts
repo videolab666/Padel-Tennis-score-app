@@ -142,8 +142,8 @@ const isMatchPoint = (match) => {
     return false
   }
 
-  // Определяем, сколько сетов нужно для победы (обычно 2 из 3)
-  const setsToWin = match.setsToWin || 2
+  // Определяем, сколько сетов нужно для победы
+  const setsToWin = match.format?.setsToWin || 2
 
   // Получаем текущий счет по сетам
   const teamASets = match.score.sets ? match.score.sets.filter((set) => set.teamA > set.teamB).length : 0
@@ -250,7 +250,11 @@ export async function GET(request: NextRequest, { params }: { params: { number: 
     // Получаем информацию о важном моменте
     const importantPoint = getImportantPoint(match)
 
-    // Формируем "плоский" JSON для vMix без вложенных объектов
+    // Определяем общее количество сетов и сетов для победы
+    const totalSets = match.format?.totalSets || 3
+    const setsToWin = match.format?.setsToWin || 2
+
+    // Формируем базовый объект данных
     const flatVmixData = {
       match_id: match.id,
       court_number: courtNumber,
@@ -285,6 +289,8 @@ export async function GET(request: NextRequest, { params }: { params: { number: 
       is_tiebreak: match.score.currentSet ? (match.score.currentSet.isTiebreak ? "True" : "False") : "False",
       is_completed: match.isCompleted ? "True" : "False",
       winner: match.winner || "",
+      total_sets: totalSets,
+      sets_to_win: setsToWin,
 
       // Информация о победителе
       winner_team_name: winnerTeamName,
@@ -298,18 +304,15 @@ export async function GET(request: NextRequest, { params }: { params: { number: 
       is_set_point: isSetPoint(match) ? "True" : "False",
       is_game_point: isGamePoint(match) ? "True" : "False",
 
-      // Данные сетов (до 3-х сетов)
-      teamA_set1: teamASets[0] !== undefined ? teamASets[0] : "",
-      teamA_set2: teamASets[1] !== undefined ? teamASets[1] : "",
-      teamA_set3: teamASets[2] !== undefined ? teamASets[2] : "",
-
-      teamB_set1: teamBSets[0] !== undefined ? teamBSets[0] : "",
-      teamB_set2: teamBSets[1] !== undefined ? teamBSets[1] : "",
-      teamB_set3: teamBSets[2] !== undefined ? teamBSets[2] : "",
-
       // Служебная информация
       timestamp: new Date().toISOString(),
       update_time: new Date().toLocaleTimeString(),
+    }
+
+    // Динамически добавляем данные о сетах в зависимости от настроек матча
+    for (let i = 0; i < totalSets; i++) {
+      flatVmixData[`teamA_set${i + 1}`] = teamASets[i] !== undefined ? teamASets[i] : ""
+      flatVmixData[`teamB_set${i + 1}`] = teamBSets[i] !== undefined ? teamBSets[i] : ""
     }
 
     // Оборачиваем объект в массив для vMix
