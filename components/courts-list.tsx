@@ -87,39 +87,38 @@ export function CourtsList() {
                     <Badge variant={occupied ? "success" : "outline"}>
                       {occupied ? t("courtsList.occupied") : t("courtsList.available")}
                     </Badge>
-                    {occupied && (
-                      <div className="flex flex-col gap-1 w-full mt-1">
-                        <VmixButton
-                          courtNumber={courtNumber}
-                          directLink={true}
-                          size="sm"
-                          className="w-full text-xs"
-                          iconClassName="mr-1"
-                        />
-                        <VmixButton
-                          courtNumber={courtNumber}
-                          directLink={false}
-                          size="sm"
-                          className="w-full text-xs"
-                          iconClassName="mr-1"
-                        />
-                        <FullscreenButton
-                          courtNumber={courtNumber}
-                          size="sm"
-                          className="w-full text-xs"
-                          iconClassName="mr-1"
-                        />
-                        <Button
-                          variant="outline"
-                          onClick={() => window.open(`/api/court/${courtNumber}`, "_blank")}
-                          className="w-full text-xs"
-                          size="sm"
-                        >
-                          <ExternalLink className="mr-1 h-3 w-3" />
-                          {t("courtsList.jsonData")}
-                        </Button>
-                      </div>
-                    )}
+
+                    <div className="flex flex-col gap-1 w-full mt-1">
+                      <VmixButton
+                        courtNumber={courtNumber}
+                        directLink={true}
+                        size="sm"
+                        className="w-full text-xs"
+                        iconClassName="mr-1"
+                      />
+                      <VmixButton
+                        courtNumber={courtNumber}
+                        directLink={false}
+                        size="sm"
+                        className="w-full text-xs"
+                        iconClassName="mr-1"
+                      />
+                      <FullscreenButton
+                        courtNumber={courtNumber}
+                        size="sm"
+                        className="w-full text-xs"
+                        iconClassName="mr-1"
+                      />
+                      <Button
+                        variant="outline"
+                        onClick={() => window.open(`/api/court/${courtNumber}`, "_blank")}
+                        className="w-full text-xs"
+                        size="sm"
+                      >
+                        <ExternalLink className="mr-1 h-3 w-3" />
+                        {t("courtsList.jsonData")}
+                      </Button>
+                    </div>
                   </div>
                 </div>
               )
