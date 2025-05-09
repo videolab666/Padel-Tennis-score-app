@@ -7,7 +7,7 @@ import { getMatchByCourtNumber } from "@/lib/court-utils"
 import { getTennisPointName } from "@/lib/tennis-utils"
 import { logEvent } from "@/lib/error-logger"
 import { subscribeToMatchUpdates } from "@/lib/match-storage"
-import { Maximize2, Minimize2, Trophy, ArrowLeft, Clock } from "lucide-react"
+import { Maximize2, Minimize2, ArrowLeft, Clock } from "lucide-react"
 import { translations, type Language } from "@/lib/translations"
 
 type FullscreenScoreboardParams = {
@@ -1037,7 +1037,9 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
                     color: theme === "transparent" ? textColor : setsTextColor,
                   }}
                 >
-                  {tiebreakScores[idx] ? formatSetScore(set.teamA, tiebreakScores[idx].teamA) : set.teamA}
+                  <span style={{ fontWeight: set.teamA > set.teamB ? "bold" : "normal" }}>
+                    {tiebreakScores[idx] ? formatSetScore(set.teamA, tiebreakScores[idx].teamA) : set.teamA}
+                  </span>
                 </div>
               ))}
 
@@ -1051,6 +1053,7 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
                       ? getGradientStyle(true, setsGradientFrom, setsGradientTo)
                       : { background: setsBgColor }),
                   color: theme === "transparent" ? textColor : setsTextColor,
+                  fontWeight: "normal", // Explicitly set to normal
                 }}
               >
                 {match.score.currentSet.teamA}
@@ -1074,7 +1077,7 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
                     <span>{getCurrentGameScore("teamA")}</span>
                   ) : getMatchWinner() === "teamA" ? (
                     <div className="trophy-icon">
-                      <Trophy size={48} />
+                      <span style={{ color: accentColor, fontSize: "0.8em" }}>🏆</span>
                     </div>
                   ) : null}
                 </div>
@@ -1170,7 +1173,9 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
                     color: theme === "transparent" ? textColor : setsTextColor,
                   }}
                 >
-                  {tiebreakScores[idx] ? formatSetScore(set.teamB, tiebreakScores[idx].teamB) : set.teamB}
+                  <span style={{ fontWeight: set.teamB > set.teamA ? "bold" : "normal" }}>
+                    {tiebreakScores[idx] ? formatSetScore(set.teamB, tiebreakScores[idx].teamB) : set.teamB}
+                  </span>
                 </div>
               ))}
 
@@ -1184,6 +1189,7 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
                       ? getGradientStyle(true, setsGradientFrom, setsGradientTo)
                       : { background: setsBgColor }),
                   color: theme === "transparent" ? textColor : setsTextColor,
+                  fontWeight: "normal", // Explicitly set to normal
                 }}
               >
                 {match.score.currentSet.teamB}
@@ -1207,7 +1213,7 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
                     <span>{getCurrentGameScore("teamB")}</span>
                   ) : getMatchWinner() === "teamB" ? (
                     <div className="trophy-icon">
-                      <Trophy size={48} />
+                      <span style={{ color: accentColor, fontSize: "0.8em" }}>🏆</span>
                     </div>
                   ) : null}
                 </div>
