@@ -7,7 +7,7 @@ import { getMatchByCourtNumber } from "@/lib/court-utils"
 import { getTennisPointName } from "@/lib/tennis-utils"
 import { logEvent } from "@/lib/error-logger"
 import { subscribeToMatchUpdates } from "@/lib/match-storage"
-import { Maximize2, Minimize2, ArrowLeft, Clock } from "lucide-react"
+import { Maximize2, Minimize2, Trophy, ArrowLeft, Clock } from "lucide-react"
 import { translations, type Language } from "@/lib/translations"
 
 type FullscreenScoreboardParams = {
@@ -36,7 +36,7 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
   const [error, setError] = useState("")
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [isCompletedMatch, setIsCompletedMatch] = useState(false)
-  const [lastMatchId, setLastMatchId] = useState<string | null>(null)
+  const [lastMatchId, setLastMatchId] = useState(null)
   const searchParams = useSearchParams()
   const containerRef = useRef(null)
   const courtNumber = Number.parseInt(params.number)
@@ -150,115 +150,148 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
     }
   }, [])
 
-  // Загрузка матча
-  useEffect(() => {
-    let unsubscribe: (() => void) | null = null
-
-    const loadMatch = async () => {
-      try {
-        if (isNaN(courtNumber) || courtNumber < 1 || courtNumber > 10) {
-          setError(
-            translations[language].common.error +
-              ": " +
-              (translations[language].scoreboard.invalidCourt || "Invalid court number"),
-          )
-          setLoading(false)
-          logEvent("error", "Fullscreen Scoreboard: invalid court number", "fullscreen-scoreboard")
-          return
-        }
-
-        logEvent(
-          "info",
-          `Fullscreen Scoreboard: начало загрузки матча на корте ${courtNumber}`,
-          "fullscreen-scoreboard",
-        )
-
-        // Получаем матч по номеру корта
-        const matchData = await getMatchByCourtNumber(courtNumber)
-
-        if (matchData) {
-          console.log("Loaded match data:", JSON.stringify(matchData, null, 2))
-
-          // Проверяем, изменился ли ID матча
-          if (lastMatchId !== matchData.id) {
-            console.log(`Match ID changed from ${lastMatchId} to ${matchData.id}`)
-            setLastMatchId(matchData.id)
-
-            // Отписываемся от предыдущего матча, если была подписка
-            if (unsubscribe) {
-              unsubscribe()
-              unsubscribe = null
-            }
-
-            // Подписываемся на обновления нового матча
-            unsubscribe = subscribeToMatchUpdates(matchData.id, (updatedMatch) => {
-              if (updatedMatch) {
-                console.log("Match update received:", JSON.stringify(updatedMatch, null, 2))
-                setMatch(updatedMatch)
-                setError("")
-                setIsCompletedMatch(updatedMatch.isCompleted === true)
-
-                logEvent("debug", "Fullscreen Scoreboard: получено обновление матча", "fullscreen-scoreboard", {
-                  matchId: updatedMatch.id,
-                  scoreA: updatedMatch.score.teamA,
-                  scoreB: updatedMatch.score.teamB,
-                  isCompleted: updatedMatch.isCompleted,
-                })
-
-                // Если матч завершен, начинаем периодически проверять новый матч
-                if (updatedMatch.isCompleted) {
-                  setTimeout(loadMatch, 5000) // Проверяем новый матч через 5 секунд
-                }
-              } else {
-                // Если матч не найден, пробуем загрузить новый
-                setTimeout(loadMatch, 5000)
-              }
-            })
-          }
-
-          // Обновляем состояние с данными матча
-          setMatch(matchData)
-          setError("")
-          setIsCompletedMatch(matchData.isCompleted === true)
-
-          logEvent("info", `Fullscreen Scoreboard: матч загружен: ${courtNumber}`, "fullscreen-scoreboard", {
-            isCompleted: matchData.isCompleted,
-          })
-        } else {
-          setError(
-            translations[language].scoreboard.noActiveMatches?.replace("{number}", courtNumber) ||
-              `No active matches on court ${courtNumber}`,
-          )
-          logEvent("warn", `Fullscreen Scoreboard: no active matches on court ${courtNumber}`, "fullscreen-scoreboard")
-
-          // Если матч не найден, пробуем загрузить через некоторое время
-          setTimeout(loadMatch, 10000) // Проверяем каждые 10 секунд
-        }
-      } catch (err) {
+  // Функция для загрузки матча
+  const loadMatch = async () => {
+    try {
+      if (isNaN(courtNumber) || courtNumber < 1 || courtNumber > 10) {
         setError(
           translations[language].common.error +
             ": " +
-            (translations[language].scoreboard.loadError || "Error loading match"),
+            (translations[language].scoreboard.invalidCourt || "Invalid court number"),
         )
-        logEvent("error", "Ошибка загрузки матча для Fullscreen Scoreboard", "fullscreen-scoreboard", err)
-
-        // При ошибке пробуем загрузить через некоторое время
-        setTimeout(loadMatch, 10000)
-      } finally {
         setLoading(false)
+        logEvent("error", "Fullscreen Scoreboard: invalid court number", "fullscreen-scoreboard")
+        return
       }
+
+      logEvent("info", `Fullscreen Scoreboard: начало загрузки матча на корте ${courtNumber}`, "fullscreen-scoreboard")
+
+      // Получаем матч по номеру корта
+      const matchData = await getMatchByCourtNumber(courtNumber)
+
+      if (matchData) {
+        console.log("Loaded match data:", JSON.stringify(matchData, null, 2))
+
+        // Проверяем, изменился ли ID матча
+        if (lastMatchId !== matchData.id) {
+          console.log(`New match detected! Previous ID: ${lastMatchId}, New ID: ${matchData.id}`)
+          setLastMatchId(matchData.id)
+        }
+
+        setMatch(matchData)
+        setError("")
+
+        // Отмечаем, если это завершенный матч
+        setIsCompletedMatch(matchData.isCompleted === true)
+
+        logEvent("info", `Fullscreen Scoreboard: матч загружен: ${courtNumber}`, "fullscreen-scoreboard", {
+          matchId: matchData.id,
+          isCompleted: matchData.isCompleted,
+        })
+
+        return matchData
+      } else {
+        setError(
+          translations[language].scoreboard.noActiveMatches?.replace("{number}", courtNumber) ||
+            `No active matches on court ${courtNumber}`,
+        )
+        logEvent("warn", `Fullscreen Scoreboard: no active matches on court ${courtNumber}`, "fullscreen-scoreboard")
+        return null
+      }
+    } catch (err) {
+      setError(
+        translations[language].common.error +
+          ": " +
+          (translations[language].scoreboard.loadError || "Error loading match"),
+      )
+      logEvent("error", "Ошибка загрузки матча для Fullscreen Scoreboard", "fullscreen-scoreboard", err)
+      return null
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Загрузка матча и настройка подписки на обновления
+  useEffect(() => {
+    let unsubscribe = null
+    let checkInterval = null
+
+    const setupSubscription = async () => {
+      // Загружаем матч
+      const matchData = await loadMatch()
+
+      if (!matchData) return
+
+      // Настраиваем подписку на обновления матча
+      unsubscribe = subscribeToMatchUpdates(matchData.id, (updatedMatch) => {
+        if (updatedMatch) {
+          console.log("Match update received:", JSON.stringify(updatedMatch, null, 2))
+          setMatch(updatedMatch)
+          setError("")
+
+          // Обновляем статус завершения
+          setIsCompletedMatch(updatedMatch.isCompleted === true)
+
+          logEvent("debug", "Fullscreen Scoreboard: получено обновление матча", "fullscreen-scoreboard", {
+            matchId: updatedMatch.id,
+            scoreA: updatedMatch.score.teamA,
+            scoreB: updatedMatch.score.teamB,
+            isCompleted: updatedMatch.isCompleted,
+          })
+        } else {
+          // Если матч не найден, пробуем загрузить новый матч
+          loadMatch()
+        }
+      })
     }
 
-    // Запускаем загрузку матча
-    loadMatch()
+    // Запускаем первоначальную загрузку и подписку
+    setupSubscription()
 
-    // Очистка при размонтировании компонента
+    // Настраиваем периодическую проверку наличия нового матча
+    checkInterval = setInterval(async () => {
+      // Если текущий матч завершен, проверяем наличие нового матча
+      if (isCompletedMatch) {
+        console.log("Checking for new match on court", courtNumber)
+        const newMatchData = await getMatchByCourtNumber(courtNumber)
+
+        // Если найден новый матч с другим ID
+        if (newMatchData && newMatchData.id !== lastMatchId) {
+          console.log("New match found on court", courtNumber, "ID:", newMatchData.id)
+
+          // Отписываемся от старого матча
+          if (unsubscribe) {
+            unsubscribe()
+          }
+
+          // Обновляем данные и подписываемся на новый матч
+          setMatch(newMatchData)
+          setLastMatchId(newMatchData.id)
+          setIsCompletedMatch(newMatchData.isCompleted === true)
+          setError("")
+
+          // Настраиваем новую подписку
+          unsubscribe = subscribeToMatchUpdates(newMatchData.id, (updatedMatch) => {
+            if (updatedMatch) {
+              setMatch(updatedMatch)
+              setIsCompletedMatch(updatedMatch.isCompleted === true)
+              setError("")
+            }
+          })
+        }
+      }
+    }, 10000) // Проверяем каждые 10 секунд
+
+    // Очистка при размонтировании
     return () => {
       if (unsubscribe) {
         unsubscribe()
       }
+      if (checkInterval) {
+        clearInterval(checkInterval)
+      }
     }
-  }, [courtNumber, language])
+  }, [courtNumber, language, lastMatchId, isCompletedMatch])
 
   // Получаем текущий счет в виде строки (0, 15, 30, 40, Ad)
   const getCurrentGameScore = (team) => {
@@ -1056,9 +1089,7 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
                     color: theme === "transparent" ? textColor : setsTextColor,
                   }}
                 >
-                  <span style={{ fontWeight: set.teamA > set.teamB ? "bold" : "normal" }}>
-                    {tiebreakScores[idx] ? formatSetScore(set.teamA, tiebreakScores[idx].teamA) : set.teamA}
-                  </span>
+                  {tiebreakScores[idx] ? formatSetScore(set.teamA, tiebreakScores[idx].teamA) : set.teamA}
                 </div>
               ))}
 
@@ -1072,7 +1103,6 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
                       ? getGradientStyle(true, setsGradientFrom, setsGradientTo)
                       : { background: setsBgColor }),
                   color: theme === "transparent" ? textColor : setsTextColor,
-                  fontWeight: "normal", // Explicitly set to normal
                 }}
               >
                 {match.score.currentSet.teamA}
@@ -1096,7 +1126,7 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
                     <span>{getCurrentGameScore("teamA")}</span>
                   ) : getMatchWinner() === "teamA" ? (
                     <div className="trophy-icon">
-                      <span style={{ color: accentColor, fontSize: "0.8em" }}>🏆</span>
+                      <Trophy size={48} />
                     </div>
                   ) : null}
                 </div>
@@ -1192,9 +1222,7 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
                     color: theme === "transparent" ? textColor : setsTextColor,
                   }}
                 >
-                  <span style={{ fontWeight: set.teamB > set.teamA ? "bold" : "normal" }}>
-                    {tiebreakScores[idx] ? formatSetScore(set.teamB, tiebreakScores[idx].teamB) : set.teamB}
-                  </span>
+                  {tiebreakScores[idx] ? formatSetScore(set.teamB, tiebreakScores[idx].teamB) : set.teamB}
                 </div>
               ))}
 
@@ -1208,7 +1236,6 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
                       ? getGradientStyle(true, setsGradientFrom, setsGradientTo)
                       : { background: setsBgColor }),
                   color: theme === "transparent" ? textColor : setsTextColor,
-                  fontWeight: "normal", // Explicitly set to normal
                 }}
               >
                 {match.score.currentSet.teamB}
@@ -1232,7 +1259,7 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
                     <span>{getCurrentGameScore("teamB")}</span>
                   ) : getMatchWinner() === "teamB" ? (
                     <div className="trophy-icon">
-                      <span style={{ color: accentColor, fontSize: "0.8em" }}>🏆</span>
+                      <Trophy size={48} />
                     </div>
                   ) : null}
                 </div>
