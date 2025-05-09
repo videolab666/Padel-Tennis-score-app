@@ -698,7 +698,7 @@ export default function CourtVmixPage({ params }: CourtParams) {
               }
 
               setError("")
-              logEvent("debug", "vMix страница корта: получено обновление ��атча", "court-vmix-page", {
+              logEvent("debug", "vMix страница корта: получено обновление атча", "court-vmix-page", {
                 matchId: updatedMatch.id,
                 scoreA: updatedMatch.score.teamA,
                 scoreB: updatedMatch.score.teamB,
@@ -717,6 +717,48 @@ export default function CourtVmixPage({ params }: CourtParams) {
         } else {
           setError(`На корте ${courtNumber} нет активных матчей`)
           logEvent("warn", `vMix страница корта: на корте ${courtNumber} нет активных матчей`, "court-vmix-page")
+
+          // If no active match, try to get the last completed match for this court
+          try {
+            logEvent(
+              "info",
+              `vMix court page: trying to find last completed match for court ${courtNumber}`,
+              "court-vmix-page",
+            )
+
+            // Get all matches from localStorage
+            const allMatches = []
+            for (let i = 0; i < localStorage.length; i++) {
+              const key = localStorage.key(i)
+              if (key && key.startsWith("match_")) {
+                const matchData = safeGetLocalStorageItem(key)
+                if (matchData && matchData.courtNumber === courtNumber && matchData.isCompleted) {
+                  allMatches.push(matchData)
+                }
+              }
+            }
+
+            // Sort by timestamp (most recent first)
+            allMatches.sort((a, b) => {
+              const timeA = a.lastUpdated || 0
+              const timeB = b.lastUpdated || 0
+              return timeB - timeA
+            })
+
+            if (allMatches.length > 0) {
+              const lastMatch = allMatches[0]
+              setMatch(lastMatch)
+              setError(`На корте ${courtNumber} нет активных матчей. Показан последний завершенный матч.`)
+              logEvent(
+                "info",
+                `vMix court page: showing last completed match for court ${courtNumber}`,
+                "court-vmix-page",
+              )
+              return
+            }
+          } catch (err) {
+            logEvent("error", "Error finding last completed match for vMix court", "court-vmix-page", err)
+          }
         }
       } catch (err) {
         setError("Ошибка загрузки матча")
@@ -916,7 +958,631 @@ export default function CourtVmixPage({ params }: CourtParams) {
   }
 
   if (error) {
-    return <div style={{ color: "red", padding: "20px", background: "transparent" }}>Ошибка: {error}</div>
+    return (
+      <div style={{ position: "relative", width: "100%", height: "100%" }}>
+        {match && (
+          <>
+            {/* Добавляем стиль для всей страницы */}
+            <style jsx global>{`
+              html,
+              body {
+                background-color: transparent !important;
+                margin: 0;
+                padding: 0;
+                height: 100%;
+                width: 100%;
+              }
+              
+              @keyframes slideIn {
+                from {
+                  transform: translateY(100%);
+                  opacity: 0;
+                }
+                to {
+                  transform: translateY(0);
+                  opacity: 1;
+                }
+              }
+              
+              @keyframes slideOut {
+                from {
+                  transform: translateY(0);
+                  opacity: 1;
+                }
+                to {
+                  transform: translateY(100%);
+                  opacity: 0;
+                }
+              }
+              
+              .indicator-animation-enter {
+                animation: slideIn 1s ease forwards;
+              }
+              
+              .indicator-animation-exit {
+                animation: slideOut 1s ease forwards;
+              }
+            `}</style>
+
+            <div
+              style={{
+                background: "transparent",
+                color: styles.text,
+                padding: "0",
+                fontFamily: "Arial, sans-serif",
+                width: "auto",
+                height: "auto",
+                boxSizing: "border-box",
+                display: "flex",
+                flexDirection: "column",
+                position: "relative", // Добавляем позиционирование
+                zIndex: 2, // Устанавливаем z-index выше, чем у индикатора
+              }}
+              className={styles.container}
+            >
+              {/* Контейнер для счета */}
+              <div style={{ display: "flex", flexDirection: "column", width: "fit-content" }}>
+                {/* Строка для первого игрока/команды */}
+                <div style={{ display: "flex", marginBottom: "1px" }}>
+                  {/* Имя первого игрока/команды */}
+                  <div
+                    style={{
+                      color: theme === "transparent" ? textColor : "white",
+                      padding: "1px",
+                      flex: "0 0 auto",
+                      width: `${nameColumnWidth}px`,
+                      minWidth: `${nameColumnWidth}px`,
+                      maxWidth: `${nameColumnWidth}px`,
+                      display: "flex",
+                      alignItems: "center",
+                      ...(theme === "transparent"
+                        ? { background: "transparent" }
+                        : namesGradient
+                          ? getGradientStyle(true, namesGradientFrom, namesGradientTo)
+                          : { background: namesBgColor }),
+                    }}
+                  >
+                    <div style={{ display: "flex", flexDirection: "column", width: "100%", overflow: "hidden" }}>
+                      <div style={{ display: "flex", alignItems: "center" }}>
+                        {/* Winner icon moved to score column */}
+                        <span
+                          style={{
+                            flex: 1,
+                            whiteSpace: "nowrap",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            fontSize: `${playerNamesFontSize}em`,
+                            paddingLeft: "10px", // Добавляем отступ слева
+                          }}
+                        >
+                          {match.teamA.players[0]?.name}
+                        </span>
+                      </div>
+                      {match.teamA.players.length > 1 && (
+                        <div style={{ display: "flex", alignItems: "center" }}>
+                          <span
+                            style={{
+                              flex: 1,
+                              whiteSpace: "nowrap",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                              fontSize: `${playerNamesFontSize}em`,
+                              paddingLeft: "10px", // Добавляем отступ слева
+                            }}
+                          >
+                            {match.teamA.players[1]?.name}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Страна первого игрока/команды */}
+                  {showCountry && (
+                    <div
+                      style={{
+                        color: theme === "transparent" ? textColor : "white",
+                        padding: "1px",
+                        flex: "0 0 auto",
+                        width: `${countryColumnWidth}px`,
+                        minWidth: `${countryColumnWidth}px`,
+                        maxWidth: `${countryColumnWidth}px`,
+                        display: "flex",
+                        flexDirection: "column",
+                        ...(theme === "transparent"
+                          ? { background: "transparent" }
+                          : countryGradient
+                            ? getGradientStyle(true, countryGradientFrom, countryGradientTo)
+                            : { background: countryBgColor }),
+                      }}
+                    >
+                      <div
+                        style={{
+                          height: match.teamA.players.length > 1 ? "50%" : "100%",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                      >
+                        {getPlayerCountryDisplay("teamA", 0, match)}
+                      </div>
+                      {match.teamA.players.length > 1 && (
+                        <div style={{ height: "50%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                          {getPlayerCountryDisplay("teamA", 1, match)}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Индикация подачи для первого игрока/команды */}
+                  {showServer && (
+                    <div
+                      style={{
+                        color: theme === "transparent" ? accentColor : accentColor,
+                        padding: "1px",
+                        flex: "0 0 auto",
+                        width: `${serveColumnWidth}px`,
+                        minWidth: `${serveColumnWidth}px`,
+                        maxWidth: `${serveColumnWidth}px`,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        ...(theme === "transparent"
+                          ? { background: "transparent" }
+                          : serveGradient
+                            ? getGradientStyle(true, serveGradientFrom, serveGradientTo)
+                            : { background: serveBgColor }),
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          justifyContent: "space-around",
+                          height: "100%",
+                        }}
+                      >
+                        <div
+                          style={{
+                            visibility: isServing("teamA", 0) ? "visible" : "hidden",
+                            fontSize: "4em", // Было "5em"
+                            lineHeight: "0.5",
+                          }}
+                        >
+                          •
+                        </div>
+                        {match.teamA.players.length > 1 && (
+                          <div
+                            style={{
+                              visibility: isServing("teamA", 1) ? "visible" : "hidden",
+                              fontSize: "4em", // Было "5em"
+                              lineHeight: "0.5",
+                            }}
+                          >
+                            •
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Счет сетов для первого игрока */}
+                  {showSets && match.score.sets && (
+                    <>
+                      {match.score.sets.map((set, idx) => (
+                        <div
+                          key={idx}
+                          style={{
+                            ...(theme === "transparent"
+                              ? { background: "transparent" }
+                              : setsGradient
+                                ? getGradientStyle(true, setsGradientFrom, setsGradientTo)
+                                : { background: setsBgColor }),
+                            color: theme === "transparent" ? textColor : setsTextColor,
+                            padding: "1px",
+                            flex: "0 0 auto",
+                            width: "40px",
+                            minWidth: "40px",
+                            textAlign: "center",
+                            borderLeft: theme === "transparent" ? "none" : "1px solid #e5e5e5",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            fontSize: "1.8em",
+                          }}
+                        >
+                          <span style={{ fontWeight: set.teamA > set.teamB ? "bold" : "normal" }}>
+                            {tiebreakScores[idx] ? formatSetScore(set.teamA, tiebreakScores[idx].teamA) : set.teamA}
+                          </span>
+                        </div>
+                      ))}
+                      {/* Текущий сет - показываем только если матч не завершен */}
+                      {match.score.currentSet && !match.isCompleted && (
+                        <div
+                          style={{
+                            ...(theme === "transparent"
+                              ? { background: "transparent" }
+                              : setsGradient
+                                ? getGradientStyle(true, setsGradientFrom, setsGradientTo)
+                                : { background: setsBgColor }),
+                            color: theme === "transparent" ? textColor : setsTextColor,
+                            padding: "1px",
+                            flex: "0 0 auto",
+                            width: "40px",
+                            minWidth: "40px",
+                            textAlign: "center",
+                            borderLeft: theme === "transparent" ? "none" : "1px solid #e5e5e5",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            fontSize: "1.8em",
+                          }}
+                        >
+                          {match.score.currentSet.teamA}
+                        </div>
+                      )}
+                    </>
+                  )}
+
+                  {/* Текущий счет в гейме для первого игрока - показываем только если матч не завершен */}
+                  {showPoints && match.score.currentSet && (
+                    <div
+                      style={{
+                        color: theme === "transparent" ? textColor : "white",
+                        padding: "1px",
+                        flex: "0 0 auto",
+                        width: "60px",
+                        minWidth: "60px",
+                        textAlign: "center",
+                        borderLeft: theme === "transparent" ? "none" : "1px solid #e5e5e5",
+                        fontSize: "2em", // Было "2.5em"
+                        fontWeight: "bold",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        ...(theme === "transparent"
+                          ? { background: "transparent" }
+                          : pointsGradient
+                            ? getGradientStyle(true, pointsGradientFrom, pointsGradientTo)
+                            : { background: pointsBgColor }),
+                      }}
+                    >
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        {!match.isCompleted && getCurrentGameScore("teamA")}
+                        {match.isCompleted && match.winner === "teamA" && (
+                          <span style={{ color: accentColor, fontSize: "0.8em" }}>🏆</span>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Строка для второго игрока/команды */}
+                <div style={{ display: "flex" }}>
+                  {/* Имя второго игрока/команды */}
+                  <div
+                    style={{
+                      color: theme === "transparent" ? textColor : "white",
+                      padding: "1px",
+                      flex: "0 0 auto",
+                      width: `${nameColumnWidth}px`,
+                      minWidth: `${nameColumnWidth}px`,
+                      maxWidth: `${nameColumnWidth}px`,
+                      display: "flex",
+                      alignItems: "center",
+                      ...(theme === "transparent"
+                        ? { background: "transparent" }
+                        : namesGradient
+                          ? getGradientStyle(true, namesGradientFrom, namesGradientTo)
+                          : { background: namesBgColor }),
+                    }}
+                  >
+                    <div style={{ display: "flex", flexDirection: "column", width: "100%", overflow: "hidden" }}>
+                      <div style={{ display: "flex", alignItems: "center" }}>
+                        {/* Winner icon moved to score column */}
+                        <span
+                          style={{
+                            flex: 1,
+                            whiteSpace: "nowrap",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            fontSize: `${playerNamesFontSize}em`,
+                            paddingLeft: "10px", // Добавляем отступ слева
+                          }}
+                        >
+                          {match.teamB.players[0]?.name}
+                        </span>
+                      </div>
+                      {match.teamB.players.length > 1 && (
+                        <div style={{ display: "flex", alignItems: "center" }}>
+                          <span
+                            style={{
+                              flex: 1,
+                              whiteSpace: "nowrap",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                              fontSize: `${playerNamesFontSize}em`,
+                              paddingLeft: "10px", // Добавляем отступ слева
+                            }}
+                          >
+                            {match.teamB.players[1]?.name}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Страна второго игрока/команды */}
+                  {showCountry && (
+                    <div
+                      style={{
+                        color: theme === "transparent" ? textColor : "white",
+                        padding: "1px",
+                        flex: "0 0 auto",
+                        width: `${countryColumnWidth}px`,
+                        minWidth: `${countryColumnWidth}px`,
+                        maxWidth: `${countryColumnWidth}px`,
+                        display: "flex",
+                        flexDirection: "column",
+                        ...(theme === "transparent"
+                          ? { background: "transparent" }
+                          : countryGradient
+                            ? getGradientStyle(true, countryGradientFrom, countryGradientTo)
+                            : { background: countryBgColor }),
+                      }}
+                    >
+                      <div
+                        style={{
+                          height: match.teamB.players.length > 1 ? "50%" : "100%",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                      >
+                        {getPlayerCountryDisplay("teamB", 0, match)}
+                      </div>
+                      {match.teamB.players.length > 1 && (
+                        <div style={{ height: "50%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                          {getPlayerCountryDisplay("teamB", 1, match)}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Индикация подачи для второго игрока/команды */}
+                  {showServer && (
+                    <div
+                      style={{
+                        color: theme === "transparent" ? accentColor : accentColor,
+                        padding: "1px",
+                        flex: "0 0 auto",
+                        width: `${serveColumnWidth}px`,
+                        minWidth: `${serveColumnWidth}px`,
+                        maxWidth: `${serveColumnWidth}px`,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        ...(theme === "transparent"
+                          ? { background: "transparent" }
+                          : serveGradient
+                            ? getGradientStyle(true, serveGradientFrom, serveGradientTo)
+                            : { background: serveBgColor }),
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          justifyContent: "space-around",
+                          height: "100%",
+                        }}
+                      >
+                        <div
+                          style={{
+                            visibility: isServing("teamB", 0) ? "visible" : "hidden",
+                            fontSize: "4em", // Было "5em"
+                            lineHeight: "0.5",
+                          }}
+                        >
+                          •
+                        </div>
+                        {match.teamB.players.length > 1 && (
+                          <div
+                            style={{
+                              visibility: isServing("teamB", 1) ? "visible" : "hidden",
+                              fontSize: "4em", // Было "5em"
+                              lineHeight: "0.5",
+                            }}
+                          >
+                            •
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Счет сетов для второго игрока */}
+                  {showSets && match.score.sets && (
+                    <>
+                      {match.score.sets.map((set, idx) => (
+                        <div
+                          key={idx}
+                          style={{
+                            ...(theme === "transparent"
+                              ? { background: "transparent" }
+                              : setsGradient
+                                ? getGradientStyle(true, setsGradientFrom, setsGradientTo)
+                                : { background: setsBgColor }),
+                            color: theme === "transparent" ? textColor : setsTextColor,
+                            padding: "1px",
+                            flex: "0 0 auto",
+                            width: "40px",
+                            minWidth: "40px",
+                            textAlign: "center",
+                            borderLeft: theme === "transparent" ? "none" : "1px solid #e5e5e5",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            fontSize: "1.8em",
+                          }}
+                        >
+                          <span style={{ fontWeight: set.teamB > set.teamA ? "bold" : "normal" }}>
+                            {tiebreakScores[idx] ? formatSetScore(set.teamB, tiebreakScores[idx].teamB) : set.teamB}
+                          </span>
+                        </div>
+                      ))}
+                      {/* Текущий сет - показываем только если матч не завершен */}
+                      {match.score.currentSet && !match.isCompleted && (
+                        <div
+                          style={{
+                            ...(theme === "transparent"
+                              ? { background: "transparent" }
+                              : setsGradient
+                                ? getGradientStyle(true, setsGradientFrom, setsGradientTo)
+                                : { background: setsBgColor }),
+                            color: theme === "transparent" ? textColor : setsTextColor,
+                            padding: "1px",
+                            flex: "0 0 auto",
+                            width: "40px",
+                            minWidth: "40px",
+                            textAlign: "center",
+                            borderLeft: theme === "transparent" ? "none" : "1px solid #e5e5e5",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            fontSize: "1.8em",
+                          }}
+                        >
+                          {match.score.currentSet.teamB}
+                        </div>
+                      )}
+                    </>
+                  )}
+
+                  {/* Текущий счет в гейме для второго игрока - показываем только если матч не завершен */}
+                  {showPoints && match.score.currentSet && (
+                    <div
+                      style={{
+                        color: theme === "transparent" ? textColor : "white",
+                        padding: "1px",
+                        flex: "0 0 auto",
+                        width: "60px",
+                        minWidth: "60px",
+                        textAlign: "center",
+                        borderLeft: theme === "transparent" ? "none" : "1px solid #e5e5e5",
+                        fontSize: "2em", // Было "2.5em"
+                        fontWeight: "bold",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        ...(theme === "transparent"
+                          ? { background: "transparent" }
+                          : pointsGradient
+                            ? getGradientStyle(true, pointsGradientFrom, pointsGradientTo)
+                            : { background: pointsBgColor }),
+                      }}
+                    >
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        {!match.isCompleted && getCurrentGameScore("teamB")}
+                        {match.isCompleted && match.winner === "teamB" && (
+                          <span style={{ color: accentColor, fontSize: "0.8em" }}>🏆</span>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Индикатор особой ситуации (game point, set point, match point) - всегда показываем */}
+                <div
+                  style={{
+                    display: "flex",
+                    width: "100%",
+                    height: "18px", // Увеличиваем высоту до 18px (было 7px)
+                    marginTop: "1px", // Небольшой отступ от таблицы счета
+                    justifyContent: "flex-end", // Выравниваем содержимое по правому краю
+                    position: "relative", // Добавляем позиционирование
+                    overflow: "hidden", // Скрываем выходящие за пределы элементы
+                  }}
+                >
+                  {/* Показываем индикатор только если есть важное событие или идет тай-брейк */}
+                  {((importantPoint.type && importantPoint.type !== "GAME") || indicatorState === "exiting") && (
+                    <div
+                      className={
+                        indicatorState === "entering" || indicatorState === "visible"
+                          ? "indicator-animation-enter"
+                          : "indicator-animation-exit"
+                      }
+                      style={{
+                        color: theme === "transparent" ? accentColor : indicatorTextColor,
+                        backgroundColor:
+                          theme === "transparent" ? "transparent" : indicatorGradient ? undefined : indicatorBgColor,
+                        ...(indicatorGradient
+                          ? getGradientStyle(true, indicatorGradientFrom, indicatorGradientTo)
+                          : {}),
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        width: "33%", // Ширина индикатора - треть от общей ширины
+                        height: "100%",
+                        fontWeight: "bold",
+                        fontSize: "0.8em", // Увеличиваем размер шрифта для большей высоты
+                        textTransform: "uppercase",
+                        letterSpacing: "0.5px",
+                        position: "absolute", // Абсолютное позиционирование
+                        bottom: 0, // Прикрепляем к нижней части контейнера
+                        right: 0, // Прикрепляем к правой части контейнера
+                        zIndex: 1, // Устанавливаем z-index ниже, чем у основного блока
+                      }}
+                    >
+                      {prevImportantPoint.type !== "GAME" && prevImportantPoint.type
+                        ? prevImportantPoint.type
+                        : importantPoint.type}
+                    </div>
+                  )}
+                </div>
+
+                {/* Отладочная информация */}
+                {showDebug && (
+                  <div
+                    style={{
+                      marginTop: "20px",
+                      padding: "10px",
+                      backgroundColor: "rgba(0,0,0,0.8)",
+                      color: "white",
+                      fontFamily: "monospace",
+                      fontSize: "12px",
+                      whiteSpace: "pre-wrap",
+                      wordBreak: "break-all",
+                      maxWidth: "100%",
+                      overflow: "auto",
+                    }}
+                  >
+                    {debugInfo}
+                  </div>
+                )}
+              </div>
+            </div>
+          </>
+        )}
+        <div
+          style={{
+            position: "absolute",
+            top: "0",
+            left: "0",
+            width: "100%",
+            background: "rgba(0,0,0,0.7)",
+            color: "#ff6b6b",
+            padding: "10px",
+            fontSize: "14px",
+            zIndex: 10,
+          }}
+        >
+          {error}
+        </div>
+      </div>
+    )
   }
 
   if (!match) return null
@@ -989,7 +1655,7 @@ export default function CourtVmixPage({ params }: CourtParams) {
       (match.score.sets?.length || 0) * 40 +
       (match.score.currentSet ? 40 : 0)
 
-  // Иначе возвращаем HTML интерфейс в стиле скриншота
+  // Иначе возвращаем HTML интерфейс
   return (
     <>
       {/* Добавляем стиль для всей страницы */}
@@ -1074,6 +1740,7 @@ export default function CourtVmixPage({ params }: CourtParams) {
             >
               <div style={{ display: "flex", flexDirection: "column", width: "100%", overflow: "hidden" }}>
                 <div style={{ display: "flex", alignItems: "center" }}>
+                  {/* Winner icon moved to score column */}
                   <span
                     style={{
                       flex: 1,
@@ -1221,11 +1888,13 @@ export default function CourtVmixPage({ params }: CourtParams) {
                       fontSize: "1.8em",
                     }}
                   >
-                    {tiebreakScores[idx] ? formatSetScore(set.teamA, tiebreakScores[idx].teamA) : set.teamA}
+                    <span style={{ fontWeight: set.teamA > set.teamB ? "bold" : "normal" }}>
+                      {tiebreakScores[idx] ? formatSetScore(set.teamA, tiebreakScores[idx].teamA) : set.teamA}
+                    </span>
                   </div>
                 ))}
-                {/* Текущий сет */}
-                {match.score.currentSet && (
+                {/* Текущий сет - показываем только если матч не завершен */}
+                {match.score.currentSet && !match.isCompleted && (
                   <div
                     style={{
                       ...(theme === "transparent"
@@ -1252,7 +1921,7 @@ export default function CourtVmixPage({ params }: CourtParams) {
               </>
             )}
 
-            {/* Текущий счет в гейме для первого игрока */}
+            {/* Текущий счет в гейме для первого игрока - показываем только если матч не завершен */}
             {showPoints && match.score.currentSet && (
               <div
                 style={{
@@ -1275,7 +1944,12 @@ export default function CourtVmixPage({ params }: CourtParams) {
                       : { background: pointsBgColor }),
                 }}
               >
-                {getCurrentGameScore("teamA")}
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  {!match.isCompleted && getCurrentGameScore("teamA")}
+                  {match.isCompleted && match.winner === "teamA" && (
+                    <span style={{ color: accentColor, fontSize: "0.8em" }}>🏆</span>
+                  )}
+                </div>
               </div>
             )}
           </div>
@@ -1302,6 +1976,7 @@ export default function CourtVmixPage({ params }: CourtParams) {
             >
               <div style={{ display: "flex", flexDirection: "column", width: "100%", overflow: "hidden" }}>
                 <div style={{ display: "flex", alignItems: "center" }}>
+                  {/* Winner icon moved to score column */}
                   <span
                     style={{
                       flex: 1,
@@ -1449,12 +2124,13 @@ export default function CourtVmixPage({ params }: CourtParams) {
                       fontSize: "1.8em",
                     }}
                   >
-                    {tiebreakScores[idx] ? formatSetScore(set.teamB, tiebreakScores[idx].teamB) : set.teamB}
+                    <span style={{ fontWeight: set.teamB > set.teamA ? "bold" : "normal" }}>
+                      {tiebreakScores[idx] ? formatSetScore(set.teamB, tiebreakScores[idx].teamB) : set.teamB}
+                    </span>
                   </div>
                 ))}
-
-                {/* Текущий сет */}
-                {match.score.currentSet && (
+                {/* Текущий сет - показываем только если матч не завершен */}
+                {match.score.currentSet && !match.isCompleted && (
                   <div
                     style={{
                       ...(theme === "transparent"
@@ -1481,7 +2157,7 @@ export default function CourtVmixPage({ params }: CourtParams) {
               </>
             )}
 
-            {/* Текущий счет в гейме для второго игрока */}
+            {/* Текущий счет в гейме для второго игрока - показываем только если матч не завершен */}
             {showPoints && match.score.currentSet && (
               <div
                 style={{
@@ -1504,7 +2180,12 @@ export default function CourtVmixPage({ params }: CourtParams) {
                       : { background: pointsBgColor }),
                 }}
               >
-                {getCurrentGameScore("teamB")}
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  {!match.isCompleted && getCurrentGameScore("teamB")}
+                  {match.isCompleted && match.winner === "teamB" && (
+                    <span style={{ color: accentColor, fontSize: "0.8em" }}>🏆</span>
+                  )}
+                </div>
               </div>
             )}
           </div>
