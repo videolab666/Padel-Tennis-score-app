@@ -682,6 +682,8 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
           width: 100vw;
           overflow: hidden;
           position: relative;
+          margin: 0;
+          padding: 0;
         }
 
         .header {
@@ -719,14 +721,20 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
           height: 100%;
           width: 100%;
           gap: 2px;
+          margin: 0;
+          padding: 0;
+          overflow: hidden;
         }
 
         .team-row {
           display: grid;
-          grid-template-columns: ${showNames ? "5fr " : ""}${showCountry ? "1fr " : ""}${showServer ? "0.5fr " : ""}${showSets ? `repeat(${(match.score.sets?.length || 0) + (match.score.currentSet ? 1 : 0)}, 0.8fr) ` : ""}${showPoints ? "1fr" : ""};
+          grid-template-columns: ${showNames ? "5fr " : ""}${showCountry ? "1fr " : ""}${showServer ? "0.5fr " : ""}${showSets ? `repeat(${(match.score.sets?.length || 0) + (match.score.currentSet ? 1 : 0)}, 0.8fr) ` : ""}${showPoints ? "1fr 0fr" : ""};
           height: 100%;
-          gap: 2px;
+          gap: 0;
           width: 100%;
+          max-width: 100vw;
+          margin: 0;
+          padding: 0;
         }
 
         .cell {
@@ -806,14 +814,34 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
 
         .points-cell {
           font-weight: bold;
-          font-size: 19.2vh; /* Уменьшено на 40% от 32vh */
+          font-size: 19.2vh;
           width: 100%;
           text-align: center;
           display: flex;
           justify-content: center;
-          padding: 0 2vw; /* Добавляем отступы по бокам */
-          letter-spacing: -0.02em; /* Небольшое уменьшение расстояния между буквами */
-          min-width: 120px; /* Минимальная ширина для столбца */
+          align-items: center;
+          padding: 0;
+          margin: 0;
+          flex-grow: 1;
+          box-sizing: border-box;
+          min-width: 0;
+        }
+
+        .points-cell span {
+          width: 100%;
+          height: 100%;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          font-size: 0.9em;
+        }
+
+        .points-cell .trophy-icon {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          width: 100%;
+          height: 100%;
         }
 
         .important-event {
@@ -1030,35 +1058,28 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
             )}
 
             {showPoints && (
-              <div
-                className="cell points-cell"
-                style={{
-                  color: theme === "transparent" ? textColor : "white",
-                  ...(theme === "transparent"
-                    ? { background: "transparent" }
-                    : pointsGradient
-                      ? getGradientStyle(true, pointsGradientFrom, pointsGradientTo)
-                      : { background: pointsBgColor }),
-                }}
-              >
-                {!match.isCompleted ? (
-                  <span
-                    style={{
-                      width: "100%",
-                      textAlign: "center",
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      height: "100%",
-                      fontSize: "0.9em",
-                    }}
-                  >
-                    {getCurrentGameScore("teamA")}
-                  </span>
-                ) : getMatchWinner() === "teamA" ? (
-                  <Trophy size={48} className="mx-auto" />
-                ) : null}
-              </div>
+              <>
+                <div
+                  className="cell points-cell"
+                  style={{
+                    color: theme === "transparent" ? textColor : "white",
+                    ...(theme === "transparent"
+                      ? { background: "transparent" }
+                      : pointsGradient
+                        ? getGradientStyle(true, pointsGradientFrom, pointsGradientTo)
+                        : { background: pointsBgColor }),
+                  }}
+                >
+                  {!match.isCompleted ? (
+                    <span>{getCurrentGameScore("teamA")}</span>
+                  ) : getMatchWinner() === "teamA" ? (
+                    <div className="trophy-icon">
+                      <Trophy size={48} />
+                    </div>
+                  ) : null}
+                </div>
+                <div style={{ width: 0, padding: 0, margin: 0 }}></div>
+              </>
             )}
           </div>
 
@@ -1170,35 +1191,28 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
             )}
 
             {showPoints && (
-              <div
-                className="cell points-cell"
-                style={{
-                  color: theme === "transparent" ? textColor : "white",
-                  ...(theme === "transparent"
-                    ? { background: "transparent" }
-                    : pointsGradient
-                      ? getGradientStyle(true, pointsGradientFrom, pointsGradientTo)
-                      : { background: pointsBgColor }),
-                }}
-              >
-                {!match.isCompleted ? (
-                  <span
-                    style={{
-                      width: "100%",
-                      textAlign: "center",
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      height: "100%",
-                      fontSize: "0.9em",
-                    }}
-                  >
-                    {getCurrentGameScore("teamB")}
-                  </span>
-                ) : getMatchWinner() === "teamB" ? (
-                  <Trophy size={48} className="mx-auto" />
-                ) : null}
-              </div>
+              <>
+                <div
+                  className="cell points-cell"
+                  style={{
+                    color: theme === "transparent" ? textColor : "white",
+                    ...(theme === "transparent"
+                      ? { background: "transparent" }
+                      : pointsGradient
+                        ? getGradientStyle(true, pointsGradientFrom, pointsGradientTo)
+                        : { background: pointsBgColor }),
+                  }}
+                >
+                  {!match.isCompleted ? (
+                    <span>{getCurrentGameScore("teamB")}</span>
+                  ) : getMatchWinner() === "teamB" ? (
+                    <div className="trophy-icon">
+                      <Trophy size={48} />
+                    </div>
+                  ) : null}
+                </div>
+                <div style={{ width: 0, padding: 0, margin: 0 }}></div>
+              </>
             )}
           </div>
         </div>
