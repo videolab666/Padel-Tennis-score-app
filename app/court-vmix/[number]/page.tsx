@@ -1225,7 +1225,7 @@ export default function CourtVmixPage({ params }: CourtParams) {
                     </>
                   )}
 
-                  {/* Текущий счет в гейме для первого игрока */}
+                  {/* Текущий счет в гейме для первого игрока - показываем только если матч не завершен */}
                   {showPoints && match.score.currentSet && (
                     <div
                       style={{
@@ -1249,9 +1249,9 @@ export default function CourtVmixPage({ params }: CourtParams) {
                       }}
                     >
                       <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-                        {getCurrentGameScore("teamA")}
+                        {!match.isCompleted && getCurrentGameScore("teamA")}
                         {match.isCompleted && match.winner === "teamA" && (
-                          <span style={{ color: accentColor, marginLeft: "5px", fontSize: "0.8em" }}>🏆</span>
+                          <span style={{ color: accentColor, fontSize: "0.8em" }}>🏆</span>
                         )}
                       </div>
                     </div>
@@ -1461,7 +1461,7 @@ export default function CourtVmixPage({ params }: CourtParams) {
                     </>
                   )}
 
-                  {/* Текущий счет в гейме для второго игрока */}
+                  {/* Текущий счет в гейме для второго игрока - показываем только если матч не завершен */}
                   {showPoints && match.score.currentSet && (
                     <div
                       style={{
@@ -1485,9 +1485,9 @@ export default function CourtVmixPage({ params }: CourtParams) {
                       }}
                     >
                       <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-                        {getCurrentGameScore("teamB")}
+                        {!match.isCompleted && getCurrentGameScore("teamB")}
                         {match.isCompleted && match.winner === "teamB" && (
-                          <span style={{ color: accentColor, marginLeft: "5px", fontSize: "0.8em" }}>🏆</span>
+                          <span style={{ color: accentColor, fontSize: "0.8em" }}>🏆</span>
                         )}
                       </div>
                     </div>
@@ -1921,7 +1921,7 @@ export default function CourtVmixPage({ params }: CourtParams) {
               </>
             )}
 
-            {/* Текущий счет в гейме для первого игрока */}
+            {/* Текущий счет в гейме для первого игрока - показываем только если матч не завершен */}
             {showPoints && match.score.currentSet && (
               <div
                 style={{
@@ -1945,9 +1945,9 @@ export default function CourtVmixPage({ params }: CourtParams) {
                 }}
               >
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  {getCurrentGameScore("teamA")}
+                  {!match.isCompleted && getCurrentGameScore("teamA")}
                   {match.isCompleted && match.winner === "teamA" && (
-                    <span style={{ color: accentColor, marginLeft: "5px", fontSize: "0.8em" }}>🏆</span>
+                    <span style={{ color: accentColor, fontSize: "0.8em" }}>🏆</span>
                   )}
                 </div>
               </div>
@@ -2157,7 +2157,7 @@ export default function CourtVmixPage({ params }: CourtParams) {
               </>
             )}
 
-            {/* Текущий счет в гейме для второго игрока */}
+            {/* Текущий счет в гейме для второго игрока - показываем только если матч не завершен */}
             {showPoints && match.score.currentSet && (
               <div
                 style={{
@@ -2181,9 +2181,9 @@ export default function CourtVmixPage({ params }: CourtParams) {
                 }}
               >
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  {getCurrentGameScore("teamB")}
+                  {!match.isCompleted && getCurrentGameScore("teamB")}
                   {match.isCompleted && match.winner === "teamB" && (
-                    <span style={{ color: accentColor, marginLeft: "5px", fontSize: "0.8em" }}>🏆</span>
+                    <span style={{ color: accentColor, fontSize: "0.8em" }}>🏆</span>
                   )}
                 </div>
               </div>
