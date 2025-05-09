@@ -340,14 +340,6 @@ const getPlayerCountryDisplay = (team, playerIndex, matchData) => {
   return getPlayerCountry(team, playerIndex, matchData) || " "
 }
 
-// Функция для определения победителя сета
-const getSetWinner = (set) => {
-  if (!set) return null
-  if (set.teamA > set.teamB) return "teamA"
-  if (set.teamB > set.teamA) return "teamB"
-  return null
-}
-
 export default function VmixPage({ params }: MatchParams) {
   const [match, setMatch] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -686,34 +678,6 @@ export default function VmixPage({ params }: MatchParams) {
           setError("")
           logEvent("info", `vMix страница загружена для матча: ${params.id} (источник: ${matchSource})`, "vmix-page")
         } else {
-          // Если матч не найден, пробуем найти последний завершенный матч
-          try {
-            const matchesList = safeGetLocalStorageItem("tennis_padel_matches")
-            if (matchesList && Array.isArray(matchesList) && matchesList.length > 0) {
-              // Сортируем по дате создания (от новых к старым)
-              const sortedMatches = [...matchesList].sort(
-                (a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime(),
-              )
-
-              // Берем последний матч
-              const lastMatch = sortedMatches[0]
-              if (lastMatch) {
-                // Получаем полные данные матча
-                const fullLastMatch = await getMatch(lastMatch.id || lastMatch.code)
-                if (fullLastMatch) {
-                  logEvent("info", `vMix страница: показываем последний завершенный матч`, "vmix-page", {
-                    matchId: fullLastMatch.id,
-                  })
-                  setMatch(fullLastMatch)
-                  setError("Активный матч не найден, показываем последний завершенный матч")
-                  return
-                }
-              }
-            }
-          } catch (lastMatchError) {
-            logEvent("error", "vMix страница: ошибка при поиске последнего матча", "vmix-page", lastMatchError)
-          }
-
           setError("Матч не найден")
           logEvent("error", `vMix страница: матч не найден: ${params.id}`, "vmix-page", {
             triedSources: ["localStorage-direct", "localStorage-list", "getMatch"],
@@ -802,44 +766,7 @@ export default function VmixPage({ params }: MatchParams) {
           scoreB: updatedMatch.score.teamB,
         })
       } else {
-        // Если матч не найден при обновлении, пробуем найти последний завершенный матч
-        const findLastMatch = async () => {
-          try {
-            const matchesList = safeGetLocalStorageItem("tennis_padel_matches")
-            if (matchesList && Array.isArray(matchesList) && matchesList.length > 0) {
-              // Сортируем по дате создания (от новых к старым)
-              const sortedMatches = [...matchesList].sort(
-                (a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime(),
-              )
-
-              // Берем последний матч
-              const lastMatch = sortedMatches[0]
-              if (lastMatch) {
-                // Получаем полные данные матча
-                const fullLastMatch = await getMatch(lastMatch.id || lastMatch.code)
-                if (fullLastMatch) {
-                  logEvent("info", `vMix страница: показываем последний завершенный матч при обновлении`, "vmix-page", {
-                    matchId: fullLastMatch.id,
-                  })
-                  setMatch(fullLastMatch)
-                  setError("Активный матч не найден, показываем последний завершенный матч")
-                  return
-                }
-              }
-            }
-            setError("Матч не найден или был удален")
-          } catch (lastMatchError) {
-            logEvent(
-              "error",
-              "vMix страница: ошибка при поиске последнего матча при обновлении",
-              "vmix-page",
-              lastMatchError,
-            )
-            setError("Матч не найден или был удален")
-          }
-        }
-
-        findLastMatch()
+        setError("Матч не найден или был удален")
         logEvent("warn", "vMix страница: матч не найден при обновлении", "vmix-page", { matchId: params.id })
       }
     })
@@ -1192,7 +1119,6 @@ export default function VmixPage({ params }: MatchParams) {
                   : namesGradient
                     ? getGradientStyle(true, namesGradientFrom, namesGradientTo)
                     : { background: namesBgColor }),
-                position: "relative",
               }}
             >
               <div style={{ display: "flex", flexDirection: "column", width: "100%", overflow: "hidden" }}>
@@ -1322,39 +1248,33 @@ export default function VmixPage({ params }: MatchParams) {
             {/* Счет сетов для первого игрока */}
             {showSets && match.score.sets && (
               <>
-                {match.score.sets.map((set, idx) => {
-                  const winner = getSetWinner(set)
-                  return (
-                    <div
-                      key={idx}
-                      style={{
-                        ...(theme === "transparent"
-                          ? { background: "transparent" }
-                          : setsGradient
-                            ? getGradientStyle(true, setsGradientFrom, setsGradientTo)
-                            : { background: setsBgColor }),
-                        color: theme === "transparent" ? textColor : setsTextColor,
-                        padding: "1px",
-                        flex: "0 0 auto",
-                        width: "40px",
-                        minWidth: "40px",
-                        textAlign: "center",
-                        borderLeft: theme === "transparent" ? "none" : "1px solid #e5e5e5",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        fontSize: "1.8em",
-                        position: "relative",
-                      }}
-                    >
-                      <span style={{ fontWeight: winner === "teamA" ? "bold" : "normal" }}>
-                        {tiebreakScores[idx] ? formatSetScore(set.teamA, tiebreakScores[idx].teamA) : set.teamA}
-                      </span>
-                    </div>
-                  )
-                })}
-                {/* Текущий сет - показываем только если матч не завершен */}
-                {match.score.currentSet && !match.isCompleted && (
+                {match.score.sets.map((set, idx) => (
+                  <div
+                    key={idx}
+                    style={{
+                      ...(theme === "transparent"
+                        ? { background: "transparent" }
+                        : setsGradient
+                          ? getGradientStyle(true, setsGradientFrom, setsGradientTo)
+                          : { background: setsBgColor }),
+                      color: theme === "transparent" ? textColor : setsTextColor,
+                      padding: "1px",
+                      flex: "0 0 auto",
+                      width: "40px",
+                      minWidth: "40px",
+                      textAlign: "center",
+                      borderLeft: theme === "transparent" ? "none" : "1px solid #e5e5e5",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: "1.8em",
+                    }}
+                  >
+                    {tiebreakScores[idx] ? formatSetScore(set.teamA, tiebreakScores[idx].teamA) : set.teamA}
+                  </div>
+                ))}
+                {/* Текущий сет */}
+                {match.score.currentSet && (
                   <div
                     style={{
                       ...(theme === "transparent"
@@ -1404,20 +1324,7 @@ export default function VmixPage({ params }: MatchParams) {
                       : { background: pointsBgColor }),
                 }}
               >
-                <>
-                  {getCurrentGameScore("teamA")}
-                  {match.isCompleted && match.winner === "teamA" && (
-                    <span
-                      style={{
-                        marginLeft: "5px",
-                        fontSize: "0.8em",
-                        color: "#FFD700",
-                      }}
-                    >
-                      🏆
-                    </span>
-                  )}
-                </>
+                {getCurrentGameScore("teamA")}
               </div>
             )}
           </div>
@@ -1440,7 +1347,6 @@ export default function VmixPage({ params }: MatchParams) {
                   : namesGradient
                     ? getGradientStyle(true, namesGradientFrom, namesGradientTo)
                     : { background: namesBgColor }),
-                position: "relative",
               }}
             >
               <div style={{ display: "flex", flexDirection: "column", width: "100%", overflow: "hidden" }}>
@@ -1570,39 +1476,34 @@ export default function VmixPage({ params }: MatchParams) {
             {/* Счет сетов для второго игрока */}
             {showSets && match.score.sets && (
               <>
-                {match.score.sets.map((set, idx) => {
-                  const winner = getSetWinner(set)
-                  return (
-                    <div
-                      key={idx}
-                      style={{
-                        ...(theme === "transparent"
-                          ? { background: "transparent" }
-                          : setsGradient
-                            ? getGradientStyle(true, setsGradientFrom, setsGradientTo)
-                            : { background: setsBgColor }),
-                        color: theme === "transparent" ? textColor : setsTextColor,
-                        padding: "1px",
-                        flex: "0 0 auto",
-                        width: "40px",
-                        minWidth: "40px",
-                        textAlign: "center",
-                        borderLeft: theme === "transparent" ? "none" : "1px solid #e5e5e5",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        fontSize: "1.8em",
-                        position: "relative",
-                      }}
-                    >
-                      <span style={{ fontWeight: winner === "teamB" ? "bold" : "normal" }}>
-                        {tiebreakScores[idx] ? formatSetScore(set.teamB, tiebreakScores[idx].teamB) : set.teamB}
-                      </span>
-                    </div>
-                  )
-                })}
-                {/* Текущий сет - показываем только если матч не завершен */}
-                {match.score.currentSet && !match.isCompleted && (
+                {match.score.sets.map((set, idx) => (
+                  <div
+                    key={idx}
+                    style={{
+                      ...(theme === "transparent"
+                        ? { background: "transparent" }
+                        : setsGradient
+                          ? getGradientStyle(true, setsGradientFrom, setsGradientTo)
+                          : { background: setsBgColor }),
+                      color: theme === "transparent" ? textColor : setsTextColor,
+                      padding: "1px",
+                      flex: "0 0 auto",
+                      width: "40px",
+                      minWidth: "40px",
+                      textAlign: "center",
+                      borderLeft: theme === "transparent" ? "none" : "1px solid #e5e5e5",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: "1.8em",
+                    }}
+                  >
+                    {tiebreakScores[idx] ? formatSetScore(set.teamB, tiebreakScores[idx].teamB) : set.teamB}
+                  </div>
+                ))}
+
+                {/* Текущий сет */}
+                {match.score.currentSet && (
                   <div
                     style={{
                       ...(theme === "transparent"
@@ -1652,20 +1553,7 @@ export default function VmixPage({ params }: MatchParams) {
                       : { background: pointsBgColor }),
                 }}
               >
-                <>
-                  {getCurrentGameScore("teamB")}
-                  {match.isCompleted && match.winner === "teamB" && (
-                    <span
-                      style={{
-                        marginLeft: "5px",
-                        fontSize: "0.8em",
-                        color: "#FFD700",
-                      }}
-                    >
-                      🏆
-                    </span>
-                  )}
-                </>
+                {getCurrentGameScore("teamB")}
               </div>
             )}
           </div>
