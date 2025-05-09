@@ -723,9 +723,10 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
 
         .team-row {
           display: grid;
-          grid-template-columns: ${showNames ? "5fr " : ""}${showCountry ? "1fr " : ""}${showServer ? "0.5fr " : ""}${showSets ? `repeat(${(match.score.sets?.length || 0) + (match.score.currentSet ? 1 : 0)}, 0.8fr) ` : ""}${showPoints ? "2.1fr" : ""};
+          grid-template-columns: ${showNames ? "5fr " : ""}${showCountry ? "1fr " : ""}${showServer ? "0.5fr " : ""}${showSets ? `repeat(${(match.score.sets?.length || 0) + (match.score.currentSet ? 1 : 0)}, 0.8fr) ` : ""}${showPoints ? "1fr" : ""};
           height: 100%;
           gap: 2px;
+          width: 100%;
         }
 
         .cell {
@@ -805,18 +806,14 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
 
         .points-cell {
           font-weight: bold;
-          font-size: 19.  /* Увеличено в 2 раза */
-        }
-
-        .points-cell {
-          font-weight: bold;
           font-size: 19.2vh; /* Уменьшено на 40% от 32vh */
           width: 100%;
           text-align: center;
           display: flex;
-          justify-content: space-between;
+          justify-content: center;
           padding: 0 2vw; /* Добавляем отступы по бокам */
           letter-spacing: -0.02em; /* Небольшое уменьшение расстояния между буквами */
+          min-width: 120px; /* Минимальная ширина для столбца */
         }
 
         .important-event {
@@ -899,17 +896,16 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
               {match.format === "singles"
                 ? getTranslation("scoreboard.singles", "Singles", language)
                 : getTranslation("scoreboard.doubles", "Doubles", language)}
+              {isCompletedMatch && (
+                <span className="ml-2 inline-flex items-center text-amber-400">
+                  <Clock size={20} />
+                </span>
+              )}
             </div>
           </div>
           <div className="flex items-center">
             <div className="text-xl">
               {getTranslation("scoreboard.court", "Court", language)} {courtNumber} - {new Date().toLocaleTimeString()}
-              {isCompletedMatch && (
-                <span className="ml-2 flex items-center text-amber-400">
-                  <Clock size={16} className="mr-1" />
-                  {getTranslation("scoreboard.completedMatch", "Completed Match", language)}
-                </span>
-              )}
             </div>
             <button
               className="fullscreen-button"
@@ -1045,27 +1041,23 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
                       : { background: pointsBgColor }),
                 }}
               >
-                <span
-                  style={{
-                    width: "100%",
-                    textAlign: "center",
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    height: "100%",
-                    fontSize: "0.9em", // Уменьшено на 10% от родительского размера
-                  }}
-                >
-                  {match.isCompleted ? (
-                    getMatchWinner() === "teamA" ? (
-                      <Trophy size={48} />
-                    ) : (
-                      ""
-                    )
-                  ) : (
-                    getCurrentGameScore("teamA")
-                  )}
-                </span>
+                {!match.isCompleted ? (
+                  <span
+                    style={{
+                      width: "100%",
+                      textAlign: "center",
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      height: "100%",
+                      fontSize: "0.9em",
+                    }}
+                  >
+                    {getCurrentGameScore("teamA")}
+                  </span>
+                ) : getMatchWinner() === "teamA" ? (
+                  <Trophy size={48} className="mx-auto" />
+                ) : null}
               </div>
             )}
           </div>
@@ -1189,27 +1181,23 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
                       : { background: pointsBgColor }),
                 }}
               >
-                <span
-                  style={{
-                    width: "100%",
-                    textAlign: "center",
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    height: "100%",
-                    fontSize: "0.9em", // Уменьшено на 10% от родительского размера
-                  }}
-                >
-                  {match.isCompleted ? (
-                    getMatchWinner() === "teamB" ? (
-                      <Trophy size={48} />
-                    ) : (
-                      ""
-                    )
-                  ) : (
-                    getCurrentGameScore("teamB")
-                  )}
-                </span>
+                {!match.isCompleted ? (
+                  <span
+                    style={{
+                      width: "100%",
+                      textAlign: "center",
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      height: "100%",
+                      fontSize: "0.9em",
+                    }}
+                  >
+                    {getCurrentGameScore("teamB")}
+                  </span>
+                ) : getMatchWinner() === "teamB" ? (
+                  <Trophy size={48} className="mx-auto" />
+                ) : null}
               </div>
             )}
           </div>
