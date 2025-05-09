@@ -121,7 +121,7 @@ const transformMatchFromSupabase = (match) => {
   }
 }
 
-// Получение всех матчей
+// Изменим функцию getMatches, чтобы она гарантированно возвращала все матчи, включая незавершенные
 export const getMatches = async () => {
   if (typeof window === "undefined") return []
 
@@ -139,12 +139,13 @@ export const getMatches = async () => {
         logEvent("debug", "Supabase доступен, получаем матчи из базы данных", "getMatches")
         const supabase = createClientSupabaseClient()
 
-        // Оптимизация: выбираем только нужные поля
+        // Оптимизация: выбираем только нужные поля и увеличиваем лимит до 50 матчей
+        // Важно: НЕ фильтруем по is_completed, чтобы получить ВСЕ матчи
         const { data, error, status } = await supabase
           .from("matches")
-          .select("*") // Изменено на "*" для получения всех полей
+          .select("*")
           .order("created_at", { ascending: false })
-          .limit(20)
+          .limit(50) // Увеличиваем лимит с 20 до 50
 
         if (error) {
           logEvent("error", `Ошибка при получении матчей из Supabase: ${error.message}`, "getMatches", {
@@ -197,10 +198,110 @@ export const getMatches = async () => {
 
     // Если Supabase недоступен или нет матчей, используем локальное хранилище
     const matches = safeGetItem("tennis_padel_matches", [])
+
+    // Проверяем, есть ли в локальном хранилище матчи
+    if (!matches || matches.length === 0) {
+      // Если нет, попробуем найти матчи по всем ключам в localStorage
+      const allMatches = findAllMatchesInLocalStorage()
+      if (allMatches.length > 0) {
+        // Сохраняем найденные матчи в основное хранилище для будущего использования
+        safeSetItem("tennis_padel_matches", allMatches)
+        logEvent("info", `Восстановлено ${allMatches.length} матчей из localStorage`, "getMatches")
+        return allMatches
+      }
+    }
+
     logEvent("info", `Получено ${matches.length} матчей из localStorage`, "getMatches")
     return matches || []
   } catch (error) {
     logEvent("error", "Ошибка при получении матчей", "getMatches", error)
+    return []
+  }
+}
+
+// Добавим новую функцию для поиска всех матчей в localStorage
+const findAllMatchesInLocalStorage = () => {
+  try {
+    const foundMatches = []
+
+    // Перебираем все ключи в localStorage
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i)
+      if (key && key.startsWith("match_")) {
+        try {
+          const item = localStorage.getItem(key)
+          if (item) {
+            // Пробуем распаковать, если это сжатые данные
+            try {
+              const decompressed = decompressFromUTF16(item)
+              if (decompressed && isValidJSON(decompressed)) {
+                const match = JSON.parse(decompressed)
+                if (match && match.id) {
+                  // Добавляем только основную информацию о матче
+                  foundMatches.push({
+                    id: match.id,
+                    code: match.code,
+                    type: match.type,
+                    format: match.format,
+                    createdAt: match.createdAt,
+                    teamA: {
+                      players: match.teamA.players,
+                    },
+                    teamB: {
+                      players: match.teamB.players,
+                    },
+                    score: {
+                      teamA: match.score.teamA,
+                    },
+                    score: {
+                      teamA: match.score.teamA,
+                      teamB: match.score.teamB,
+                    },
+                    isCompleted: match.isCompleted,
+                    courtNumber: match.courtNumber,
+                  })
+                }
+              }
+            } catch (e) {
+              // Если не удалось распаковать, пробуем как обычный JSON
+              if (isValidJSON(item)) {
+                const match = JSON.parse(item)
+                if (match && match.id) {
+                  foundMatches.push({
+                    id: match.id,
+                    code: match.code,
+                    type: match.type,
+                    format: match.format,
+                    createdAt: match.createdAt,
+                    teamA: {
+                      players: match.teamA.players,
+                    },
+                    teamB: {
+                      players: match.teamB.players,
+                    },
+                    score: {
+                      teamA: match.score.teamA,
+                      teamB: match.score.teamB,
+                    },
+                    isCompleted: match.isCompleted,
+                    courtNumber: match.courtNumber,
+                  })
+                }
+              }
+            }
+          }
+        } catch (e) {
+          logEvent("warn", `Ошибка при обработке ключа ${key}`, "findAllMatchesInLocalStorage", e)
+        }
+      }
+    }
+
+    // Сортируем матчи по дате создания (от новых к старым)
+    foundMatches.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+
+    return foundMatches
+  } catch (error) {
+    logEvent("error", "Ошибка при поиске матчей в localStorage", "findAllMatchesInLocalStorage", error)
     return []
   }
 }

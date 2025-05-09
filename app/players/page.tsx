@@ -12,7 +12,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Checkbox } from "@/components/ui/checkbox"
 import { SupabaseStatus } from "@/components/supabase-status"
 import { OfflineNotice } from "@/components/offline-notice"
-import { getPlayers, addPlayer, deletePlayers, subscribeToPlayersUpdates } from "@/lib/player-storage"
+import { getPlayers, addPlayer, deletePlayers, subscribeToPlayersUpdates, updatePlayer } from "@/lib/player-storage"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -43,6 +43,10 @@ export default function PlayersPage() {
   const [isAddingPlayer, setIsAddingPlayer] = useState(false)
   const [isDeletingPlayers, setIsDeletingPlayers] = useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const [editingPlayerId, setEditingPlayerId] = useState(null)
+  const [editedPlayerName, setEditedPlayerName] = useState("")
+  const [editedPlayerCountry, setEditedPlayerCountry] = useState("")
+  const [isEditingPlayer, setIsEditingPlayer] = useState(false)
 
   // Обработчик обновления списка игроков
   const handlePlayersUpdate = useCallback((updatedPlayers) => {
@@ -192,6 +196,65 @@ export default function PlayersPage() {
     }
   }, [selectedPlayers, players, selectAll])
 
+  // Обновление игрока
+  const handleUpdatePlayer = async () => {
+    if (!editedPlayerName.trim()) return
+
+    setIsEditingPlayer(true)
+    try {
+      logEvent("info", "Попытка обновления игрока", "PlayersPage", {
+        id: editingPlayerId,
+        name: editedPlayerName,
+        country: editedPlayerCountry,
+      })
+
+      const updatedPlayer = {
+        name: editedPlayerName.trim(),
+        country: editedPlayerCountry.trim() || null,
+      }
+
+      const result = await updatePlayer(editingPlayerId, updatedPlayer)
+
+      if (result.success) {
+        showNotification(result.message)
+        setEditingPlayerId(null)
+        setEditedPlayerName("")
+        setEditedPlayerCountry("")
+        logEvent("info", "Игрок успешно обновлен", "PlayersPage", {
+          id: editingPlayerId,
+          name: editedPlayerName,
+          country: editedPlayerCountry,
+        })
+      } else {
+        showNotification(result.message, "error")
+        logEvent("warn", "Не удалось обновить игрока", "PlayersPage", {
+          id: editingPlayerId,
+          reason: result.message,
+        })
+      }
+    } catch (error) {
+      console.error("Ошибка при обновлении игрока:", error)
+      showNotification(t("players.errorUpdatingPlayer"), "error")
+      logEvent("error", "Ошибка при обновлении игрока", "PlayersPage", error)
+    } finally {
+      setIsEditingPlayer(false)
+    }
+  }
+
+  // Начать редактирование игрока
+  const startEditingPlayer = (player) => {
+    setEditingPlayerId(player.id)
+    setEditedPlayerName(player.name)
+    setEditedPlayerCountry(player.country || "")
+  }
+
+  // Отменить редактирование
+  const cancelEditing = () => {
+    setEditingPlayerId(null)
+    setEditedPlayerName("")
+    setEditedPlayerCountry("")
+  }
+
   // Обновляем форму добавления игрока, чтобы включить поле для страны
   // Заменяем блок с формой добавления игрока
   return (
@@ -275,7 +338,7 @@ export default function PlayersPage() {
                   id="select-all"
                   checked={selectAll}
                   onCheckedChange={toggleSelectAll}
-                  disabled={players.length === 0 || isDeletingPlayers}
+                  disabled={players.length === 0 || isDeletingPlayers || editingPlayerId !== null}
                 />
                 <Label htmlFor="select-all" className="text-sm">
                   {t("players.selectAll")}
@@ -285,7 +348,7 @@ export default function PlayersPage() {
               <Button
                 variant="destructive"
                 size="sm"
-                disabled={selectedPlayers.length === 0 || isDeletingPlayers}
+                disabled={selectedPlayers.length === 0 || isDeletingPlayers || editingPlayerId !== null}
                 className="flex items-center"
                 onClick={() => setShowDeleteDialog(true)}
               >
@@ -309,36 +372,110 @@ export default function PlayersPage() {
               <div className="border rounded-md divide-y">
                 {players.map((player) => (
                   <div key={player.id} className="flex items-center justify-between p-3">
-                    <div className="flex items-center space-x-3">
-                      <Checkbox
-                        id={`player-${player.id}`}
-                        checked={selectedPlayers.includes(player.id)}
-                        onCheckedChange={() => togglePlayerSelection(player.id)}
-                        disabled={isDeletingPlayers}
-                      />
-                      <Label htmlFor={`player-${player.id}`} className="font-medium">
-                        {player.name}{" "}
-                        {player.country && (
-                          <span className="ml-2 text-xs bg-gray-100 px-2 py-1 rounded-md">
-                            <Flag className="h-3 w-3 inline mr-1" />
-                            {player.country}
-                          </span>
-                        )}
-                      </Label>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-8 w-8 p-0"
-                      onClick={() => togglePlayerSelection(player.id)}
-                      disabled={isDeletingPlayers}
-                    >
-                      {selectedPlayers.includes(player.id) ? (
-                        <X className="h-4 w-4 text-red-500" />
-                      ) : (
-                        <Check className="h-4 w-4 text-green-500" />
-                      )}
-                    </Button>
+                    {editingPlayerId === player.id ? (
+                      // Форма редактирования
+                      <div className="flex flex-col w-full space-y-2">
+                        <div className="flex gap-2">
+                          <Input
+                            value={editedPlayerName}
+                            onChange={(e) => setEditedPlayerName(e.target.value)}
+                            placeholder={t("players.name")}
+                            className="flex-1"
+                            disabled={isEditingPlayer}
+                          />
+                          <Input
+                            value={editedPlayerCountry}
+                            onChange={(e) => setEditedPlayerCountry(e.target.value.toUpperCase())}
+                            placeholder={t("players.countryAbbreviation")}
+                            maxLength={3}
+                            className="w-20"
+                            disabled={isEditingPlayer}
+                          />
+                        </div>
+                        <div className="flex gap-2">
+                          <Button
+                            onClick={handleUpdatePlayer}
+                            disabled={isEditingPlayer || !editedPlayerName.trim()}
+                            className="flex-1"
+                          >
+                            {isEditingPlayer ? (
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            ) : (
+                              <Check className="mr-2 h-4 w-4" />
+                            )}
+                            {t("common.save")}
+                          </Button>
+                          <Button
+                            variant="outline"
+                            onClick={cancelEditing}
+                            disabled={isEditingPlayer}
+                            className="flex-1"
+                          >
+                            <X className="mr-2 h-4 w-4" />
+                            {t("common.cancel")}
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      // Обычный вид
+                      <>
+                        <div className="flex items-center space-x-3">
+                          <Checkbox
+                            id={`player-${player.id}`}
+                            checked={selectedPlayers.includes(player.id)}
+                            onCheckedChange={() => togglePlayerSelection(player.id)}
+                            disabled={isDeletingPlayers || editingPlayerId !== null}
+                          />
+                          <Label htmlFor={`player-${player.id}`} className="font-medium">
+                            {player.name}{" "}
+                            {player.country && (
+                              <span className="ml-2 text-xs bg-gray-100 px-2 py-1 rounded-md">
+                                <Flag className="h-3 w-3 inline mr-1" />
+                                {player.country}
+                              </span>
+                            )}
+                          </Label>
+                        </div>
+                        <div className="flex space-x-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 w-8 p-0"
+                            onClick={() => startEditingPlayer(player)}
+                            disabled={isDeletingPlayers || editingPlayerId !== null}
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="16"
+                              height="16"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              className="text-blue-500"
+                            >
+                              <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+                              <path d="m15 5 4 4" />
+                            </svg>
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 w-8 p-0"
+                            onClick={() => togglePlayerSelection(player.id)}
+                            disabled={isDeletingPlayers || editingPlayerId !== null}
+                          >
+                            {selectedPlayers.includes(player.id) ? (
+                              <X className="h-4 w-4 text-red-500" />
+                            ) : (
+                              <Check className="h-4 w-4 text-green-500" />
+                            )}
+                          </Button>
+                        </div>
+                      </>
+                    )}
                   </div>
                 ))}
               </div>

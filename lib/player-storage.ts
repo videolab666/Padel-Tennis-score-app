@@ -1,269 +1,265 @@
-// Функции для работы с хранилищем игроков
-import { createClientSupabaseClient, isSupabaseAvailable, checkTablesExist, checkAndEnableRealtime } from "./supabase"
+// This is a simplified version of the player storage module
+// It provides functions to manage players in local storage and Supabase
+
+import { createClient } from "@supabase/supabase-js"
 import { logEvent } from "./error-logger"
 
-// Получение всех игроков
+// Initialize Supabase client
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ""
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
+
+// Create a singleton instance of the Supabase client
+let supabaseInstance = null
+
+const getSupabase = () => {
+  if (!supabaseInstance && supabaseUrl && supabaseAnonKey) {
+    supabaseInstance = createClient(supabaseUrl, supabaseAnonKey)
+  }
+  return supabaseInstance
+}
+
+// Local storage key for players
+const PLAYERS_STORAGE_KEY = "padel-tennis-players"
+
+// Custom event for player updates
+const PLAYERS_UPDATED_EVENT = "players-updated"
+
+// Get players from local storage
 export const getPlayers = async () => {
-  if (typeof window === "undefined") return []
-
   try {
-    // Проверяем доступность Supabase
-    const supabaseAvailable = await isSupabaseAvailable()
+    // Try to get from local storage first
+    const playersJson = localStorage.getItem(PLAYERS_STORAGE_KEY)
+    const players = playersJson ? JSON.parse(playersJson) : []
 
-    if (supabaseAvailable) {
-      const supabase = createClientSupabaseClient()
+    // If Supabase is available, try to get from there as well
+    const supabase = getSupabase()
+    if (supabase) {
       const { data, error } = await supabase.from("players").select("*").order("name")
-
       if (error) {
-        console.error("Ошибка при получении игроков из Supabase:", error)
-        logEvent("error", "Ошибка при получении игроков из Supabase", "getPlayers", error)
+        console.error("Error fetching players from Supabase:", error)
+        logEvent("error", "Error fetching players from Supabase", "player-storage", error)
       } else if (data && data.length > 0) {
-        return data
+        // Merge players from Supabase with local players
+        const supabasePlayers = data
+        const localPlayerIds = new Set(players.map((p) => p.id))
+
+        // Add Supabase players that don't exist locally
+        for (const player of supabasePlayers) {
+          if (!localPlayerIds.has(player.id)) {
+            players.push(player)
+          }
+        }
+
+        // Update local storage with merged players
+        localStorage.setItem(PLAYERS_STORAGE_KEY, JSON.stringify(players))
       }
     }
 
-    // Если Supabase недоступен или нет игроков, используем локальное хранилище
-    const players = localStorage.getItem("tennis_padel_players")
-    return players ? JSON.parse(players) : []
+    return players
   } catch (error) {
-    console.error("Ошибка при получении игроков:", error)
-    logEvent("error", "Ошибка при получении игроков", "getPlayers", error)
+    console.error("Error getting players:", error)
+    logEvent("error", "Error getting players", "player-storage", error)
     return []
   }
 }
 
-// Добавление нового игрока
+// Add a new player
 export const addPlayer = async (player) => {
-  if (typeof window === "undefined") return false
-
   try {
-    // Получаем текущий список игроков
+    // Check if player with same name already exists
     const players = await getPlayers()
+    const existingPlayer = players.find((p) => p.name.toLowerCase() === player.name.toLowerCase())
 
-    // Проверяем, что игрок с таким именем еще не существует
-    if (players.some((p) => p.name.toLowerCase() === player.name.toLowerCase())) {
-      logEvent("warn", "Попытка добавить игрока с существующим именем", "addPlayer", { name: player.name })
-      return { success: false, message: "Игрок с таким именем уже существует" }
-    }
-
-    // Проверяем доступность Supabase
-    const supabaseAvailable = await isSupabaseAvailable()
-
-    if (supabaseAvailable) {
-      // Проверяем и включаем Realtime
-      await checkAndEnableRealtime()
-
-      const supabase = createClientSupabaseClient()
-      // Теперь отправляем в Supabase также и поле country, так как колонка уже существует
-      const { error } = await supabase.from("players").insert({
-        id: player.id,
-        name: player.name,
-        country: player.country || null, // Добавляем поле страны
-      })
-
-      if (error) {
-        console.error("Ошибка при добавлении игрока в Supabase:", error)
-        logEvent("error", "Ошибка при добавлении игрока в Supabase", "addPlayer", error)
-      } else {
-        logEvent("info", "Игрок успешно добавлен в Supabase", "addPlayer", {
-          playerId: player.id,
-          name: player.name,
-          country: player.country,
-        })
+    if (existingPlayer) {
+      return {
+        success: false,
+        message: "Игрок с таким именем уже существует",
       }
     }
 
-    // Всегда сохраняем в локальное хранилище
+    // Add to local storage
     players.push(player)
-    localStorage.setItem("tennis_padel_players", JSON.stringify(players))
+    localStorage.setItem(PLAYERS_STORAGE_KEY, JSON.stringify(players))
 
-    // Отправляем кастомное событие для обновления списка игроков
-    window.dispatchEvent(new CustomEvent("player-added", { detail: player }))
+    // Add to Supabase if available
+    const supabase = getSupabase()
+    if (supabase) {
+      const { error } = await supabase.from("players").insert(player)
+      if (error) {
+        console.error("Error adding player to Supabase:", error)
+        logEvent("error", "Error adding player to Supabase", "player-storage", error)
+      }
+    }
 
-    return { success: true, message: "Игрок успешно добавлен" }
+    // Dispatch event to notify about player update
+    dispatchPlayersUpdatedEvent(players)
+
+    return {
+      success: true,
+      message: "Игрок успешно добавлен",
+    }
   } catch (error) {
-    console.error("Ошибка при добавлении игрока:", error)
-    logEvent("error", "Ошибка при добавлении игрока", "addPlayer", error)
-    return { success: false, message: "Ошибка при добавлении игрока" }
+    console.error("Error adding player:", error)
+    logEvent("error", "Error adding player", "player-storage", error)
+
+    return {
+      success: false,
+      message: "Произошла ошибка при добавлении игрока",
+    }
   }
 }
 
-// Удаление игрока
-export const deletePlayer = async (id) => {
-  if (typeof window === "undefined") return false
-
+// Update an existing player
+export const updatePlayer = async (playerId, updatedPlayer) => {
   try {
-    // Проверяем доступность Supabase
-    const supabaseAvailable = await isSupabaseAvailable()
+    const players = await getPlayers()
+    const playerIndex = players.findIndex((p) => p.id === playerId)
 
-    if (supabaseAvailable) {
-      const supabase = createClientSupabaseClient()
-      const { error } = await supabase.from("players").delete().eq("id", id)
+    if (playerIndex === -1) {
+      return {
+        success: false,
+        message: "Игрок не найден",
+      }
+    }
+
+    // Check if updated name conflicts with existing player
+    if (updatedPlayer.name) {
+      const nameExists = players.some(
+        (p) => p.id !== playerId && p.name.toLowerCase() === updatedPlayer.name.toLowerCase(),
+      )
+
+      if (nameExists) {
+        return {
+          success: false,
+          message: "Игрок с таким именем уже существует",
+        }
+      }
+    }
+
+    // Update player in local array
+    players[playerIndex] = { ...players[playerIndex], ...updatedPlayer }
+
+    // Update local storage
+    localStorage.setItem(PLAYERS_STORAGE_KEY, JSON.stringify(players))
+
+    // Update in Supabase if available
+    const supabase = getSupabase()
+    if (supabase) {
+      const { error } = await supabase.from("players").update(updatedPlayer).eq("id", playerId)
 
       if (error) {
-        console.error("Ошибка при удалении игрока из Supabase:", error)
-        logEvent("error", "Ошибка при удалении игрока из Supabase", "deletePlayer", error)
+        console.error("Error updating player in Supabase:", error)
+        logEvent("error", "Error updating player in Supabase", "player-storage", error)
       }
     }
 
-    // Всегда обновляем локальное хранилище
-    const players = await getPlayers()
-    const filteredPlayers = players.filter((player) => player.id !== id)
+    // Dispatch event to notify about player update
+    dispatchPlayersUpdatedEvent(players)
 
-    localStorage.setItem("tennis_padel_players", JSON.stringify(filteredPlayers))
-
-    // Отправляем кастомное событие для обновления списка игроков
-    window.dispatchEvent(new CustomEvent("players-updated"))
-
-    return true
+    return {
+      success: true,
+      message: "Игрок успешно обновлен",
+    }
   } catch (error) {
-    console.error("Ошибка при удалении игрока:", error)
-    logEvent("error", "Ошибка при удалении игрока", "deletePlayer", error)
-    return false
+    console.error("Error updating player:", error)
+    logEvent("error", "Error updating player", "player-storage", error)
+
+    return {
+      success: false,
+      message: "Произошла ошибка при обновлении игрока",
+    }
   }
 }
 
-// Удаление нескольких игроков
-export const deletePlayers = async (ids) => {
-  if (typeof window === "undefined" || !ids.length) return false
-
+// Delete a player
+export const deletePlayer = async (playerId) => {
   try {
-    logEvent("info", `Начало удаления ${ids.length} игроков`, "deletePlayers", { ids })
+    const players = await getPlayers()
+    const filteredPlayers = players.filter((p) => p.id !== playerId)
 
-    // Проверяем доступность Supabase
-    const supabaseAvailable = await isSupabaseAvailable()
+    // Update local storage
+    localStorage.setItem(PLAYERS_STORAGE_KEY, JSON.stringify(filteredPlayers))
 
-    if (supabaseAvailable) {
-      const supabase = createClientSupabaseClient()
+    // Delete from Supabase if available
+    const supabase = getSupabase()
+    if (supabase) {
+      const { error } = await supabase.from("players").delete().eq("id", playerId)
 
-      // Удаляем игроков по одному, так как Supabase не поддерживает массовое удаление
-      for (const id of ids) {
-        const { error } = await supabase.from("players").delete().eq("id", id)
-
-        if (error) {
-          console.error(`Ошибка при удалении игрока ${id} из Supabase:`, error)
-          logEvent("error", `Ошибка при удалении игрока из Supabase: ${id}`, "deletePlayers", error)
-        } else {
-          logEvent("debug", `Игрок ${id} успешно удален из Supabase`, "deletePlayers")
-        }
+      if (error) {
+        console.error("Error deleting player from Supabase:", error)
+        logEvent("error", "Error deleting player from Supabase", "player-storage", error)
       }
     }
 
-    // Всегда обновляем локальное хранилище
+    // Dispatch event to notify about player update
+    dispatchPlayersUpdatedEvent(filteredPlayers)
+
+    return {
+      success: true,
+      message: "Игрок успешно удален",
+    }
+  } catch (error) {
+    console.error("Error deleting player:", error)
+    logEvent("error", "Error deleting player", "player-storage", error)
+
+    return {
+      success: false,
+      message: "Произошла ошибка при удалении игрока",
+    }
+  }
+}
+
+// Delete multiple players
+export const deletePlayers = async (playerIds: string[]): Promise<boolean> => {
+  try {
     const players = await getPlayers()
-    const filteredPlayers = players.filter((player) => !ids.includes(player.id))
+    const filteredPlayers = players.filter((p) => !playerIds.includes(p.id))
 
-    localStorage.setItem("tennis_padel_players", JSON.stringify(filteredPlayers))
-    logEvent("info", `Игроки успешно удалены из локального хранилища`, "deletePlayers", {
-      removed: players.length - filteredPlayers.length,
-    })
+    // Update local storage
+    localStorage.setItem(PLAYERS_STORAGE_KEY, JSON.stringify(filteredPlayers))
 
-    // Отправляем кастомное событие для обновления списка игроков
-    window.dispatchEvent(new CustomEvent("players-updated"))
+    // Delete from Supabase if available
+    const supabase = getSupabase()
+    if (supabase) {
+      const { error } = await supabase.from("players").delete().in("id", playerIds)
+
+      if (error) {
+        console.error("Error deleting players from Supabase:", error)
+        logEvent("error", "Error deleting players from Supabase", "player-storage", error)
+        return false
+      }
+    }
+
+    // Dispatch event to notify about player update
+    dispatchPlayersUpdatedEvent(filteredPlayers)
 
     return true
   } catch (error) {
-    console.error("Ошибка при удалении игроков:", error)
-    logEvent("error", "Ошибка при удалении игроков", "deletePlayers", error)
+    console.error("Error deleting players:", error)
+    logEvent("error", "Error deleting players", "player-storage", error)
     return false
   }
 }
 
-// Подписка на обновления списка игроков в реальном времени
+// Helper function to dispatch custom event for player updates
+const dispatchPlayersUpdatedEvent = (players) => {
+  if (typeof window !== "undefined") {
+    const event = new CustomEvent(PLAYERS_UPDATED_EVENT, { detail: players })
+    window.dispatchEvent(event)
+  }
+}
+
+// Subscribe to player updates
 export const subscribeToPlayersUpdates = (callback) => {
-  if (typeof window === "undefined") return () => {}
+  if (typeof window === "undefined") return null
 
-  let unsubscribe = null
-
-  // Проверяем доступность Supabase
-  isSupabaseAvailable().then(async (supabaseAvailable) => {
-    if (supabaseAvailable) {
-      // Проверяем существование таблиц
-      const tablesStatus = await checkTablesExist()
-
-      if (tablesStatus.exists) {
-        // Проверяем и включаем Realtime
-        await checkAndEnableRealtime()
-
-        const supabase = createClientSupabaseClient()
-
-        // Подписываемся на изменения списка игроков в Supabase
-        const channel = supabase
-          .channel("players-changes")
-          .on(
-            "postgres_changes",
-            {
-              event: "*", // Слушаем все события (INSERT, UPDATE, DELETE)
-              schema: "public",
-              table: "players",
-            },
-            async () => {
-              // При любом изменении в таблице игроков, получаем обновленный список
-              const players = await getPlayers()
-              callback(players)
-            },
-          )
-          .subscribe((status) => {
-            logEvent("info", `Статус подписки на обновления игроков: ${status}`, "subscribeToPlayersUpdates")
-          })
-
-        // Сохраняем функцию отписки
-        unsubscribe = () => {
-          logEvent("info", "Отписка от обновлений игроков", "subscribeToPlayersUpdates")
-          supabase.removeChannel(channel)
-        }
-      } else {
-        logEvent("warn", "Таблицы в Supabase не существуют, используем локальную подписку", "subscribeToPlayersUpdates")
-        setupLocalSubscription()
-      }
-    } else {
-      logEvent("warn", "Supabase недоступен, используем локальную подписку", "subscribeToPlayersUpdates")
-      setupLocalSubscription()
-    }
-  })
-
-  // Функция для настройки локальной подписки
-  const setupLocalSubscription = () => {
-    // Обработчик события storage для синхронизации между вкладками
-    const handleStorageChange = async (event) => {
-      if (event.key === "tennis_padel_players") {
-        const players = await getPlayers()
-        callback(players)
-      }
-    }
-
-    // Обработчик кастомных событий
-    const handlePlayerAdded = async () => {
-      const players = await getPlayers()
-      callback(players)
-    }
-
-    const handlePlayersUpdated = async () => {
-      const players = await getPlayers()
-      callback(players)
-    }
-
-    window.addEventListener("storage", handleStorageChange)
-    window.addEventListener("player-added", handlePlayerAdded)
-    window.addEventListener("players-updated", handlePlayersUpdated)
-
-    // Также настраиваем периодическую проверку обновлений
-    const interval = setInterval(async () => {
-      const players = await getPlayers()
-      callback(players)
-    }, 5000)
-
-    // Обновляем функцию отписки
-    unsubscribe = () => {
-      window.removeEventListener("storage", handleStorageChange)
-      window.removeEventListener("player-added", handlePlayerAdded)
-      window.removeEventListener("players-updated", handlePlayersUpdated)
-      clearInterval(interval)
-    }
+  const handlePlayersUpdated = (event) => {
+    callback(event.detail)
   }
 
-  // Возвращаем функцию отписки
+  window.addEventListener(PLAYERS_UPDATED_EVENT, handlePlayersUpdated)
+
   return () => {
-    if (unsubscribe) unsubscribe()
+    window.removeEventListener(PLAYERS_UPDATED_EVENT, handlePlayersUpdated)
   }
 }

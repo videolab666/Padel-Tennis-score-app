@@ -2,7 +2,28 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { formatDistanceToNow } from "date-fns"
+// Custom function to replace date-fns formatDistanceToNow
+function formatTimeAgo(date: Date): string {
+  const now = new Date()
+  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000)
+
+  if (diffInSeconds < 60) return `${diffInSeconds} seconds ago`
+
+  const diffInMinutes = Math.floor(diffInSeconds / 60)
+  if (diffInMinutes < 60) return `${diffInMinutes} minute${diffInMinutes > 1 ? "s" : ""} ago`
+
+  const diffInHours = Math.floor(diffInMinutes / 60)
+  if (diffInHours < 24) return `${diffInHours} hour${diffInHours > 1 ? "s" : ""} ago`
+
+  const diffInDays = Math.floor(diffInHours / 24)
+  if (diffInDays < 30) return `${diffInDays} day${diffInDays > 1 ? "s" : ""} ago`
+
+  const diffInMonths = Math.floor(diffInDays / 30)
+  if (diffInMonths < 12) return `${diffInMonths} month${diffInMonths > 1 ? "s" : ""} ago`
+
+  const diffInYears = Math.floor(diffInMonths / 12)
+  return `${diffInYears} year${diffInYears > 1 ? "s" : ""} ago`
+}
 
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -249,7 +270,7 @@ export function MatchHistoryList({ showControls = false }: MatchHistoryListProps
             <div className="flex justify-between items-center mb-2">
               <div className="flex items-center gap-2">
                 <span className="text-sm text-muted-foreground">
-                  {match.date ? formatDistanceToNow(new Date(match.date), { addSuffix: true }) : "Недавно"}
+                  {match.date ? formatTimeAgo(new Date(match.date)) : "Recently"}
                 </span>
                 {match.courtNumber && (
                   <Badge variant="outline" className="bg-blue-100 text-blue-800 hover:bg-blue-100">

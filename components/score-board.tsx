@@ -62,10 +62,31 @@ export function ScoreBoard({ match, updateMatch }) {
       updatedMatch.score.currentSet.currentGame[team]++
 
       // Определяем количество очков для победы в тай-брейке в зависимости от типа
-      let pointsToWin = 7 // Обычный тай-брейк
-      if (updatedMatch.settings.tiebreakType === "championship" || updatedMatch.settings.tiebreakType === "super") {
-        pointsToWin = 10 // Чемпионский или супер-тай-брейк
+      let pointsToWin = 7 // Обычный тай-брейк по умолчанию
+
+      // Если это супер-тай-брейк в решающем сете
+      if (
+        currentSet.isSuperTiebreak ||
+        (updatedMatch.settings.finalSetTiebreak && updatedMatch.score.sets.length + 1 === updatedMatch.settings.sets)
+      ) {
+        // Используем длину тай-брейка из настроек финального сета
+        pointsToWin = updatedMatch.settings.finalSetTiebreakLength || 10
+        console.log("Using final set tiebreak length:", pointsToWin)
       }
+      // Если это обычный тай-брейк, но выбран тип "championship"
+      else if (updatedMatch.settings.tiebreakType === "championship") {
+        pointsToWin = 10 // Чемпионский тай-брейк всегда до 10 очков
+        console.log("Using championship tiebreak (10 points)")
+      } else {
+        console.log("Using regular tiebreak (7 points)")
+      }
+
+      console.log("Tiebreak settings:", {
+        type: updatedMatch.settings.tiebreakType,
+        finalSetTiebreak: updatedMatch.settings.finalSetTiebreak,
+        finalSetTiebreakLength: updatedMatch.settings.finalSetTiebreakLength,
+        pointsToWin: pointsToWin,
+      })
 
       // Check for tiebreak win
       if (
@@ -199,10 +220,30 @@ export function ScoreBoard({ match, updateMatch }) {
     const gamesNeededToWin = scoringSystem === "fast4" ? 4 : 6
     const tiebreakAt = Number.parseInt(updatedMatch.settings.tiebreakAt.split("-")[0])
 
-    // Check for tiebreak
-    if (updatedMatch.settings.tiebreakEnabled && currentSet.teamA === tiebreakAt && currentSet.teamB === tiebreakAt) {
+    // Проверка на финальный сет и тайбрейк в финальном сете
+    const isDecidingSet = updatedMatch.score.sets.length + 1 === updatedMatch.settings.sets
+    const isTwoSetsMatch =
+      updatedMatch.settings.sets === 2 && updatedMatch.score.teamA === 1 && updatedMatch.score.teamB === 1
+
+    // Проверяем, нужно ли начать тайбрейк в финальном сете
+    if (updatedMatch.settings.finalSetTiebreak && (isDecidingSet || isTwoSetsMatch)) {
+      // Если это финальный сет и включен тайбрейк в финальном сете
+      if (currentSet.teamA === tiebreakAt && currentSet.teamB === tiebreakAt) {
+        // Начинаем тайбрейк в финальном сете
+        currentSet.isTiebreak = true
+        currentSet.isSuperTiebreak = true // Отмечаем, что это супер-тайбрейк
+        console.log("Starting final set tiebreak at", tiebreakAt, "all")
+      }
+    }
+    // Обычный тайбрейк для нефинальных сетов
+    else if (
+      updatedMatch.settings.tiebreakEnabled &&
+      currentSet.teamA === tiebreakAt &&
+      currentSet.teamB === tiebreakAt
+    ) {
       // Start tiebreak
       currentSet.isTiebreak = true
+      console.log("Starting regular tiebreak at", tiebreakAt, "all")
     }
 
     // Проверяем на золотой гейм (падел)
@@ -247,30 +288,51 @@ export function ScoreBoard({ match, updateMatch }) {
     })
 
     // Check for match win
-    const setsToWin = Math.ceil(updatedMatch.settings.sets / 2)
-    if (updatedMatch.score[team] >= setsToWin) {
-      // Store the pending update and previous state
-      setPendingMatchUpdate(updatedMatch)
-      setPreviousMatchState(previousState)
+    const totalSets = updatedMatch.settings.sets
 
-      // Show the confirmation dialog
-      setShowMatchEndDialog(true)
+    // Special handling for 2-set matches
+    if (totalSets === 2) {
+      // If a team has won 2 sets, the match is over
+      if (updatedMatch.score[team] === 2) {
+        // Store the pending update and previous state
+        setPendingMatchUpdate(updatedMatch)
+        setPreviousMatchState(previousState)
 
-      // Don't update the match yet
-      return
+        // Show the confirmation dialog
+        setShowMatchEndDialog(true)
+
+        // Don't update the match yet
+        return
+      }
+      // If the score is 1-1, we continue to a deciding tiebreak
+      // Do not end the match here
+    } else {
+      // For matches with 1, 3, or 5 sets, use the standard logic
+      const setsToWin = Math.ceil(updatedMatch.settings.sets / 2)
+      if (updatedMatch.score[team] >= setsToWin) {
+        // Store the pending update and previous state
+        setPendingMatchUpdate(updatedMatch)
+        setPreviousMatchState(previousState)
+
+        // Show the confirmation dialog
+        setShowMatchEndDialog(true)
+
+        // Don't update the match yet
+        return
+      }
     }
 
     // Проверяем, нужно ли использовать супер-тай-брейк вместо третьего сета
     const isDecidingSet = updatedMatch.score.sets.length + 1 === updatedMatch.settings.sets
     const isTwoSetsMatch = updatedMatch.settings.sets === 2
     const isThirdSetTiebreak =
-      updatedMatch.settings.tiebreakType === "super" &&
       updatedMatch.settings.finalSetTiebreak &&
       (isDecidingSet || (isTwoSetsMatch && updatedMatch.score.teamA === 1 && updatedMatch.score.teamB === 1))
 
     // Start new set
     if (isThirdSetTiebreak) {
-      // Если это решающий сет и выбран супер-тай-брейк и включен тай-брейк в решающем сете
+      // Если это решающий сет и включен тайбрейк в решающем сете
+      // Сразу начинаем с тайбрейка вместо обычного сета
       updatedMatch.score.currentSet = {
         teamA: 0,
         teamB: 0,
@@ -282,6 +344,7 @@ export function ScoreBoard({ match, updateMatch }) {
         isTiebreak: true,
         isSuperTiebreak: true,
       }
+      console.log("Starting super tiebreak for deciding set instead of regular set")
     } else {
       // Обычный сет
       updatedMatch.score.currentSet = {
@@ -509,6 +572,9 @@ export function ScoreBoard({ match, updateMatch }) {
         </div>
         <div className="text-center text-muted-foreground">
           {`${t("match.set")} ${currentSetIndex + 1} ${t("match.of")} ${totalSets}`}
+          {currentSet.isTiebreak && currentSet.isSuperTiebreak && (
+            <span className="ml-2 text-red-600 font-medium">(Финальный тайбрейк)</span>
+          )}
         </div>
         <div className="text-center">
           <span className="text-xl font-bold">{currentSet.teamB}</span>

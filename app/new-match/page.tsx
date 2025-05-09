@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { ArrowLeft, Loader2, Plus } from "lucide-react"
 import { v4 as uuidv4 } from "uuid"
@@ -15,7 +15,7 @@ import { Switch } from "@/components/ui/switch"
 import { Checkbox } from "@/components/ui/checkbox"
 import { PlayerSelector } from "@/components/player-selector"
 import { createMatch } from "@/lib/match-storage"
-import { getPlayers, addPlayer, subscribeToPlayersUpdates } from "@/lib/player-storage"
+import { getPlayers, addPlayer } from "@/lib/player-storage"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { SupabaseStatus } from "@/components/supabase-status"
 import { OfflineNotice } from "@/components/offline-notice"
@@ -39,7 +39,8 @@ export default function NewMatchPage() {
   const [tiebreakEnabled, setTiebreakEnabled] = useState(true)
   const [tiebreakType, setTiebreakType] = useState("regular")
   const [tiebreakAt, setTiebreakAt] = useState("6-6")
-  const [finalSetTiebreak, setFinalSetTiebreak] = useState(true)
+  const [finalSetTiebreak, setFinalSetTiebreak] = useState(false)
+  const [finalSetTiebreakLength, setFinalSetTiebreakLength] = useState("10") // New state for final set tiebreak length
   const [goldenGame, setGoldenGame] = useState(false)
   const [goldenPoint, setGoldenPoint] = useState(false)
   const [windbreak, setWindbreak] = useState(false)
@@ -50,6 +51,7 @@ export default function NewMatchPage() {
   const [showAlert, setShowAlert] = useState(false)
   const [alertMessage, setAlertMessage] = useState("")
   const [alertType, setAlertType] = useState("success") // success, error, warning
+  const playersRef = useRef([]) // Reference to keep track of players without re-renders
 
   // Игроки для команд
   const [teamAPlayer1, setTeamAPlayer1] = useState("")
@@ -66,6 +68,9 @@ export default function NewMatchPage() {
   const [occupiedCourts, setOccupiedCourts] = useState<number[]>([])
   const [loadingCourts, setLoadingCourts] = useState(false)
 
+  // Force re-render counter
+  const [, setForceUpdate] = useState(0)
+
   // Показать уведомление
   const showNotification = (message, type = "success") => {
     setAlertMessage(message)
@@ -74,17 +79,13 @@ export default function NewMatchPage() {
     setTimeout(() => setShowAlert(false), 3000)
   }
 
-  // Обработчик обновления списка игроков
-  const handlePlayersUpdate = useCallback((updatedPlayers) => {
-    setPlayers(updatedPlayers)
-  }, [])
-
   // Загрузка списка игроков
   useEffect(() => {
     const loadPlayers = async () => {
       try {
         const playersList = await getPlayers()
         setPlayers(playersList)
+        playersRef.current = playersList // Store in ref for direct access
       } catch (error) {
         console.error("Ошибка при загрузке игроков:", error)
         logEvent("error", "Ошибка при загрузке игроков", "NewMatchPage", error)
@@ -95,16 +96,25 @@ export default function NewMatchPage() {
 
     loadPlayers()
 
-    // Подписываемся на обновления списка игроков
-    const unsubscribe = subscribeToPlayersUpdates(handlePlayersUpdate)
-
-    return () => {
-      // Отписываемся при размонтировании компонента
-      if (unsubscribe) {
-        unsubscribe()
+    // Set up event listener for storage changes (for cross-tab synchronization)
+    const handleStorageChange = (e) => {
+      if (e.key === "padel-tennis-players") {
+        try {
+          const updatedPlayers = JSON.parse(e.newValue || "[]")
+          setPlayers(updatedPlayers)
+          playersRef.current = updatedPlayers
+        } catch (error) {
+          console.error("Error parsing players from storage:", error)
+        }
       }
     }
-  }, [handlePlayersUpdate])
+
+    window.addEventListener("storage", handleStorageChange)
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange)
+    }
+  }, [])
 
   // Добавим эффект для загрузки списка занятых кортов
   useEffect(() => {
@@ -123,6 +133,15 @@ export default function NewMatchPage() {
 
     loadOccupiedCourts()
   }, [])
+
+  // Add this useEffect after the other useEffect hooks
+  useEffect(() => {
+    // For 2-set matches, ensure final set tiebreak is enabled
+    // but don't change the tiebreak type for regular sets
+    if (sets === "2") {
+      setFinalSetTiebreak(true)
+    }
+  }, [sets])
 
   // Добавление нового игрока
   const handleAddPlayer = async () => {
@@ -143,6 +162,17 @@ export default function NewMatchPage() {
         setNewPlayerName("")
         showNotification(result.message)
         logEvent("info", "Игрок успешно добавлен", "NewMatchPage", { id: newPlayer.id, name: newPlayer.name })
+
+        // Directly update the players array and ref
+        const updatedPlayers = [...playersRef.current, newPlayer]
+        playersRef.current = updatedPlayers
+        setPlayers(updatedPlayers)
+
+        // Force a re-render to ensure UI updates
+        setForceUpdate((prev) => prev + 1)
+
+        console.log("Player added:", newPlayer)
+        console.log("Updated players list:", updatedPlayers)
       } else {
         showNotification(result.message, "error")
         logEvent("warn", "Не удалось добавить игрока", "NewMatchPage", {
@@ -191,22 +221,34 @@ export default function NewMatchPage() {
       return numericId
     }
 
+    // Ensure proper settings for final set tiebreak
+    const matchSettings = {
+      sets: Number.parseInt(sets),
+      scoringSystem: scoringSystem,
+      tiebreakEnabled,
+      tiebreakType, // Используем выбранный тип тайбрейка напрямую
+      tiebreakAt,
+      finalSetTiebreak: sets === "2" ? true : finalSetTiebreak, // Всегда включаем для матчей из 2 сетов
+      finalSetTiebreakLength: Number.parseInt(finalSetTiebreakLength),
+      goldenGame,
+      goldenPoint,
+      windbreak,
+    }
+
+    // Добавляем отладочную информацию
+    console.log("Creating match with settings:", {
+      sets: sets,
+      finalSetTiebreak: matchSettings.finalSetTiebreak,
+      finalSetTiebreakLength: matchSettings.finalSetTiebreakLength,
+      tiebreakType: matchSettings.tiebreakType,
+    })
+
     const match = {
       id: generateNumericId(),
       type: matchType,
       format: matchFormat,
       createdAt: new Date().toISOString(),
-      settings: {
-        sets: Number.parseInt(sets),
-        scoringSystem: scoringSystem,
-        tiebreakEnabled,
-        tiebreakType: tiebreakType,
-        tiebreakAt,
-        finalSetTiebreak,
-        goldenGame,
-        goldenPoint,
-        windbreak,
-      },
+      settings: matchSettings,
       teamA: {
         players: [
           { id: teamAPlayer1, name: players.find((p) => p.id === teamAPlayer1)?.name || teamAPlayer1 },
@@ -337,10 +379,6 @@ export default function NewMatchPage() {
                   <Label htmlFor="sets-1">{t("newMatch.oneSets")}</Label>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="2" id="sets-2" />
-                  <Label htmlFor="sets-2">{t("newMatch.twoSets")}</Label>
-                </div>
-                <div className="flex items-center space-x-2">
                   <RadioGroupItem value="3" id="sets-3" />
                   <Label htmlFor="sets-3">{t("newMatch.threeSets")}</Label>
                 </div>
@@ -350,6 +388,43 @@ export default function NewMatchPage() {
                 </div>
               </RadioGroup>
             </div>
+
+            <div className="flex items-center justify-between">
+              <Label>{t("newMatch.finalSetTiebreak")}</Label>
+              <Switch
+                checked={finalSetTiebreak}
+                onCheckedChange={(checked) => {
+                  setFinalSetTiebreak(checked)
+                  console.log("Final set tiebreak changed to:", checked)
+                }}
+                className="data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-red-500"
+              />
+            </div>
+
+            {finalSetTiebreak && (
+              <div className="space-y-2 border border-green-200 rounded-md p-3 bg-green-50">
+                <Label>{t("newMatch.finalSetTiebreakLength")}</Label>
+                <Select
+                  value={finalSetTiebreakLength}
+                  onValueChange={(value) => {
+                    setFinalSetTiebreakLength(value)
+                    // Удаляем синхронизацию с типом тайбрейка
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder={t("newMatch.selectTiebreakLength")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="7">{t("newMatch.tiebreakLength7")}</SelectItem>
+                    <SelectItem value="10">{t("newMatch.tiebreakLength10")}</SelectItem>
+                  </SelectContent>
+                </Select>
+                <div className="text-xs text-green-700 mt-1">
+                  <p>{t("newMatch.finalSetTiebreakLengthDescription")}</p>
+                  <p className="mt-1 font-medium">{t("newMatch.finalSetTiebreakNote")}</p>
+                </div>
+              </div>
+            )}
 
             <div>
               <Label>{t("newMatch.scoringSystem")}</Label>
@@ -388,20 +463,29 @@ export default function NewMatchPage() {
                   <Label>{t("newMatch.tiebreakType")}</Label>
                   <RadioGroup
                     value={tiebreakType}
-                    onValueChange={setTiebreakType}
+                    onValueChange={(value) => {
+                      setTiebreakType(value)
+                      // Удаляем синхронизацию с длиной финального тайбрейка
+                    }}
                     className="grid grid-cols-1 gap-2 mt-2"
                   >
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="regular" id="tiebreak-regular" />
-                      <Label htmlFor="tiebreak-regular">{t("newMatch.regularTiebreak")}</Label>
+                      <div>
+                        <Label htmlFor="tiebreak-regular" className="font-medium">
+                          {t("newMatch.regularTiebreak")}
+                        </Label>
+                        <p className="text-xs text-muted-foreground">До 7 очков (с разницей в 2 очка)</p>
+                      </div>
                     </div>
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="championship" id="tiebreak-championship" />
-                      <Label htmlFor="tiebreak-championship">{t("newMatch.championshipTiebreak")}</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="super" id="tiebreak-super" />
-                      <Label htmlFor="tiebreak-super">{t("newMatch.superTiebreak")}</Label>
+                      <div>
+                        <Label htmlFor="tiebreak-championship" className="font-medium">
+                          {t("newMatch.championshipTiebreak")}
+                        </Label>
+                        <p className="text-xs text-muted-foreground">До 10 очков (с разницей в 2 очка)</p>
+                      </div>
                     </div>
                   </RadioGroup>
                 </div>
@@ -421,15 +505,6 @@ export default function NewMatchPage() {
                 </div>
               </>
             )}
-
-            <div className="flex items-center justify-between">
-              <Label>{t("newMatch.finalSetTiebreak")}</Label>
-              <Switch
-                checked={finalSetTiebreak}
-                onCheckedChange={setFinalSetTiebreak}
-                className="data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-red-500"
-              />
-            </div>
 
             <div className="space-y-2 border-t pt-4">
               <Label className="text-base font-medium">{t("newMatch.additional")}</Label>
