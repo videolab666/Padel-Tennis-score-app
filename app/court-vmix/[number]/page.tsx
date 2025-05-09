@@ -1044,13 +1044,7 @@ export default function CourtVmixPage({ params }: CourtParams) {
                   >
                     <div style={{ display: "flex", flexDirection: "column", width: "100%", overflow: "hidden" }}>
                       <div style={{ display: "flex", alignItems: "center" }}>
-                        {match.isCompleted && match.winner === "teamA" && (
-                          <span
-                            style={{ color: accentColor, marginLeft: "3px", marginRight: "3px", fontSize: "0.9em" }}
-                          >
-                            🏆
-                          </span>
-                        )}
+                        {/* Winner icon moved to score column */}
                         <span
                           style={{
                             flex: 1,
@@ -1198,10 +1192,9 @@ export default function CourtVmixPage({ params }: CourtParams) {
                             fontSize: "1.8em",
                           }}
                         >
-                          {tiebreakScores[idx] ? formatSetScore(set.teamA, tiebreakScores[idx].teamA) : set.teamA}
-                          {set.teamA > set.teamB && (
-                            <span style={{ color: accentColor, marginLeft: "2px", fontSize: "0.7em" }}>★</span>
-                          )}
+                          <span style={{ fontWeight: set.teamA > set.teamB ? "bold" : "normal" }}>
+                            {tiebreakScores[idx] ? formatSetScore(set.teamA, tiebreakScores[idx].teamA) : set.teamA}
+                          </span>
                         </div>
                       ))}
                       {/* Текущий сет - показываем только если матч не завершен */}
@@ -1255,7 +1248,12 @@ export default function CourtVmixPage({ params }: CourtParams) {
                             : { background: pointsBgColor }),
                       }}
                     >
-                      {getCurrentGameScore("teamA")}
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        {getCurrentGameScore("teamA")}
+                        {match.isCompleted && match.winner === "teamA" && (
+                          <span style={{ color: accentColor, marginLeft: "5px", fontSize: "0.8em" }}>🏆</span>
+                        )}
+                      </div>
                     </div>
                   )}
                 </div>
@@ -1282,13 +1280,7 @@ export default function CourtVmixPage({ params }: CourtParams) {
                   >
                     <div style={{ display: "flex", flexDirection: "column", width: "100%", overflow: "hidden" }}>
                       <div style={{ display: "flex", alignItems: "center" }}>
-                        {match.isCompleted && match.winner === "teamB" && (
-                          <span
-                            style={{ color: accentColor, marginLeft: "3px", marginRight: "3px", fontSize: "0.9em" }}
-                          >
-                            🏆
-                          </span>
-                        )}
+                        {/* Winner icon moved to score column */}
                         <span
                           style={{
                             flex: 1,
@@ -1436,10 +1428,9 @@ export default function CourtVmixPage({ params }: CourtParams) {
                             fontSize: "1.8em",
                           }}
                         >
-                          {tiebreakScores[idx] ? formatSetScore(set.teamB, tiebreakScores[idx].teamB) : set.teamB}
-                          {set.teamB > set.teamA && (
-                            <span style={{ color: accentColor, marginLeft: "2px", fontSize: "0.7em" }}>★</span>
-                          )}
+                          <span style={{ fontWeight: set.teamB > set.teamA ? "bold" : "normal" }}>
+                            {tiebreakScores[idx] ? formatSetScore(set.teamB, tiebreakScores[idx].teamB) : set.teamB}
+                          </span>
                         </div>
                       ))}
                       {/* Текущий сет - показываем только если матч не завершен */}
@@ -1493,7 +1484,12 @@ export default function CourtVmixPage({ params }: CourtParams) {
                             : { background: pointsBgColor }),
                       }}
                     >
-                      {getCurrentGameScore("teamB")}
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        {getCurrentGameScore("teamB")}
+                        {match.isCompleted && match.winner === "teamB" && (
+                          <span style={{ color: accentColor, marginLeft: "5px", fontSize: "0.8em" }}>🏆</span>
+                        )}
+                      </div>
                     </div>
                   )}
                 </div>
@@ -1659,7 +1655,7 @@ export default function CourtVmixPage({ params }: CourtParams) {
       (match.score.sets?.length || 0) * 40 +
       (match.score.currentSet ? 40 : 0)
 
-  // Иначе возвращаем HTML интерфейс в стиле скриншота
+  // Иначе возвращаем HTML интерфейс
   return (
     <>
       {/* Добавляем стиль для всей страницы */}
@@ -1744,11 +1740,7 @@ export default function CourtVmixPage({ params }: CourtParams) {
             >
               <div style={{ display: "flex", flexDirection: "column", width: "100%", overflow: "hidden" }}>
                 <div style={{ display: "flex", alignItems: "center" }}>
-                  {match.isCompleted && match.winner === "teamA" && (
-                    <span style={{ color: accentColor, marginLeft: "3px", marginRight: "3px", fontSize: "0.9em" }}>
-                      🏆
-                    </span>
-                  )}
+                  {/* Winner icon moved to score column */}
                   <span
                     style={{
                       flex: 1,
@@ -1896,10 +1888,9 @@ export default function CourtVmixPage({ params }: CourtParams) {
                       fontSize: "1.8em",
                     }}
                   >
-                    {tiebreakScores[idx] ? formatSetScore(set.teamA, tiebreakScores[idx].teamA) : set.teamA}
-                    {set.teamA > set.teamB && (
-                      <span style={{ color: accentColor, marginLeft: "2px", fontSize: "0.7em" }}>★</span>
-                    )}
+                    <span style={{ fontWeight: set.teamA > set.teamB ? "bold" : "normal" }}>
+                      {tiebreakScores[idx] ? formatSetScore(set.teamA, tiebreakScores[idx].teamA) : set.teamA}
+                    </span>
                   </div>
                 ))}
                 {/* Текущий сет - показываем только если матч не завершен */}
@@ -1953,7 +1944,12 @@ export default function CourtVmixPage({ params }: CourtParams) {
                       : { background: pointsBgColor }),
                 }}
               >
-                {getCurrentGameScore("teamA")}
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  {getCurrentGameScore("teamA")}
+                  {match.isCompleted && match.winner === "teamA" && (
+                    <span style={{ color: accentColor, marginLeft: "5px", fontSize: "0.8em" }}>🏆</span>
+                  )}
+                </div>
               </div>
             )}
           </div>
@@ -1980,11 +1976,7 @@ export default function CourtVmixPage({ params }: CourtParams) {
             >
               <div style={{ display: "flex", flexDirection: "column", width: "100%", overflow: "hidden" }}>
                 <div style={{ display: "flex", alignItems: "center" }}>
-                  {match.isCompleted && match.winner === "teamB" && (
-                    <span style={{ color: accentColor, marginLeft: "3px", marginRight: "3px", fontSize: "0.9em" }}>
-                      🏆
-                    </span>
-                  )}
+                  {/* Winner icon moved to score column */}
                   <span
                     style={{
                       flex: 1,
@@ -2132,10 +2124,9 @@ export default function CourtVmixPage({ params }: CourtParams) {
                       fontSize: "1.8em",
                     }}
                   >
-                    {tiebreakScores[idx] ? formatSetScore(set.teamB, tiebreakScores[idx].teamB) : set.teamB}
-                    {set.teamB > set.teamA && (
-                      <span style={{ color: accentColor, marginLeft: "2px", fontSize: "0.7em" }}>★</span>
-                    )}
+                    <span style={{ fontWeight: set.teamB > set.teamA ? "bold" : "normal" }}>
+                      {tiebreakScores[idx] ? formatSetScore(set.teamB, tiebreakScores[idx].teamB) : set.teamB}
+                    </span>
                   </div>
                 ))}
                 {/* Текущий сет - показываем только если матч не завершен */}
@@ -2189,7 +2180,12 @@ export default function CourtVmixPage({ params }: CourtParams) {
                       : { background: pointsBgColor }),
                 }}
               >
-                {getCurrentGameScore("teamB")}
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  {getCurrentGameScore("teamB")}
+                  {match.isCompleted && match.winner === "teamB" && (
+                    <span style={{ color: accentColor, marginLeft: "5px", fontSize: "0.8em" }}>🏆</span>
+                  )}
+                </div>
               </div>
             )}
           </div>
