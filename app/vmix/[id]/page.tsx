@@ -1195,19 +1195,6 @@ export default function VmixPage({ params }: MatchParams) {
                 position: "relative",
               }}
             >
-              {match.isCompleted && match.winner === "teamA" && (
-                <span
-                  style={{
-                    position: "absolute",
-                    top: "5px",
-                    left: "5px",
-                    fontSize: "1.2em",
-                    color: "#FFD700",
-                  }}
-                >
-                  🏆
-                </span>
-              )}
               <div style={{ display: "flex", flexDirection: "column", width: "100%", overflow: "hidden" }}>
                 <div style={{ display: "flex", alignItems: "center" }}>
                   <span
@@ -1360,20 +1347,9 @@ export default function VmixPage({ params }: MatchParams) {
                         position: "relative",
                       }}
                     >
-                      {tiebreakScores[idx] ? formatSetScore(set.teamA, tiebreakScores[idx].teamA) : set.teamA}
-                      {winner === "teamA" && (
-                        <span
-                          style={{
-                            position: "absolute",
-                            top: "2px",
-                            right: "2px",
-                            fontSize: "0.5em",
-                            color: accentColor,
-                          }}
-                        >
-                          ★
-                        </span>
-                      )}
+                      <span style={{ fontWeight: winner === "teamA" ? "bold" : "normal" }}>
+                        {tiebreakScores[idx] ? formatSetScore(set.teamA, tiebreakScores[idx].teamA) : set.teamA}
+                      </span>
                     </div>
                   )
                 })}
@@ -1428,7 +1404,20 @@ export default function VmixPage({ params }: MatchParams) {
                       : { background: pointsBgColor }),
                 }}
               >
-                {getCurrentGameScore("teamA")}
+                <>
+                  {getCurrentGameScore("teamA")}
+                  {match.isCompleted && match.winner === "teamA" && (
+                    <span
+                      style={{
+                        marginLeft: "5px",
+                        fontSize: "0.8em",
+                        color: "#FFD700",
+                      }}
+                    >
+                      🏆
+                    </span>
+                  )}
+                </>
               </div>
             )}
           </div>
@@ -1454,19 +1443,6 @@ export default function VmixPage({ params }: MatchParams) {
                 position: "relative",
               }}
             >
-              {match.isCompleted && match.winner === "teamB" && (
-                <span
-                  style={{
-                    position: "absolute",
-                    top: "5px",
-                    left: "5px",
-                    fontSize: "1.2em",
-                    color: "#FFD700",
-                  }}
-                >
-                  🏆
-                </span>
-              )}
               <div style={{ display: "flex", flexDirection: "column", width: "100%", overflow: "hidden" }}>
                 <div style={{ display: "flex", alignItems: "center" }}>
                   <span
@@ -1619,20 +1595,9 @@ export default function VmixPage({ params }: MatchParams) {
                         position: "relative",
                       }}
                     >
-                      {tiebreakScores[idx] ? formatSetScore(set.teamB, tiebreakScores[idx].teamB) : set.teamB}
-                      {winner === "teamB" && (
-                        <span
-                          style={{
-                            position: "absolute",
-                            top: "2px",
-                            right: "2px",
-                            fontSize: "0.5em",
-                            color: accentColor,
-                          }}
-                        >
-                          ★
-                        </span>
-                      )}
+                      <span style={{ fontWeight: winner === "teamB" ? "bold" : "normal" }}>
+                        {tiebreakScores[idx] ? formatSetScore(set.teamB, tiebreakScores[idx].teamB) : set.teamB}
+                      </span>
                     </div>
                   )
                 })}
@@ -1687,7 +1652,20 @@ export default function VmixPage({ params }: MatchParams) {
                       : { background: pointsBgColor }),
                 }}
               >
-                {getCurrentGameScore("teamB")}
+                <>
+                  {getCurrentGameScore("teamB")}
+                  {match.isCompleted && match.winner === "teamB" && (
+                    <span
+                      style={{
+                        marginLeft: "5px",
+                        fontSize: "0.8em",
+                        color: "#FFD700",
+                      }}
+                    >
+                      🏆
+                    </span>
+                  )}
+                </>
               </div>
             )}
           </div>
