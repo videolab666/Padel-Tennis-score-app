@@ -8,6 +8,8 @@ import { useSoundEffects } from "@/hooks/use-sound-effects"
 import { SoundToggle } from "@/components/sound-toggle"
 import { useLanguage } from "@/contexts/language-context"
 import { useEffect, useState } from "react"
+import { Switch } from "@/components/ui/switch"
+import { Label } from "@/components/ui/label"
 
 export function ScoreControls({ match, updateMatch }) {
   // Используем хук для звуковых эффектов
@@ -16,6 +18,7 @@ export function ScoreControls({ match, updateMatch }) {
 
   // Локальное состояние для отслеживания необходимости смены сторон
   const [localMatch, setLocalMatch] = useState(match)
+  const [fixedSides, setFixedSides] = useState(true)
 
   // Обновляем локальное состояние при изменении match
   useEffect(() => {
@@ -608,31 +611,69 @@ export function ScoreControls({ match, updateMatch }) {
         <SoundToggle enabled={soundsEnabled} onToggle={toggleSounds} />
       </CardHeader>
       <CardContent className="space-y-4">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="fixed-sides"
+              checked={fixedSides}
+              onCheckedChange={setFixedSides}
+              disabled={localMatch.isCompleted}
+            />
+            <Label htmlFor="fixed-sides" className="text-sm">
+              {fixedSides ? t("match.fixedSides") : t("match.fixedPlayers")}
+            </Label>
+          </div>
+        </div>
+
         <div className="grid grid-cols-2 gap-4">
           {/* Левая сторона корта */}
           <Card className="w-full">
             <CardContent className="p-2 sm:p-4">
               <div className="min-h-[60px] sm:min-h-[80px] flex flex-col justify-center w-full">
                 <h3 className="text-sm sm:text-base font-medium text-center w-full overflow-hidden truncate">
-                  {localMatch.courtSides?.teamA === "left" ? t("match.teamA") : t("match.teamB")}
-                  <span className="ml-2 text-xs sm:text-sm text-muted-foreground">({t("match.leftSide")})</span>
+                  {fixedSides
+                    ? localMatch.courtSides?.teamA === "left"
+                      ? t("match.teamA")
+                      : t("match.teamB")
+                    : t("match.teamA")}
+                  <span className="ml-2 text-xs sm:text-sm text-muted-foreground">
+                    {fixedSides
+                      ? `(${t("match.leftSide")})`
+                      : localMatch.courtSides?.teamA === "left"
+                        ? `(${t("match.leftSide")})`
+                        : `(${t("match.rightSide")})`}
+                  </span>
                 </h3>
-                {localMatch.courtSides?.teamA === "left"
-                  ? renderPlayerNames(localMatch.teamA)
-                  : renderPlayerNames(localMatch.teamB)}
+                {fixedSides
+                  ? localMatch.courtSides?.teamA === "left"
+                    ? renderPlayerNames(localMatch.teamA)
+                    : renderPlayerNames(localMatch.teamB)
+                  : renderPlayerNames(localMatch.teamA)}
               </div>
               <div className="flex gap-2 items-center mt-2">
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={localMatch.courtSides?.teamA === "left" ? handleRemovePointTeamA : handleRemovePointTeamB}
+                  onClick={
+                    fixedSides
+                      ? localMatch.courtSides?.teamA === "left"
+                        ? handleRemovePointTeamA
+                        : handleRemovePointTeamB
+                      : handleRemovePointTeamA
+                  }
                   className="flex-none w-8 h-8 p-0 score-button score-button-minus"
                   disabled={localMatch.isCompleted}
                 >
                   <MinusIcon className="h-3 w-3" />
                 </Button>
                 <Button
-                  onClick={localMatch.courtSides?.teamA === "left" ? handleAddPointTeamA : handleAddPointTeamB}
+                  onClick={
+                    fixedSides
+                      ? localMatch.courtSides?.teamA === "left"
+                        ? handleAddPointTeamA
+                        : handleAddPointTeamB
+                      : handleAddPointTeamA
+                  }
                   className="flex-1 h-10 sm:h-12 text-sm sm:text-lg font-bold score-button score-button-plus"
                   disabled={localMatch.isCompleted}
                 >
@@ -648,25 +689,49 @@ export function ScoreControls({ match, updateMatch }) {
             <CardContent className="p-2 sm:p-4">
               <div className="min-h-[60px] sm:min-h-[80px] flex flex-col justify-center w-full">
                 <h3 className="text-sm sm:text-base font-medium text-center w-full overflow-hidden truncate">
-                  {localMatch.courtSides?.teamA === "right" ? t("match.teamA") : t("match.teamB")}
-                  <span className="ml-2 text-xs sm:text-sm text-muted-foreground">({t("match.rightSide")})</span>
+                  {fixedSides
+                    ? localMatch.courtSides?.teamA === "right"
+                      ? t("match.teamA")
+                      : t("match.teamB")
+                    : t("match.teamB")}
+                  <span className="ml-2 text-xs sm:text-sm text-muted-foreground">
+                    {fixedSides
+                      ? `(${t("match.rightSide")})`
+                      : localMatch.courtSides?.teamB === "right"
+                        ? `(${t("match.rightSide")})`
+                        : `(${t("match.leftSide")})`}
+                  </span>
                 </h3>
-                {localMatch.courtSides?.teamA === "right"
-                  ? renderPlayerNames(localMatch.teamA)
+                {fixedSides
+                  ? localMatch.courtSides?.teamA === "right"
+                    ? renderPlayerNames(localMatch.teamA)
+                    : renderPlayerNames(localMatch.teamB)
                   : renderPlayerNames(localMatch.teamB)}
               </div>
               <div className="flex gap-2 items-center mt-2">
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={localMatch.courtSides?.teamA === "right" ? handleRemovePointTeamA : handleRemovePointTeamB}
+                  onClick={
+                    fixedSides
+                      ? localMatch.courtSides?.teamA === "right"
+                        ? handleRemovePointTeamA
+                        : handleRemovePointTeamB
+                      : handleRemovePointTeamB
+                  }
                   className="flex-none w-8 h-8 p-0 score-button score-button-minus"
                   disabled={localMatch.isCompleted}
                 >
                   <MinusIcon className="h-3 w-3" />
                 </Button>
                 <Button
-                  onClick={localMatch.courtSides?.teamA === "right" ? handleAddPointTeamA : handleAddPointTeamB}
+                  onClick={
+                    fixedSides
+                      ? localMatch.courtSides?.teamA === "right"
+                        ? handleAddPointTeamA
+                        : handleAddPointTeamB
+                      : handleAddPointTeamB
+                  }
                   className="flex-1 h-10 sm:h-12 text-sm sm:text-lg font-bold score-button score-button-plus"
                   disabled={localMatch.isCompleted}
                 >

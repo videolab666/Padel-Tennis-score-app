@@ -120,6 +120,8 @@ export type TranslationKeys = {
     current: string
     tiebreak: string
     of: string
+    fixedSides: string
+    fixedPlayers: string
   }
   scoreboard: {
     tennis: string
@@ -686,6 +688,8 @@ export const translations: { [key in Language]: TranslationKeys } = {
       current: "Текущий",
       tiebreak: "Тай-брейк",
       of: "из",
+      fixedSides: "Фиксированные стороны",
+      fixedPlayers: "Фиксированные игроки",
     },
     scoreboard: {
       tennis: "Теннис",
@@ -1290,6 +1294,8 @@ export const translations: { [key in Language]: TranslationKeys } = {
       current: "Current",
       tiebreak: "Tiebreak",
       of: "of",
+      fixedSides: "Fixed court sides",
+      fixedPlayers: "Fixed players",
     },
     scoreboard: {
       tennis: "Tennis",
@@ -1894,6 +1900,8 @@ export const translations: { [key in Language]: TranslationKeys } = {
       current: "Поточний",
       tiebreak: "Тай-брейк",
       of: "з",
+      fixedSides: "Фіксовані сторони",
+      fixedPlayers: "Фіксовані гравці",
     },
     scoreboard: {
       tennis: "Теніс",
@@ -2256,3 +2264,12 @@ if (!translations.en.matchList.error) {
 if (!translations.uk.matchList.error) {
   translations.uk.matchList.error = "Помилка завантаження"
 }
+
+translations.ru.match.fixedSides = "Фиксированные стороны"
+translations.ru.match.fixedPlayers = "Фиксированные игроки"
+
+translations.en.match.fixedSides = "Fixed court sides"
+translations.en.match.fixedPlayers = "Fixed players"
+
+translations.uk.match.fixedSides = "Фіксовані сторони"
+translations.uk.match.fixedPlayers = "Фіксовані гравці"
