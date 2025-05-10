@@ -548,7 +548,6 @@ export default function CourtVmixPage({ params }: CourtParams) {
   ])
 
   useEffect(() => {
-    let unsubscribe // Declare unsubscribe here
     const loadMatch = async () => {
       try {
         if (isNaN(courtNumber) || courtNumber < 1 || courtNumber > 10) {
@@ -632,7 +631,7 @@ export default function CourtVmixPage({ params }: CourtParams) {
           logEvent("info", `vMix страница корта загружена: ${courtNumber}`, "court-vmix-page")
 
           // Подписываемся на обновления матча
-          unsubscribe = subscribeToMatchUpdates(matchData.id, (updatedMatch) => {
+          const unsubscribe = subscribeToMatchUpdates(matchData.id, (updatedMatch) => {
             if (updatedMatch) {
               console.log("Match update received:", JSON.stringify(updatedMatch, null, 2))
               setMatch(updatedMatch)
@@ -699,7 +698,7 @@ export default function CourtVmixPage({ params }: CourtParams) {
               }
 
               setError("")
-              logEvent("debug", "vMix страница корта: получено обновление атча", "court-vmix-page", {
+              logEvent("debug", "vMix страница корта: получено обновление ��атча", "court-vmix-page", {
                 matchId: updatedMatch.id,
                 scoreA: updatedMatch.score.teamA,
                 scoreB: updatedMatch.score.teamB,
@@ -727,114 +726,8 @@ export default function CourtVmixPage({ params }: CourtParams) {
       }
     }
 
-    // Initial load
     loadMatch()
-
-    // Set up polling to check for new matches on this court
-    const pollInterval = setInterval(async () => {
-      try {
-        // Check if there's a new match on this court
-        const latestMatch = await getMatchByCourtNumber(courtNumber)
-
-        // If we have a new match ID or a match was added/removed
-        if (
-          (!match && latestMatch) ||
-          (match && !latestMatch) ||
-          (match && latestMatch && match.id !== latestMatch.id)
-        ) {
-          console.log("Court assignment changed, updating match data")
-          logEvent("info", `vMix страница корта: обнаружено изменение матча на корте ${courtNumber}`, "court-vmix-page")
-
-          if (latestMatch) {
-            setMatch(latestMatch)
-
-            // Update debug info if needed
-            if (showDebug) {
-              setDebugInfo(
-                JSON.stringify(
-                  {
-                    currentGame: latestMatch.score.currentSet?.currentGame,
-                    currentSet: {
-                      teamA: latestMatch.score.currentSet?.teamA,
-                      teamB: latestMatch.score.currentSet?.teamB,
-                      isTiebreak: latestMatch.score.currentSet?.isTiebreak,
-                    },
-                    sets: latestMatch.score.sets,
-                    gamePoint: isGamePoint(latestMatch),
-                    setPoint: isSetPoint(latestMatch),
-                    matchPoint: isMatchPoint(latestMatch),
-                  },
-                  null,
-                  2,
-                ),
-              )
-            }
-
-            // Update JSON output if needed
-            if (outputFormat === "json") {
-              const vmixData = {
-                id: latestMatch.id,
-                courtNumber: courtNumber,
-                teamA: {
-                  name: latestMatch.teamA.players.map((p) => p.name).join(" / "),
-                  score: latestMatch.score.teamA,
-                  currentGameScore: latestMatch.score.currentSet
-                    ? latestMatch.score.currentSet.isTiebreak
-                      ? latestMatch.score.currentSet.currentGame.teamA
-                      : getTennisPointName(latestMatch.score.currentSet.currentGame.teamA)
-                    : "0",
-                  sets: latestMatch.score.sets ? latestMatch.score.sets.map((set) => set.teamA) : [],
-                  currentSet: latestMatch.score.currentSet ? latestMatch.score.currentSet.teamA : 0,
-                  serving: latestMatch.currentServer && latestMatch.currentServer.team === "teamA",
-                  countries: latestMatch.teamA.players.map((p) => p.country || "").filter(Boolean),
-                },
-                teamB: {
-                  name: latestMatch.teamB.players.map((p) => p.name).join(" / "),
-                  score: latestMatch.score.teamB,
-                  currentGameScore: latestMatch.score.currentSet
-                    ? latestMatch.score.currentSet.isTiebreak
-                      ? latestMatch.score.currentSet.currentGame.teamB
-                      : getTennisPointName(latestMatch.score.currentSet.currentGame.teamB)
-                    : "0",
-                  sets: latestMatch.score.sets ? latestMatch.score.sets.map((set) => set.teamB) : [],
-                  currentSet: latestMatch.score.currentSet ? latestMatch.score.currentSet.teamB : 0,
-                  serving: latestMatch.currentServer && latestMatch.currentServer.team === "teamB",
-                  countries: latestMatch.teamB.players.map((p) => p.country || "").filter(Boolean),
-                },
-                isTiebreak: latestMatch.score.currentSet ? latestMatch.score.currentSet.isTiebreak : false,
-                isCompleted: latestMatch.isCompleted || false,
-                winner: latestMatch.winner || null,
-                timestamp: new Date().toISOString(),
-              }
-              setJsonOutput(JSON.stringify(vmixData, null, 2))
-            }
-
-            setError("")
-          } else {
-            setMatch(null)
-            setError(`На корте ${courtNumber} нет активных матчей`)
-            logEvent(
-              "info",
-              `vMix страница корта: матч на корте ${courtNumber} был удален или перемещен`,
-              "court-vmix-page",
-            )
-          }
-        }
-      } catch (err) {
-        console.error("Error polling for court updates:", err)
-        logEvent("error", "Ошибка при проверке обновлений корта", "court-vmix-page", err)
-      }
-    }, 10000) // Check every 10 seconds
-
-    // Clean up the interval when component unmounts
-    return () => {
-      clearInterval(pollInterval)
-      // Keep the existing cleanup logic for unsubscribe
-      if (unsubscribe) {
-        unsubscribe()
-      }
-    }
-  }, [courtNumber, outputFormat, showDebug, match])
+  }, [courtNumber, outputFormat, showDebug])
 
   // Эффект для отслеживания изменений важного момента и управления анимацией
   useEffect(() => {
