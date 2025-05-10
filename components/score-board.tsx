@@ -490,48 +490,84 @@ export function ScoreBoard({ match, updateMatch }) {
 
       <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-0 items-center w-full">
         <div className="text-right space-y-1 pr-3 border-r border-gray-200">
-          <div className="text-sm text-muted-foreground mb-1 text-right">
-            {match.courtSides?.teamA === "left" ? t("match.leftSide") : t("match.rightSide")}
-          </div>
-          {teamA.players.map((player, idx) => (
-            <div key={idx} className="flex items-center justify-end w-full">
-              {isServing("teamA", idx) && (
-                <Badge
-                  variant="outline"
-                  className="mr-2 w-3 h-3 rounded-full bg-lime-400 border-lime-600 p-0 flex items-center justify-center flex-shrink-0"
-                >
-                  <span className="sr-only">{t("match.serving")}</span>
-                </Badge>
-              )}
-              <div className="w-full overflow-hidden max-w-full">
-                <p className="font-medium text-right truncate text-[10px] sm:text-[14px] md:text-[16px]">
-                  {player.name}
-                </p>
-              </div>
-            </div>
-          ))}
+          <div className="text-sm text-muted-foreground mb-1 text-right">{t("match.leftSide")}</div>
+          {match.courtSides?.teamA === "left"
+            ? // Команда A на левой стороне
+              teamA.players.map((player, idx) => (
+                <div key={idx} className="flex items-center justify-end w-full">
+                  {isServing("teamA", idx) && (
+                    <Badge
+                      variant="outline"
+                      className="mr-2 w-3 h-3 rounded-full bg-lime-400 border-lime-600 p-0 flex items-center justify-center flex-shrink-0"
+                    >
+                      <span className="sr-only">{t("match.serving")}</span>
+                    </Badge>
+                  )}
+                  <div className="w-full overflow-hidden max-w-full">
+                    <p className="font-medium text-right truncate text-[10px] sm:text-[14px] md:text-[16px]">
+                      {player.name}
+                    </p>
+                  </div>
+                </div>
+              ))
+            : // Команда B на левой стороне
+              teamB.players.map((player, idx) => (
+                <div key={idx} className="flex items-center justify-end w-full">
+                  {isServing("teamB", idx) && (
+                    <Badge
+                      variant="outline"
+                      className="mr-2 w-3 h-3 rounded-full bg-lime-400 border-lime-600 p-0 flex items-center justify-center flex-shrink-0"
+                    >
+                      <span className="sr-only">{t("match.serving")}</span>
+                    </Badge>
+                  )}
+                  <div className="w-full overflow-hidden max-w-full">
+                    <p className="font-medium text-right truncate text-[10px] sm:text-[14px] md:text-[16px]">
+                      {player.name}
+                    </p>
+                  </div>
+                </div>
+              ))}
         </div>
         <div className="text-left space-y-1 pl-3">
-          <div className="text-sm text-muted-foreground mb-1 text-left">
-            {match.courtSides?.teamB === "left" ? t("match.leftSide") : t("match.rightSide")}
-          </div>
-          {teamB.players.map((player, idx) => (
-            <div key={idx} className="flex items-center w-full">
-              <div className="w-full overflow-hidden max-w-full">
-                <p className="font-medium text-left truncate text-[10px] sm:text-[14px] md:text-[16px]">
-                  {player.name}
-                </p>
-              </div>
-              {isServing("teamB", idx) && (
-                <Badge
-                  variant="outline"
-                  className="ml-2 w-3 h-3 rounded-full bg-lime-400 border-lime-600 p-0 flex items-center justify-center flex-shrink-0"
-                >
-                  <span className="sr-only">{t("match.serving")}</span>
-                </Badge>
-              )}
-            </div>
-          ))}
+          <div className="text-sm text-muted-foreground mb-1 text-left">{t("match.rightSide")}</div>
+          {match.courtSides?.teamA === "right"
+            ? // Команда A на правой стороне
+              teamA.players.map((player, idx) => (
+                <div key={idx} className="flex items-center w-full">
+                  <div className="w-full overflow-hidden max-w-full">
+                    <p className="font-medium text-left truncate text-[10px] sm:text-[14px] md:text-[16px]">
+                      {player.name}
+                    </p>
+                  </div>
+                  {isServing("teamA", idx) && (
+                    <Badge
+                      variant="outline"
+                      className="ml-2 w-3 h-3 rounded-full bg-lime-400 border-lime-600 p-0 flex items-center justify-center flex-shrink-0"
+                    >
+                      <span className="sr-only">{t("match.serving")}</span>
+                    </Badge>
+                  )}
+                </div>
+              ))
+            : // Команда B на правой стороне
+              teamB.players.map((player, idx) => (
+                <div key={idx} className="flex items-center w-full">
+                  <div className="w-full overflow-hidden max-w-full">
+                    <p className="font-medium text-left truncate text-[10px] sm:text-[14px] md:text-[16px]">
+                      {player.name}
+                    </p>
+                  </div>
+                  {isServing("teamB", idx) && (
+                    <Badge
+                      variant="outline"
+                      className="ml-2 w-3 h-3 rounded-full bg-lime-400 border-lime-600 p-0 flex items-center justify-center flex-shrink-0"
+                    >
+                      <span className="sr-only">{t("match.serving")}</span>
+                    </Badge>
+                  )}
+                </div>
+              ))}
         </div>
       </div>
 
@@ -545,9 +581,9 @@ export function ScoreBoard({ match, updateMatch }) {
                     ? "bg-red-50 hover:bg-red-100 active:bg-red-200"
                     : "bg-blue-50 hover:bg-blue-100 active:bg-blue-200"
                 }`}
-                onClick={() => handleScoreClick("teamA")}
+                onClick={() => handleScoreClick(match.courtSides?.teamA === "left" ? "teamA" : "teamB")}
               >
-                {getCurrentGameScore("teamA")}
+                {match.courtSides?.teamA === "left" ? getCurrentGameScore("teamA") : getCurrentGameScore("teamB")}
               </button>
             </div>
             <div className="text-center">
@@ -557,9 +593,9 @@ export function ScoreBoard({ match, updateMatch }) {
                     ? "bg-red-50 hover:bg-red-100 active:bg-red-200"
                     : "bg-blue-50 hover:bg-blue-100 active:bg-blue-200"
                 }`}
-                onClick={() => handleScoreClick("teamB")}
+                onClick={() => handleScoreClick(match.courtSides?.teamA === "right" ? "teamA" : "teamB")}
               >
-                {getCurrentGameScore("teamB")}
+                {match.courtSides?.teamA === "right" ? getCurrentGameScore("teamA") : getCurrentGameScore("teamB")}
               </button>
             </div>
           </div>
@@ -568,7 +604,9 @@ export function ScoreBoard({ match, updateMatch }) {
 
       <div className="grid grid-cols-[1fr_auto_1fr] gap-4 items-center">
         <div className="text-center">
-          <span className="text-xl font-bold">{currentSet.teamA}</span>
+          <span className="text-xl font-bold">
+            {match.courtSides?.teamA === "left" ? currentSet.teamA : currentSet.teamB}
+          </span>
         </div>
         <div className="text-center text-muted-foreground">
           {`${t("match.set")} ${currentSetIndex + 1} ${t("match.of")} ${totalSets}`}
@@ -577,7 +615,9 @@ export function ScoreBoard({ match, updateMatch }) {
           )}
         </div>
         <div className="text-center">
-          <span className="text-xl font-bold">{currentSet.teamB}</span>
+          <span className="text-xl font-bold">
+            {match.courtSides?.teamA === "right" ? currentSet.teamA : currentSet.teamB}
+          </span>
         </div>
       </div>
 

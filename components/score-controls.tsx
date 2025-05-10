@@ -3,57 +3,67 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { MinusIcon, PlusIcon, ArrowLeftRightIcon } from "lucide-react"
-import { Alert, AlertDescription } from "@/components/ui/alert"
 import { shouldChangeSides } from "@/lib/tennis-utils"
 import { useSoundEffects } from "@/hooks/use-sound-effects"
 import { SoundToggle } from "@/components/sound-toggle"
 import { useLanguage } from "@/contexts/language-context"
+import { useEffect, useState } from "react"
 
 export function ScoreControls({ match, updateMatch }) {
   // Используем хук для звуковых эффектов
   const { soundsEnabled, playSound, toggleSounds } = useSoundEffects()
   const { t } = useLanguage()
 
-  if (!match) return null
+  // Локальное состояние для отслеживания необходимости смены сторон
+  const [localMatch, setLocalMatch] = useState(match)
+
+  // Обновляем локальное состояние при изменении match
+  useEffect(() => {
+    setLocalMatch(match)
+  }, [match])
+
+  // Автоматическая смена сторон при необходимости
+  useEffect(() => {
+    if (localMatch?.shouldChangeSides) {
+      changeSides()
+    }
+  }, [localMatch?.shouldChangeSides])
+
+  if (!localMatch) return null
 
   // Извлекаем текущий сет из объекта match
-  const currentSet = match.score.currentSet
+  const currentSet = localMatch.score.currentSet
 
-  // Изменяем функцию changeSides, чтобы она автоматически меняла стороны
-  const changeSides = (updatedMatch = null) => {
-    const matchToUpdate = updatedMatch || { ...match, history: [] }
+  // Изменяем функцию changeSides, чтобы она меняла стороны
+  const changeSides = () => {
+    const updatedMatch = { ...localMatch, history: [] }
 
     // Меняем стороны
-    matchToUpdate.courtSides = {
-      teamA: matchToUpdate.courtSides.teamA === "left" ? "right" : "left",
-      teamB: matchToUpdate.courtSides.teamB === "left" ? "right" : "left",
+    updatedMatch.courtSides = {
+      teamA: updatedMatch.courtSides.teamA === "left" ? "right" : "left",
+      teamB: updatedMatch.courtSides.teamB === "left" ? "right" : "left",
     }
 
     // Сбрасываем флаг необходимости смены сторон
-    matchToUpdate.shouldChangeSides = false
+    updatedMatch.shouldChangeSides = false
 
-    if (!updatedMatch) {
-      updateMatch(matchToUpdate)
-    }
+    // Обновляем локальное состояние немедленно
+    setLocalMatch(updatedMatch)
 
-    return matchToUpdate
+    // Обновляем глобальное состояние
+    updateMatch(updatedMatch)
   }
 
-  // Изменяем функцию addPoint, чтобы автоматически менять стороны
+  // Изменяем функцию addPoint
   const addPoint = (team) => {
     // Создаем новый объект матча
-    const updatedMatch = { ...match }
+    const updatedMatch = { ...localMatch }
 
     // Полностью отключаем историю для экономии места
     updatedMatch.history = []
 
     const otherTeam = team === "teamA" ? "teamB" : "teamA"
     const currentSet = updatedMatch.score.currentSet
-
-    // Если есть флаг необходимости смены сторон, меняем стороны автоматически
-    if (updatedMatch.shouldChangeSides) {
-      changeSides(updatedMatch)
-    }
 
     if (currentSet.isTiebreak) {
       // Логика для тай-брейка
@@ -147,6 +157,10 @@ export function ScoreControls({ match, updateMatch }) {
     }
 
     try {
+      // Обновляем локальное состояние немедленно
+      setLocalMatch(updatedMatch)
+
+      // Обновляем глобальное состояние
       updateMatch(updatedMatch)
     } catch (error) {
       console.error("Ошибка при обновлении счета:", error)
@@ -170,22 +184,21 @@ export function ScoreControls({ match, updateMatch }) {
         }))
       }
 
+      // Обновляем локальное состояние немедленно
+      setLocalMatch(minimalMatch)
+
+      // Обновляем глобальное состояние
       updateMatch(minimalMatch)
     }
   }
 
-  // Изменяем функцию removePoint, чтобы автоматически менять стороны
+  // Изменяем функцию removePoint
   const removePoint = (team) => {
     // Создаем новый объект матча
-    const updatedMatch = { ...match }
+    const updatedMatch = { ...localMatch }
 
     // Полностью отключаем историю для экономии места
     updatedMatch.history = []
-
-    // Если есть флаг необходимости смены сторон, меняем стороны автоматически
-    if (updatedMatch.shouldChangeSides) {
-      changeSides(updatedMatch)
-    }
 
     const otherTeam = team === "teamA" ? "teamB" : "teamA"
     const currentSet = updatedMatch.score.currentSet
@@ -218,14 +231,24 @@ export function ScoreControls({ match, updateMatch }) {
     }
 
     try {
+      // Обновляем локальное состояние немедленно
+      setLocalMatch(updatedMatch)
+
+      // Обновляем глобальное состояние
       updateMatch(updatedMatch)
     } catch (error) {
       console.error("Ошибка при обновлении счета:", error)
       // Если произошла ошибка, пробуем упростить объект матча
-      updateMatch({
+      const simplifiedMatch = {
         ...updatedMatch,
         history: [],
-      })
+      }
+
+      // Обновляем локальное состояние немедленно
+      setLocalMatch(simplifiedMatch)
+
+      // Обновляем глобальное состояние
+      updateMatch(simplifiedMatch)
     }
   }
 
@@ -272,8 +295,15 @@ export function ScoreControls({ match, updateMatch }) {
     switchServer(updatedMatch)
 
     // Проверка на необходимость смены сторон (после нечетного количества геймов)
-    const totalGames = currentSet.teamA + currentSet.teamB
+    // Используем длину массива games для определения общего количества сыгранных геймов
+    const totalGames = currentSet.games.length
+    console.log(
+      `Проверка необходимости смены сторон: totalGames=${totalGames}, shouldChange=${shouldChangeSides(totalGames)}`,
+    )
+
+    // Проверяем, нужно ли менять стороны
     if (shouldChangeSides(totalGames)) {
+      console.log("Установка флага shouldChangeSides в true")
       updatedMatch.shouldChangeSides = true
     }
 
@@ -285,7 +315,7 @@ export function ScoreControls({ match, updateMatch }) {
     // Проверяем, нужно ли начать тайбрейк в финальном сете
     if (updatedMatch.settings.finalSetTiebreak && (isDecidingSet || isTwoSetsMatch)) {
       // Если это финальный сет и включен тайбрейк в финальном сете
-      const tiebreakAt = Number.parseInt(match.settings.tiebreakAt.split("-")[0])
+      const tiebreakAt = Number.parseInt(localMatch.settings.tiebreakAt.split("-")[0])
       if (currentSet.teamA === tiebreakAt && currentSet.teamB === tiebreakAt) {
         // Начинаем тайбрейк в финальном сете
         currentSet.isTiebreak = true
@@ -294,8 +324,8 @@ export function ScoreControls({ match, updateMatch }) {
       }
     }
     // Обычный тайбрейк для нефинальных сетов
-    else if (match.settings.tiebreakEnabled) {
-      const tiebreakAt = Number.parseInt(match.settings.tiebreakAt.split("-")[0])
+    else if (localMatch.settings.tiebreakEnabled) {
+      const tiebreakAt = Number.parseInt(localMatch.settings.tiebreakAt.split("-")[0])
       if (currentSet.teamA === tiebreakAt && currentSet.teamB === tiebreakAt) {
         // Начинаем тай-брейк
         currentSet.isTiebreak = true
@@ -313,6 +343,10 @@ export function ScoreControls({ match, updateMatch }) {
     }
 
     try {
+      // Обновляем локальное состояние немедленно
+      setLocalMatch(updatedMatch)
+
+      // Обновляем глобальное состояние
       updateMatch(updatedMatch)
     } catch (error) {
       console.error("Ошибка при обновлении после выигрыша гейма:", error)
@@ -336,6 +370,10 @@ export function ScoreControls({ match, updateMatch }) {
         }))
       }
 
+      // Обновляем локальное состояние немедленно
+      setLocalMatch(minimalMatch)
+
+      // Обновляем глобальное состояние
       updateMatch(minimalMatch)
     }
   }
@@ -352,7 +390,7 @@ export function ScoreControls({ match, updateMatch }) {
     })
 
     // Проверка на победу в матче
-    const totalSets = match.settings.sets
+    const totalSets = localMatch.settings.sets
 
     // Special handling for 2-set matches
     if (totalSets === 2) {
@@ -365,6 +403,11 @@ export function ScoreControls({ match, updateMatch }) {
         if (confirm(`Команда ${team === "teamA" ? "A" : "B"} выиграла матч! Завершить матч?`)) {
           updatedMatch.isCompleted = true
           updatedMatch.winner = team
+
+          // Обновляем локальное состояние немедленно
+          setLocalMatch(updatedMatch)
+
+          // Обновляем глобальное состояние
           updateMatch(updatedMatch)
           return
         }
@@ -373,7 +416,7 @@ export function ScoreControls({ match, updateMatch }) {
       // Do not end the match here
     } else {
       // For matches with 1, 3, or 5 sets, use the standard logic
-      const setsToWin = Math.ceil(match.settings.sets / 2)
+      const setsToWin = Math.ceil(localMatch.settings.sets / 2)
       if (updatedMatch.score[team] >= setsToWin) {
         // Воспроизводим звук победы в матче
         playSound("match")
@@ -382,6 +425,11 @@ export function ScoreControls({ match, updateMatch }) {
         if (confirm(`Команда ${team === "teamA" ? "A" : "B"} выиграла матч! Завершить матч?`)) {
           updatedMatch.isCompleted = true
           updatedMatch.winner = team
+
+          // Обновляем локальное состояние немедленно
+          setLocalMatch(updatedMatch)
+
+          // Обновляем глобальное состояние
           updateMatch(updatedMatch)
           return
         }
@@ -433,10 +481,17 @@ export function ScoreControls({ match, updateMatch }) {
     // Смена сторон после нечетного количества сетов
     if (updatedMatch.score.sets.length % 2 === 1) {
       // Меняем стороны автоматически при смене сета
-      changeSides(updatedMatch)
+      updatedMatch.courtSides = {
+        teamA: updatedMatch.courtSides.teamA === "left" ? "right" : "left",
+        teamB: updatedMatch.courtSides.teamB === "left" ? "right" : "left",
+      }
     }
 
     try {
+      // Обновляем локальное состояние немедленно
+      setLocalMatch(updatedMatch)
+
+      // Обновляем глобальное состояние
       updateMatch(updatedMatch)
     } catch (error) {
       console.error("Ошибка при обновлении после выигрыша сета:", error)
@@ -456,6 +511,10 @@ export function ScoreControls({ match, updateMatch }) {
         }))
       }
 
+      // Обновляем локальное состояние немедленно
+      setLocalMatch(minimalMatch)
+
+      // Обновляем глобальное состояние
       updateMatch(minimalMatch)
     }
   }
@@ -465,7 +524,7 @@ export function ScoreControls({ match, updateMatch }) {
     const otherTeam = currentTeam === "teamA" ? "teamB" : "teamA"
 
     // Для одиночной игры просто меняем команду
-    if (match.format === "singles") {
+    if (localMatch.format === "singles") {
       updatedMatch.currentServer.team = otherTeam
       updatedMatch.currentServer.playerIndex = 0
     } else {
@@ -488,7 +547,7 @@ export function ScoreControls({ match, updateMatch }) {
   }
 
   const manualSwitchServer = () => {
-    const updatedMatch = { ...match }
+    const updatedMatch = { ...localMatch }
 
     // Отключаем историю
     updatedMatch.history = []
@@ -496,6 +555,10 @@ export function ScoreControls({ match, updateMatch }) {
     // Меняем подающего
     switchServer(updatedMatch)
 
+    // Обновляем локальное состояние немедленно
+    setLocalMatch(updatedMatch)
+
+    // Обновляем глобальное состояние
     updateMatch(updatedMatch)
   }
 
@@ -504,7 +567,7 @@ export function ScoreControls({ match, updateMatch }) {
     const players = team.players
 
     // Для одиночной игры просто возвращаем имя игрока
-    if (match.format === "singles" || players.length === 1) {
+    if (localMatch.format === "singles" || players.length === 1) {
       return (
         <div className="text-sm text-muted-foreground text-center w-full overflow-hidden truncate">
           {players[0].name}
@@ -522,8 +585,8 @@ export function ScoreControls({ match, updateMatch }) {
   }
 
   // Проверяем, является ли текущий сет финальным
-  const isDecidingSet = match.score.sets.length + 1 === match.settings.sets
-  const isTwoSetsMatch = match.settings.sets === 2 && match.score.teamA === 1 && match.score.teamB === 1
+  const isDecidingSet = localMatch.score.sets.length + 1 === localMatch.settings.sets
+  const isTwoSetsMatch = localMatch.settings.sets === 2 && localMatch.score.teamA === 1 && localMatch.score.teamB === 1
   const isFinalSet = isDecidingSet || isTwoSetsMatch
 
   return (
@@ -531,14 +594,14 @@ export function ScoreControls({ match, updateMatch }) {
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>
           {t("match.scoreControls")}
-          {isFinalSet && match.settings.finalSetTiebreak && !currentSet.isTiebreak && (
+          {isFinalSet && localMatch.settings.finalSetTiebreak && !currentSet.isTiebreak && (
             <span className="ml-2 text-sm text-red-600 font-normal">
-              (Финальный сет - тайбрейк при {match.settings.tiebreakAt})
+              (Финальный сет - тайбрейк при {localMatch.settings.tiebreakAt})
             </span>
           )}
           {currentSet.isTiebreak && currentSet.isSuperTiebreak && (
             <span className="ml-2 text-sm text-red-600 font-normal">
-              (Финальный тайбрейк до {match.settings.finalSetTiebreakLength})
+              (Финальный тайбрейк до {localMatch.settings.finalSetTiebreakLength})
             </span>
           )}
         </CardTitle>
@@ -552,10 +615,10 @@ export function ScoreControls({ match, updateMatch }) {
                 <h3 className="text-sm sm:text-base font-medium text-center w-full overflow-hidden truncate">
                   {t("match.teamA")}
                   <span className="ml-2 text-xs sm:text-sm text-muted-foreground">
-                    ({match.courtSides?.teamA === "left" ? t("match.leftSide") : t("match.rightSide")})
+                    ({localMatch.courtSides?.teamA === "left" ? t("match.leftSide") : t("match.rightSide")})
                   </span>
                 </h3>
-                {renderPlayerNames(match.teamA)}
+                {renderPlayerNames(localMatch.teamA)}
               </div>
               <div className="flex gap-2 items-center mt-2">
                 <Button
@@ -563,14 +626,14 @@ export function ScoreControls({ match, updateMatch }) {
                   size="sm"
                   onClick={handleRemovePointTeamA}
                   className="flex-none w-8 h-8 p-0 score-button score-button-minus"
-                  disabled={match.isCompleted}
+                  disabled={localMatch.isCompleted}
                 >
                   <MinusIcon className="h-3 w-3" />
                 </Button>
                 <Button
                   onClick={handleAddPointTeamA}
                   className="flex-1 h-10 sm:h-12 text-sm sm:text-lg font-bold score-button score-button-plus"
-                  disabled={match.isCompleted}
+                  disabled={localMatch.isCompleted}
                 >
                   <PlusIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-1" />
                   {t("match.addPoint")}
@@ -585,10 +648,10 @@ export function ScoreControls({ match, updateMatch }) {
                 <h3 className="text-sm sm:text-base font-medium text-center w-full overflow-hidden truncate">
                   {t("match.teamB")}
                   <span className="ml-2 text-xs sm:text-sm text-muted-foreground">
-                    ({match.courtSides?.teamB === "left" ? t("match.leftSide") : t("match.rightSide")})
+                    ({localMatch.courtSides?.teamB === "left" ? t("match.leftSide") : t("match.rightSide")})
                   </span>
                 </h3>
-                {renderPlayerNames(match.teamB)}
+                {renderPlayerNames(localMatch.teamB)}
               </div>
               <div className="flex gap-2 items-center mt-2">
                 <Button
@@ -596,14 +659,14 @@ export function ScoreControls({ match, updateMatch }) {
                   size="sm"
                   onClick={handleRemovePointTeamB}
                   className="flex-none w-8 h-8 p-0 score-button score-button-minus"
-                  disabled={match.isCompleted}
+                  disabled={localMatch.isCompleted}
                 >
                   <MinusIcon className="h-3 w-3" />
                 </Button>
                 <Button
                   onClick={handleAddPointTeamB}
                   className="flex-1 h-10 sm:h-12 text-sm sm:text-lg font-bold score-button score-button-plus"
-                  disabled={match.isCompleted}
+                  disabled={localMatch.isCompleted}
                 >
                   <PlusIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-1" />
                   {t("match.addPoint")}
@@ -613,18 +676,12 @@ export function ScoreControls({ match, updateMatch }) {
           </Card>
         </div>
 
-        {match.shouldChangeSides && (
-          <Alert className="bg-red-50 border-red-200">
-            <AlertDescription className="text-red-700 font-medium">{t("match.needToSwitchSides")}</AlertDescription>
-          </Alert>
-        )}
-
         <div className="flex gap-2">
           <Button
             variant="outline"
             className="flex-1 text-xs sm:text-sm py-1 sm:py-2 score-button transition-all hover:bg-blue-50"
             onClick={manualSwitchServer}
-            disabled={match.isCompleted}
+            disabled={localMatch.isCompleted}
           >
             {t("match.switchServer")}
           </Button>
@@ -632,8 +689,8 @@ export function ScoreControls({ match, updateMatch }) {
           <Button
             variant="outline"
             className="flex-1 text-xs sm:text-sm py-1 sm:py-2 score-button transition-all hover:bg-blue-50"
-            onClick={() => changeSides()}
-            disabled={match.isCompleted}
+            onClick={changeSides}
+            disabled={localMatch.isCompleted}
           >
             <ArrowLeftRightIcon className="h-4 w-4 mr-1" />
             {t("match.switchSides")}

@@ -12,10 +12,16 @@ export const getTennisPointName = (point) => {
   return point.toString()
 }
 
-// Определение, нужно ли менять стороны
-export const shouldChangeSides = (gameNumber) => {
-  // В теннисе стороны меняются после нечетного количества геймов (1, 3, 5...)
-  return gameNumber % 2 === 1
+/**
+ * Определяет, нужно ли менять стороны после текущего гейма
+ * В теннисе/паделе стороны меняются после нечетного количества геймов (1, 3, 5, 7, 9, 11, ...)
+ * @param totalGames общее количество сыгранных геймов
+ * @returns true, если нужно менять стороны
+ */
+export function shouldChangeSides(totalGames: number): boolean {
+  // Стороны меняются после нечетного количества геймов
+  // Например, после 1-го, 3-го, 5-го и т.д.
+  return totalGames % 2 === 1
 }
 
 // Определение, кто подает в тай-брейке

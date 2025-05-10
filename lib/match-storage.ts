@@ -80,6 +80,11 @@ const safeSetItem = (key, value) => {
 
 // Изменим функцию transformMatchForSupabase, чтобы не отправлять поле code в Supabase
 const transformMatchForSupabase = (match) => {
+  // Добавляем логирование перед отправкой данных в Supabase
+  console.log("Отправка данных в Supabase:", {
+    shouldChangeSides: match.shouldChangeSides,
+    should_change_sides: match.shouldChangeSides,
+  })
   return {
     id: match.id,
     // Удаляем поле code, так как такого столбца нет в Supabase
