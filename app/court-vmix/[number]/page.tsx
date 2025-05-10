@@ -7,6 +7,7 @@ import { getTennisPointName } from "@/lib/tennis-utils"
 import { logEvent } from "@/lib/error-logger"
 import { subscribeToMatchUpdates } from "@/lib/match-storage"
 import { decompressFromUTF16 } from "lz-string"
+import { Trophy } from "lucide-react"
 
 type CourtParams = {
   params: {
@@ -138,6 +139,7 @@ const isGamePoint = (match) => {
   // Если команда A имеет 40 (индекс 3) и команда B имеет меньше или равно 30 (индекс <= 2)
   if (teamAIndex === 3 && teamBIndex <= 2) {
     console.log("Game point for teamA: 40-x")
+    return "teamA"
     return "teamA"
   }
 
@@ -548,6 +550,7 @@ export default function CourtVmixPage({ params }: CourtParams) {
   ])
 
   useEffect(() => {
+    let unsubscribe // Declare unsubscribe here
     const loadMatch = async () => {
       try {
         if (isNaN(courtNumber) || courtNumber < 1 || courtNumber > 10) {
@@ -631,7 +634,7 @@ export default function CourtVmixPage({ params }: CourtParams) {
           logEvent("info", `vMix страница корта загружена: ${courtNumber}`, "court-vmix-page")
 
           // Подписываемся на обновления матча
-          const unsubscribe = subscribeToMatchUpdates(matchData.id, (updatedMatch) => {
+          unsubscribe = subscribeToMatchUpdates(matchData.id, (updatedMatch) => {
             if (updatedMatch) {
               console.log("Match update received:", JSON.stringify(updatedMatch, null, 2))
               setMatch(updatedMatch)
@@ -698,7 +701,7 @@ export default function CourtVmixPage({ params }: CourtParams) {
               }
 
               setError("")
-              logEvent("debug", "vMix страница корта: получено обновление ��атча", "court-vmix-page", {
+              logEvent("debug", "vMix страница корта: получено обновление атча", "court-vmix-page", {
                 matchId: updatedMatch.id,
                 scoreA: updatedMatch.score.teamA,
                 scoreB: updatedMatch.score.teamB,
@@ -726,8 +729,114 @@ export default function CourtVmixPage({ params }: CourtParams) {
       }
     }
 
+    // Initial load
     loadMatch()
-  }, [courtNumber, outputFormat, showDebug])
+
+    // Set up polling to check for new matches on this court
+    const pollInterval = setInterval(async () => {
+      try {
+        // Check if there's a new match on this court
+        const latestMatch = await getMatchByCourtNumber(courtNumber)
+
+        // If we have a new match ID or a match was added/removed
+        if (
+          (!match && latestMatch) ||
+          (match && !latestMatch) ||
+          (match && latestMatch && match.id !== latestMatch.id)
+        ) {
+          console.log("Court assignment changed, updating match data")
+          logEvent("info", `vMix страница корта: обнаружено изменение матча на корте ${courtNumber}`, "court-vmix-page")
+
+          if (latestMatch) {
+            setMatch(latestMatch)
+
+            // Update debug info if needed
+            if (showDebug) {
+              setDebugInfo(
+                JSON.stringify(
+                  {
+                    currentGame: latestMatch.score.currentSet?.currentGame,
+                    currentSet: {
+                      teamA: latestMatch.score.currentSet?.teamA,
+                      teamB: latestMatch.score.currentSet?.teamB,
+                      isTiebreak: latestMatch.score.currentSet?.isTiebreak,
+                    },
+                    sets: latestMatch.score.sets,
+                    gamePoint: isGamePoint(latestMatch),
+                    setPoint: isSetPoint(latestMatch),
+                    matchPoint: isMatchPoint(latestMatch),
+                  },
+                  null,
+                  2,
+                ),
+              )
+            }
+
+            // Update JSON output if needed
+            if (outputFormat === "json") {
+              const vmixData = {
+                id: latestMatch.id,
+                courtNumber: courtNumber,
+                teamA: {
+                  name: latestMatch.teamA.players.map((p) => p.name).join(" / "),
+                  score: latestMatch.score.teamA,
+                  currentGameScore: latestMatch.score.currentSet
+                    ? latestMatch.score.currentSet.isTiebreak
+                      ? latestMatch.score.currentSet.currentGame.teamA
+                      : getTennisPointName(latestMatch.score.currentSet.currentGame.teamA)
+                    : "0",
+                  sets: latestMatch.score.sets ? latestMatch.score.sets.map((set) => set.teamA) : [],
+                  currentSet: latestMatch.score.currentSet ? latestMatch.score.currentSet.teamA : 0,
+                  serving: latestMatch.currentServer && latestMatch.currentServer.team === "teamA",
+                  countries: latestMatch.teamA.players.map((p) => p.country || "").filter(Boolean),
+                },
+                teamB: {
+                  name: latestMatch.teamB.players.map((p) => p.name).join(" / "),
+                  score: latestMatch.score.teamB,
+                  currentGameScore: latestMatch.score.currentSet
+                    ? latestMatch.score.currentSet.isTiebreak
+                      ? latestMatch.score.currentSet.currentGame.teamB
+                      : getTennisPointName(latestMatch.score.currentSet.currentGame.teamB)
+                    : "0",
+                  sets: latestMatch.score.sets ? latestMatch.score.sets.map((set) => set.teamB) : [],
+                  currentSet: latestMatch.score.currentSet ? latestMatch.score.currentSet.teamB : 0,
+                  serving: latestMatch.currentServer && latestMatch.currentServer.team === "teamB",
+                  countries: latestMatch.teamB.players.map((p) => p.country || "").filter(Boolean),
+                },
+                isTiebreak: latestMatch.score.currentSet ? latestMatch.score.currentSet.isTiebreak : false,
+                isCompleted: latestMatch.isCompleted || false,
+                winner: latestMatch.winner || null,
+                timestamp: new Date().toISOString(),
+              }
+              setJsonOutput(JSON.stringify(vmixData, null, 2))
+            }
+
+            setError("")
+          } else {
+            setMatch(null)
+            setError(`На корте ${courtNumber} нет активных матчей`)
+            logEvent(
+              "info",
+              `vMix страница корта: матч на корте ${courtNumber} был удален или перемещен`,
+              "court-vmix-page",
+            )
+          }
+        }
+      } catch (err) {
+        console.error("Error polling for court updates:", err)
+        logEvent("error", "Ошибка при проверке обновлений корта", "court-vmix-page", err)
+      }
+    }, 10000) // Check every 10 seconds
+
+    // Clean up the interval when component unmounts
+    return () => {
+      clearInterval(pollInterval)
+      // Keep the existing cleanup logic for unsubscribe
+      if (unsubscribe) {
+        unsubscribe()
+      }
+    }
+  }, [courtNumber, outputFormat, showDebug, match])
 
   // Эффект для отслеживания изменений важного момента и управления анимацией
   useEffect(() => {
@@ -961,6 +1070,25 @@ export default function CourtVmixPage({ params }: CourtParams) {
 
   const tiebreakScores = getTiebreakScores()
 
+  // Формируем массив сетов для отображения
+  const getSetsForDisplay = () => {
+    const displaySets = [...(match.score.sets || [])]
+
+    // Добавляем текущий сет только если матч не завершен
+    // Это предотвращает дублирование последнего сета при завершении матча
+    if (!match.isCompleted && match.score.currentSet) {
+      displaySets.push({
+        teamA: match.score.currentSet.teamA,
+        teamB: match.score.currentSet.teamB,
+        isCurrent: true,
+      })
+    }
+
+    return displaySets
+  }
+
+  const displaySets = getSetsForDisplay()
+
   // Получаем информацию о важном моменте матча
   const importantPoint = getImportantPoint(match)
 
@@ -1086,6 +1214,9 @@ export default function CourtVmixPage({ params }: CourtParams) {
                   >
                     {match.teamA.players[0]?.name}
                   </span>
+                  {match.isCompleted && match.winner === "teamA" && (
+                    <Trophy size={16} className="ml-1 mr-2 text-yellow-500" style={{ flexShrink: 0 }} />
+                  )}
                 </div>
                 {match.teamA.players.length > 1 && (
                   <div style={{ display: "flex", alignItems: "center" }}>
@@ -1197,9 +1328,9 @@ export default function CourtVmixPage({ params }: CourtParams) {
             )}
 
             {/* Счет сетов для первого игрока */}
-            {showSets && match.score.sets && (
+            {showSets && displaySets.length > 0 && (
               <>
-                {match.score.sets.map((set, idx) => (
+                {displaySets.map((set, idx) => (
                   <div
                     key={idx}
                     style={{
@@ -1219,36 +1350,16 @@ export default function CourtVmixPage({ params }: CourtParams) {
                       alignItems: "center",
                       justifyContent: "center",
                       fontSize: "1.8em",
+                      ...(set.isCurrent
+                        ? { backgroundColor: theme === "transparent" ? "transparent" : "rgba(59, 130, 246, 0.1)" }
+                        : {}),
                     }}
                   >
-                    {tiebreakScores[idx] ? formatSetScore(set.teamA, tiebreakScores[idx].teamA) : set.teamA}
+                    {idx < match.score.sets.length && tiebreakScores[idx]
+                      ? formatSetScore(set.teamA, tiebreakScores[idx].teamA)
+                      : set.teamA}
                   </div>
                 ))}
-                {/* Текущий сет */}
-                {match.score.currentSet && (
-                  <div
-                    style={{
-                      ...(theme === "transparent"
-                        ? { background: "transparent" }
-                        : setsGradient
-                          ? getGradientStyle(true, setsGradientFrom, setsGradientTo)
-                          : { background: setsBgColor }),
-                      color: theme === "transparent" ? textColor : setsTextColor,
-                      padding: "1px",
-                      flex: "0 0 auto",
-                      width: "40px",
-                      minWidth: "40px",
-                      textAlign: "center",
-                      borderLeft: theme === "transparent" ? "none" : "1px solid #e5e5e5",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: "1.8em",
-                    }}
-                  >
-                    {match.score.currentSet.teamA}
-                  </div>
-                )}
               </>
             )}
 
@@ -1314,6 +1425,9 @@ export default function CourtVmixPage({ params }: CourtParams) {
                   >
                     {match.teamB.players[0]?.name}
                   </span>
+                  {match.isCompleted && match.winner === "teamB" && (
+                    <Trophy size={16} className="ml-1 mr-2 text-yellow-500" style={{ flexShrink: 0 }} />
+                  )}
                 </div>
                 {match.teamB.players.length > 1 && (
                   <div style={{ display: "flex", alignItems: "center" }}>
@@ -1425,9 +1539,9 @@ export default function CourtVmixPage({ params }: CourtParams) {
             )}
 
             {/* Счет сетов для второго игрока */}
-            {showSets && match.score.sets && (
+            {showSets && displaySets.length > 0 && (
               <>
-                {match.score.sets.map((set, idx) => (
+                {displaySets.map((set, idx) => (
                   <div
                     key={idx}
                     style={{
@@ -1447,37 +1561,16 @@ export default function CourtVmixPage({ params }: CourtParams) {
                       alignItems: "center",
                       justifyContent: "center",
                       fontSize: "1.8em",
+                      ...(set.isCurrent
+                        ? { backgroundColor: theme === "transparent" ? "transparent" : "rgba(59, 130, 246, 0.1)" }
+                        : {}),
                     }}
                   >
-                    {tiebreakScores[idx] ? formatSetScore(set.teamB, tiebreakScores[idx].teamB) : set.teamB}
+                    {idx < match.score.sets.length && tiebreakScores[idx]
+                      ? formatSetScore(set.teamB, tiebreakScores[idx].teamB)
+                      : set.teamB}
                   </div>
                 ))}
-
-                {/* Текущий сет */}
-                {match.score.currentSet && (
-                  <div
-                    style={{
-                      ...(theme === "transparent"
-                        ? { background: "transparent" }
-                        : setsGradient
-                          ? getGradientStyle(true, setsGradientFrom, setsGradientTo)
-                          : { background: setsBgColor }),
-                      color: theme === "transparent" ? textColor : setsTextColor,
-                      padding: "1px",
-                      flex: "0 0 auto",
-                      width: "40px",
-                      minWidth: "40px",
-                      textAlign: "center",
-                      borderLeft: theme === "transparent" ? "none" : "1px solid #e5e5e5",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: "1.8em",
-                    }}
-                  >
-                    {match.score.currentSet.teamB}
-                  </div>
-                )}
               </>
             )}
 
