@@ -7,7 +7,6 @@ import { getTennisPointName } from "@/lib/tennis-utils"
 import { logEvent } from "@/lib/error-logger"
 import { subscribeToMatchUpdates } from "@/lib/match-storage"
 import { decompressFromUTF16 } from "lz-string"
-import { Trophy } from "lucide-react"
 
 type CourtParams = {
   params: {
@@ -81,9 +80,12 @@ const getPointIndex = (point) => {
   return point
 }
 
-// Заменяем функцию isGamePoint на версию без лишних логов
+// Улучшенная функция для определения game point с подробным логированием
 const isGamePoint = (match) => {
+  console.log("=== CHECKING GAME POINT ===")
+
   if (!match || !match.score || !match.score.currentSet) {
+    console.log("No match data or current set")
     return false
   }
 
@@ -91,45 +93,76 @@ const isGamePoint = (match) => {
   const currentGame = currentSet.currentGame
 
   if (!currentGame) {
+    console.log("No current game data")
     return false
   }
+
+  console.log("Current game score:", JSON.stringify(currentGame))
+  console.log("Is tiebreak:", currentSet.isTiebreak)
+  console.log("Team A points:", currentGame.teamA, "Team B points:", currentGame.teamB)
+  console.log("Team A points name:", getTennisPointName(currentGame.teamA))
+  console.log("Team B points name:", getTennisPointName(currentGame.teamB))
 
   // Получаем индексы очков для правильного сравнения
   const teamAIndex = getPointIndex(currentGame.teamA)
   const teamBIndex = getPointIndex(currentGame.teamB)
 
+  console.log("Team A points index:", teamAIndex, "Team B points index:", teamBIndex)
+
   // Для тай-брейка
   if (currentSet.isTiebreak) {
+    console.log("Tiebreak logic")
     // В тай-брейке обычно нужно набрать 7 очков с разницей в 2 очка
+    // Если команда A имеет 6 очков и ведет, это game point
     if (currentGame.teamA >= 6 && currentGame.teamA >= currentGame.teamB + 1) {
+      console.log("Game point for teamA in tiebreak")
       return "teamA"
     }
+    // Если команда B имеет 6 очков и ведет, это game point
     if (currentGame.teamB >= 6 && currentGame.teamB >= currentGame.teamA + 1) {
+      console.log("Game point for teamB in tiebreak")
       return "teamB"
     }
+    console.log("No game point in tiebreak")
     return false
   }
 
   // Для обычного гейма - исправленная логика с использованием индексов
+
+  // Если у команды A преимущество (Ad)
   if (teamAIndex === 4 && teamBIndex <= 3) {
+    console.log("Game point for teamA: Ad")
     return "teamA"
   }
+
+  // Если команда A имеет 40 (индекс 3) и команда B имеет меньше или равно 30 (индекс <= 2)
   if (teamAIndex === 3 && teamBIndex <= 2) {
+    console.log("Game point for teamA: 40-x")
     return "teamA"
   }
+
+  // Если у команды B преимущество (Ad)
   if (teamBIndex === 4 && teamAIndex <= 3) {
-    return "teamB"
-  }
-  if (teamBIndex === 3 && teamAIndex <= 2) {
+    console.log("Game point for teamB: Ad")
     return "teamB"
   }
 
+  // Если команда B имеет 40 (индекс 3) и команда A имеет меньше или равно 30 (индекс <= 2)
+  if (teamBIndex === 3 && teamAIndex <= 2) {
+    console.log("Game point for teamB: 40-x")
+    return "teamB"
+  }
+
+  console.log("No game point detected")
   return false
 }
 
-// Заменяем функцию isSetPoint на версию без лишних логов
+// Улучшенная функция для определения set point с подробным логированием
 const isSetPoint = (match) => {
+  console.log("=== CHECKING SET POINT ===")
+
   if (!match || !match.score || !match.score.currentSet) {
+    console.log("No match data or current set")
     return false
   }
 
@@ -137,22 +170,31 @@ const isSetPoint = (match) => {
   const teamAGames = currentSet.teamA
   const teamBGames = currentSet.teamB
 
+  console.log("Current set score - Team A:", teamAGames, "Team B:", teamBGames)
+
   // Если идет тай-брейк, проверяем особым образом
   if (currentSet.isTiebreak) {
     // Получаем, кто имеет гейм-поинт в тай-брейке
     const gamePoint = isGamePoint(match)
+    console.log("Game point in tiebreak result:", gamePoint)
+
     // Если есть гейм-поинт в тай-брейке, то это также и сет-поинт
     if (gamePoint) {
+      console.log("Set point in tiebreak for", gamePoint)
       return gamePoint
     }
+
+    console.log("No set point in tiebreak")
     return false
   }
 
   // Для обычного гейма
   // Получаем, кто имеет гейм-поинт
   const gamePoint = isGamePoint(match)
+  console.log("Game point result:", gamePoint)
 
   if (!gamePoint) {
+    console.log("No game point, so no set point")
     return false
   }
 
@@ -160,10 +202,12 @@ const isSetPoint = (match) => {
   if (gamePoint === "teamA") {
     // Если команда A ведет 5-x и выиграет этот гейм, то счет станет 6-x
     if (teamAGames === 5 && teamBGames <= 4) {
+      console.log("Set point for teamA: 5-x")
       return "teamA"
     }
     // Если команда A ведет 6-5 и выиграет этот гейм, то счет станет 7-5
     if (teamAGames === 6 && teamBGames === 5) {
+      console.log("Set point for teamA: 6-5")
       return "teamA"
     }
   }
@@ -172,55 +216,84 @@ const isSetPoint = (match) => {
   if (gamePoint === "teamB") {
     // Если команда B ведет 5-x и выиграет этот гейм, то счет станет 6-x
     if (teamBGames === 5 && teamAGames <= 4) {
+      console.log("Set point for teamB: 5-x")
       return "teamB"
     }
     // Если команда B ведет 6-5 и выиграет этот гейм, то счет станет 7-5
     if (teamBGames === 6 && teamAGames === 5) {
+      console.log("Set point for teamB: 6-5")
       return "teamB"
     }
   }
 
+  console.log("No set point detected")
   return false
 }
 
-// Заменяем функцию isMatchPoint на версию без лишних логов
+// Улучшенная функция для определения match point с подробным логированием
 const isMatchPoint = (match) => {
+  console.log("=== CHECKING MATCH POINT ===")
+
   if (!match || !match.score || !match.score.currentSet) {
+    console.log("No match data or current set")
     return false
   }
 
   // Определяем, сколько сетов нужно для победы (обычно 2 из 3)
   const setsToWin = match.setsToWin || 2
+  console.log("Sets to win:", setsToWin)
 
   // Получаем текущий счет по сетам
   const teamASets = match.score.sets ? match.score.sets.filter((set) => set.teamA > set.teamB).length : 0
   const teamBSets = match.score.sets ? match.score.sets.filter((set) => set.teamB > set.teamA).length : 0
+  console.log("Sets won - Team A:", teamASets, "Team B:", teamBSets)
 
   // Проверяем, является ли текущий гейм сет-поинтом
   const setPoint = isSetPoint(match)
+  console.log("Set point result:", setPoint)
 
   // Если нет сет-поинта, то не может быть и матч-поинта
   if (!setPoint) {
+    console.log("No set point, so no match point")
     return false
   }
 
   // Для команды A
   if (setPoint === "teamA" && teamASets === setsToWin - 1) {
+    console.log("Match point for teamA")
     return "teamA"
   }
 
   // Для команды B
   if (setPoint === "teamB" && teamBSets === setsToWin - 1) {
+    console.log("Match point for teamB")
     return "teamB"
   }
 
+  console.log("No match point detected")
   return false
 }
 
-// Заменяем функцию getImportantPoint на версию без лишних логов
+// Улучшенная функция для определения важного момента с подробным логированием
 const getImportantPoint = (match) => {
-  if (!match || !match.score || !match.score.currentSet) {
-    return { type: null, team: null }
+  console.log("=== GETTING IMPORTANT POINT ===")
+
+  // Для отладки - выводим текущий счет
+  if (match && match.score && match.score.currentSet) {
+    console.log("Current game score:", JSON.stringify(match.score.currentSet.currentGame))
+    console.log("Current set score:", {
+      teamA: match.score.currentSet.teamA,
+      teamB: match.score.currentSet.teamB,
+      isTiebreak: match.score.currentSet.isTiebreak,
+    })
+    if (match.score.sets) {
+      console.log("Sets:", JSON.stringify(match.score.sets))
+    }
+
+    // Выводим полную структуру матча для отладки
+    console.log("Full match structure:", JSON.stringify(match, null, 2))
+  } else {
+    console.log("No match data available")
   }
 
   // Проверяем, идет ли тай-брейк
@@ -229,18 +302,21 @@ const getImportantPoint = (match) => {
   // Сначала проверяем match point (самый приоритетный)
   const matchPoint = isMatchPoint(match)
   if (matchPoint) {
+    console.log("MATCH POINT detected for", matchPoint)
     return { type: "MATCH POINT", team: matchPoint }
   }
 
   // Затем проверяем set point
   const setPoint = isSetPoint(match)
   if (setPoint) {
+    console.log("SET POINT detected for", setPoint)
     return { type: "SET POINT", team: setPoint }
   }
 
   // Затем проверяем game point
   const gamePoint = isGamePoint(match)
   if (gamePoint) {
+    console.log("GAME POINT detected for", gamePoint)
     // Если идет тай-брейк, показываем "TIEBREAK POINT" вместо "GAME POINT"
     if (isTiebreak) {
       return { type: "TIEBREAK POINT", team: gamePoint }
@@ -248,6 +324,7 @@ const getImportantPoint = (match) => {
     return { type: "GAME POINT", team: gamePoint }
   }
 
+  console.log("No important point detected")
   // Если нет важного момента, возвращаем тип индикатора в зависимости от того, идет ли тай-брейк
   return { type: isTiebreak ? "TIEBREAK" : "GAME", team: null }
 }
@@ -407,12 +484,38 @@ export default function CourtVmixPage({ params }: CourtParams) {
     }
   }, [searchParams])
 
-  // Заменяем useEffect для отладки параметров
+  // Для отладки - выводим параметры в консоль
   useEffect(() => {
-    // Выводим параметры только при первом рендере или при их изменении
-    if (process.env.NODE_ENV === "development") {
-      console.log("Параметры отображения корта обновлены")
-    }
+    console.log("Параметры отображения корта:", {
+      theme,
+      namesBgColor,
+      countryBgColor,
+      pointsBgColor,
+      setsBgColor,
+      setsTextColor,
+      namesGradient,
+      namesGradientFrom,
+      namesGradientTo,
+      countryGradient,
+      countryGradientFrom,
+      countryGradientTo,
+      pointsGradient,
+      pointsGradientFrom,
+      pointsGradientTo,
+      setsGradient,
+      setsGradientFrom,
+      setsGradientTo,
+      indicatorBgColor,
+      indicatorTextColor,
+      indicatorGradient,
+      indicatorGradientFrom,
+      indicatorGradientTo,
+      // Добавляем параметры индикатора подач для отладки
+      serveBgColor,
+      serveGradient,
+      serveGradientFrom,
+      serveGradientTo,
+    })
   }, [
     theme,
     namesBgColor,
@@ -437,34 +540,15 @@ export default function CourtVmixPage({ params }: CourtParams) {
     indicatorGradient,
     indicatorGradientFrom,
     indicatorGradientTo,
+    // Добавляем параметры индикатора подач в зависимость
     serveBgColor,
     serveGradient,
     serveGradientFrom,
     serveGradientTo,
   ])
 
-  // Заменяем useEffect для мониторинга памяти
   useEffect(() => {
-    // Monitor memory usage every 60 seconds instead of 30
-    const memoryMonitor = setInterval(() => {
-      if (window.performance && window.performance.memory) {
-        const memoryInfo = window.performance.memory
-        console.log("Memory usage:", {
-          usedJSHeapSize: Math.round(memoryInfo.usedJSHeapSize / (1024 * 1024)) + " MB",
-          jsHeapSizeLimit: Math.round(memoryInfo.jsHeapSizeLimit / (1024 * 1024)) + " MB",
-        })
-      }
-    }, 60000) // Changed from 30000 to 60000
-
-    return () => {
-      clearInterval(memoryMonitor)
-    }
-  }, [])
-
-  useEffect(() => {
-    let unsubscribe = null
-    let pollInterval = null
-
+    let unsubscribe // Declare unsubscribe here
     const loadMatch = async () => {
       try {
         if (isNaN(courtNumber) || courtNumber < 1 || courtNumber > 10) {
@@ -483,40 +567,25 @@ export default function CourtVmixPage({ params }: CourtParams) {
           console.log("Loaded match data:", JSON.stringify(matchData, null, 2))
           setMatch(matchData)
 
-          // Use a function to limit the depth of objects being stringified
-          const safeStringify = (obj, maxDepth = 2) => {
-            const seen = new WeakSet()
-            return JSON.stringify(
-              obj,
-              (key, value) => {
-                if (typeof value === "object" && value !== null) {
-                  if (seen.has(value) || maxDepth <= 0) {
-                    return "[Circular or Max Depth]"
-                  }
-                  seen.add(value)
-                  maxDepth--
-                }
-                return value
-              },
-              2,
-            )
-          }
-
           // Обновляем отладочную информацию
           if (showDebug) {
             setDebugInfo(
-              safeStringify({
-                currentGame: matchData.score.currentSet?.currentGame,
-                currentSet: {
-                  teamA: matchData.score.currentSet?.teamA,
-                  teamB: matchData.score.currentSet?.teamB,
-                  isTiebreak: matchData.score.currentSet?.isTiebreak,
+              JSON.stringify(
+                {
+                  currentGame: matchData.score.currentSet?.currentGame,
+                  currentSet: {
+                    teamA: matchData.score.currentSet?.teamA,
+                    teamB: matchData.score.currentSet?.teamB,
+                    isTiebreak: matchData.score.currentSet?.isTiebreak,
+                  },
+                  sets: matchData.score.sets,
+                  gamePoint: isGamePoint(matchData),
+                  setPoint: isSetPoint(matchData),
+                  matchPoint: isMatchPoint(matchData),
                 },
-                sets: matchData.score.sets,
-                gamePoint: isGamePoint(matchData),
-                setPoint: isSetPoint(matchData),
-                matchPoint: isMatchPoint(matchData),
-              }),
+                null,
+                2,
+              ),
             )
           }
 
@@ -563,49 +632,30 @@ export default function CourtVmixPage({ params }: CourtParams) {
           logEvent("info", `vMix страница корта загружена: ${courtNumber}`, "court-vmix-page")
 
           // Подписываемся на обновления матча
-          if (unsubscribe) {
-            unsubscribe() // Clean up previous subscription if exists
-          }
-
           unsubscribe = subscribeToMatchUpdates(matchData.id, (updatedMatch) => {
             if (updatedMatch) {
               console.log("Match update received:", JSON.stringify(updatedMatch, null, 2))
               setMatch(updatedMatch)
 
-              // Use a function to limit the depth of objects being stringified
-              const safeStringify = (obj, maxDepth = 2) => {
-                const seen = new WeakSet()
-                return JSON.stringify(
-                  obj,
-                  (key, value) => {
-                    if (typeof value === "object" && value !== null) {
-                      if (seen.has(value) || maxDepth <= 0) {
-                        return "[Circular or Max Depth]"
-                      }
-                      seen.add(value)
-                      maxDepth--
-                    }
-                    return value
-                  },
-                  2,
-                )
-              }
-
               // Обновляем отладочную информацию
               if (showDebug) {
                 setDebugInfo(
-                  safeStringify({
-                    currentGame: updatedMatch.score.currentSet?.currentGame,
-                    currentSet: {
-                      teamA: updatedMatch.score.currentSet?.teamA,
-                      teamB: updatedMatch.score.currentSet?.teamB,
-                      isTiebreak: updatedMatch.score.currentSet?.isTiebreak,
+                  JSON.stringify(
+                    {
+                      currentGame: updatedMatch.score.currentSet?.currentGame,
+                      currentSet: {
+                        teamA: updatedMatch.score.currentSet?.teamA,
+                        teamB: updatedMatch.score.currentSet?.teamB,
+                        isTiebreak: updatedMatch.score.currentSet?.isTiebreak,
+                      },
+                      sets: updatedMatch.score.sets,
+                      gamePoint: isGamePoint(updatedMatch),
+                      setPoint: isSetPoint(updatedMatch),
+                      matchPoint: isMatchPoint(updatedMatch),
                     },
-                    sets: updatedMatch.score.sets,
-                    gamePoint: isGamePoint(updatedMatch),
-                    setPoint: isSetPoint(updatedMatch),
-                    matchPoint: isMatchPoint(updatedMatch),
-                  }),
+                    null,
+                    2,
+                  ),
                 )
               }
 
@@ -635,7 +685,7 @@ export default function CourtVmixPage({ params }: CourtParams) {
                         ? updatedMatch.score.currentSet.currentGame.teamB
                         : getTennisPointName(updatedMatch.score.currentSet.currentGame.teamB)
                       : "0",
-                    sets: updatedMatch.score.sets ? updatedMatch.score.sets.map((set) => set.teamB) : [],
+                    sets: updatedMatch.score.sets ? matchData.score.sets.map((set) => set.teamB) : [],
                     currentSet: updatedMatch.score.currentSet ? updatedMatch.score.currentSet.teamB : 0,
                     serving: updatedMatch.currentServer && updatedMatch.currentServer.team === "teamB",
                     countries: updatedMatch.teamB.players.map((p) => p.country || "").filter(Boolean),
@@ -659,6 +709,12 @@ export default function CourtVmixPage({ params }: CourtParams) {
               logEvent("warn", "vMix страница корта: матч не найден при обновлении", "court-vmix-page", { courtNumber })
             }
           })
+
+          return () => {
+            if (unsubscribe) {
+              unsubscribe()
+            }
+          }
         } else {
           setError(`На корте ${courtNumber} нет активных матчей`)
           logEvent("warn", `vMix страница корта: на корте ${courtNumber} нет активных матчей`, "court-vmix-page")
@@ -675,7 +731,7 @@ export default function CourtVmixPage({ params }: CourtParams) {
     loadMatch()
 
     // Set up polling to check for new matches on this court
-    pollInterval = setInterval(async () => {
+    const pollInterval = setInterval(async () => {
       try {
         // Check if there's a new match on this court
         const latestMatch = await getMatchByCourtNumber(courtNumber)
@@ -692,40 +748,25 @@ export default function CourtVmixPage({ params }: CourtParams) {
           if (latestMatch) {
             setMatch(latestMatch)
 
-            // Use a function to limit the depth of objects being stringified
-            const safeStringify = (obj, maxDepth = 2) => {
-              const seen = new WeakSet()
-              return JSON.stringify(
-                obj,
-                (key, value) => {
-                  if (typeof value === "object" && value !== null) {
-                    if (seen.has(value) || maxDepth <= 0) {
-                      return "[Circular or Max Depth]"
-                    }
-                    seen.add(value)
-                    maxDepth--
-                  }
-                  return value
-                },
-                2,
-              )
-            }
-
             // Update debug info if needed
             if (showDebug) {
               setDebugInfo(
-                safeStringify({
-                  currentGame: latestMatch.score.currentSet?.currentGame,
-                  currentSet: {
-                    teamA: latestMatch.score.currentSet?.teamA,
-                    teamB: latestMatch.score.currentSet?.teamB,
-                    isTiebreak: latestMatch.score.currentSet?.isTiebreak,
+                JSON.stringify(
+                  {
+                    currentGame: latestMatch.score.currentSet?.currentGame,
+                    currentSet: {
+                      teamA: latestMatch.score.currentSet?.teamA,
+                      teamB: latestMatch.score.currentSet?.teamB,
+                      isTiebreak: latestMatch.score.currentSet?.isTiebreak,
+                    },
+                    sets: latestMatch.score.sets,
+                    gamePoint: isGamePoint(latestMatch),
+                    setPoint: isSetPoint(latestMatch),
+                    matchPoint: isMatchPoint(latestMatch),
                   },
-                  sets: latestMatch.score.sets,
-                  gamePoint: isGamePoint(latestMatch),
-                  setPoint: isSetPoint(latestMatch),
-                  matchPoint: isMatchPoint(
-                }),
+                  null,
+                  2,
+                ),
               )
             }
 
@@ -769,102 +810,6 @@ export default function CourtVmixPage({ params }: CourtParams) {
             }
 
             setError("")
-
-            // Clean up previous subscription if exists
-            if (unsubscribe) {
-              unsubscribe()
-            }
-
-            // Subscribe to the new match
-            unsubscribe = subscribeToMatchUpdates(latestMatch.id, (updatedMatch) => {
-              // ... existing subscription handler code ...
-              if (updatedMatch) {
-                setMatch(updatedMatch)
-
-                // Use a function to limit the depth of objects being stringified
-                const safeStringify = (obj, maxDepth = 2) => {
-                  const seen = new WeakSet()
-                  return JSON.stringify(
-                    obj,
-                    (key, value) => {
-                      if (typeof value === "object" && value !== null) {
-                        if (seen.has(value) || maxDepth <= 0) {
-                          return "[Circular or Max Depth]"
-                        }
-                        seen.add(value)
-                        maxDepth--
-                      }
-                      return value
-                    },
-                    2,
-                  )
-                }
-
-                // Обновляем отладочную информацию
-                if (showDebug) {
-                  setDebugInfo(
-                    safeStringify({
-                      currentGame: updatedMatch.score.currentSet?.currentGame,
-                      currentSet: {
-                        teamA: updatedMatch.score.currentSet?.teamA,
-                        teamB: updatedMatch.score.currentSet?.teamB,
-                        isTiebreak: updatedMatch.score.currentSet?.isTiebreak,
-                      },
-                      sets: updatedMatch.score.sets,
-                      gamePoint: isGamePoint(updatedMatch),
-                      setPoint: isSetPoint(updatedMatch),
-                      matchPoint: isMatchPoint(updatedMatch),
-                    }),
-                  )
-                }
-
-                // Обновляем JSON при получении обновлений
-                if (outputFormat === "json") {
-                  const vmixData = {
-                    id: updatedMatch.id,
-                    courtNumber: courtNumber,
-                    teamA: {
-                      name: updatedMatch.teamA.players.map((p) => p.name).join(" / "),
-                      score: updatedMatch.score.teamA,
-                      currentGameScore: updatedMatch.score.currentSet
-                        ? updatedMatch.score.currentSet.isTiebreak
-                          ? updatedMatch.score.currentSet.currentGame.teamA
-                          : getTennisPointName(updatedMatch.score.currentSet.currentGame.teamA)
-                        : "0",
-                      sets: updatedMatch.score.sets ? updatedMatch.score.sets.map((set) => set.teamA) : [],
-                      currentSet: updatedMatch.score.currentSet ? updatedMatch.score.currentSet.teamA : 0,
-                      serving: updatedMatch.currentServer && updatedMatch.currentServer.team === "teamA",
-                      countries: updatedMatch.teamA.players.map((p) => p.country || "").filter(Boolean),
-                    },
-                    teamB: {
-                      name: updatedMatch.teamB.players.map((p) => p.name).join(" / "),
-                      score: updatedMatch.score.teamB,
-                      currentGameScore: updatedMatch.score.currentSet
-                        ? updatedMatch.score.currentSet.isTiebreak
-                          ? updatedMatch.score.currentSet.currentGame.teamB
-                          : getTennisPointName(updatedMatch.score.currentSet.currentGame.teamB)
-                        : "0",
-                      sets: updatedMatch.score.sets ? updatedMatch.score.sets.map((set) => set.teamB) : [],
-                      currentSet: updatedMatch.score.currentSet ? updatedMatch.score.currentSet.teamB : 0,
-                      serving: updatedMatch.currentServer && updatedMatch.currentServer.team === "teamB",
-                      countries: updatedMatch.teamB.players.map((p) => p.country || "").filter(Boolean),
-                    },
-                    isTiebreak: updatedMatch.score.currentSet ? updatedMatch.score.currentSet.isTiebreak : false,
-                    isCompleted: updatedMatch.isCompleted || false,
-                    winner: updatedMatch.winner || null,
-                    timestamp: new Date().toISOString(),
-                  }
-                  setJsonOutput(JSON.stringify(vmixData, null, 2))
-                }
-
-                setError("")
-                logEvent("debug", "vMix страница корта: получено обновление атча", "court-vmix-page", {
-                  matchId: updatedMatch.id,
-                  scoreA: updatedMatch.score.teamA,
-                  scoreB: updatedMatch.score.teamB,
-                })
-              }
-            })
           } else {
             setMatch(null)
             setError(`На корте ${courtNumber} нет активных матчей`)
@@ -873,29 +818,20 @@ export default function CourtVmixPage({ params }: CourtParams) {
               `vMix страница корта: матч на корте ${courtNumber} был удален или перемещен`,
               "court-vmix-page",
             )
-
-            // Clean up subscription when there's no match
-            if (unsubscribe) {
-              unsubscribe()
-              unsubscribe = null
-            }
           }
         }
-      } catch (error) {
-        console.error("Error polling for court updates:", error)
-        logEvent("error", "Ошибка при проверке обновлений корта", "court-vmix-page", error)
+      } catch (err) {
+        console.error("Error polling for court updates:", err)
+        logEvent("error", "Ошибка при проверке обновлений корта", "court-vmix-page", err)
       }
     }, 10000) // Check every 10 seconds
 
-    // Clean up the interval and subscription when component unmounts
+    // Clean up the interval when component unmounts
     return () => {
-      if (pollInterval) {
-        clearInterval(pollInterval)
-        pollInterval = null
-      }
+      clearInterval(pollInterval)
+      // Keep the existing cleanup logic for unsubscribe
       if (unsubscribe) {
         unsubscribe()
-        unsubscribe = null
       }
     }
   }, [courtNumber, outputFormat, showDebug, match])
@@ -913,16 +849,16 @@ export default function CourtVmixPage({ params }: CourtParams) {
     // Если тип не изменился, ничего не делаем
     if (currentType === prevType) return
 
-    let timer = null
-
     // Если появился важный момент
     if (currentType && currentType !== "GAME" && (!prevType || prevType === "GAME")) {
       setIndicatorState("entering")
 
       // Через 1 секунду (длительность анимации) меняем состояние на "visible"
-      timer = setTimeout(() => {
+      const timer = setTimeout(() => {
         setIndicatorState("visible")
       }, 1000)
+
+      return () => clearTimeout(timer)
     }
 
     // Если важный момент исчез
@@ -930,20 +866,15 @@ export default function CourtVmixPage({ params }: CourtParams) {
       setIndicatorState("exiting")
 
       // Через 1 секунду (длительность анимации) меняем состояние на "hidden"
-      timer = setTimeout(() => {
+      const timer = setTimeout(() => {
         setIndicatorState("hidden")
       }, 1000)
+
+      return () => clearTimeout(timer)
     }
 
     // Обновляем предыдущее значение только если оно действительно изменилось
     setPrevImportantPoint(currentImportantPoint)
-
-    // Clean up timeout when component unmounts or dependencies change
-    return () => {
-      if (timer) {
-        clearTimeout(timer)
-      }
-    }
   }, [match, prevImportantPoint.type]) // Зависим только от match и prevImportantPoint.type
 
   // Получаем текущий счет в виде строки (0, 15, 30, 40, Ad)
@@ -1137,33 +1068,14 @@ export default function CourtVmixPage({ params }: CourtParams) {
 
   const tiebreakScores = getTiebreakScores()
 
-  // Формируем массив сетов для отображения
-  const getSetsForDisplay = () => {
-    const displaySets = [...(match.score.sets || [])]
-
-    // Добавляем текущий сет только если матч не завершен
-    // Это предотвращает дублирование последнего сета при завершении матча
-    if (!match.isCompleted && match.score.currentSet) {
-      displaySets.push({
-        teamA: match.score.currentSet.teamA,
-        teamB: match.score.currentSet.teamB,
-        isCurrent: true,
-      })
-    }
-
-    return displaySets
-  }
-
-  const displaySets = getSetsForDisplay()
-
   // Получаем информацию о важном моменте матча
   const importantPoint = getImportantPoint(match)
 
-  // Удаляем эти строки из кода рендеринга
-  // console.log("Важный момент матча:", importantPoint)
-  // console.log("Game Point:", isGamePoint(match))
-  // console.log("Set Point:", isSetPoint(match))
-  // console.log("Match Point:", isMatchPoint(match))
+  // Для отладки - выводим информацию о важных моментах
+  console.log("Важный момент матча:", importantPoint)
+  console.log("Game Point:", isGamePoint(match))
+  console.log("Set Point:", isSetPoint(match))
+  console.log("Match Point:", isMatchPoint(match))
 
   // Определяем фиксированную ширину для ячеек имен
   const nameColumnWidth = 300
@@ -1281,9 +1193,6 @@ export default function CourtVmixPage({ params }: CourtParams) {
                   >
                     {match.teamA.players[0]?.name}
                   </span>
-                  {match.isCompleted && match.winner === "teamA" && (
-                    <Trophy size={16} className="ml-1 mr-2 text-yellow-500" style={{ flexShrink: 0 }} />
-                  )}
                 </div>
                 {match.teamA.players.length > 1 && (
                   <div style={{ display: "flex", alignItems: "center" }}>
@@ -1395,9 +1304,9 @@ export default function CourtVmixPage({ params }: CourtParams) {
             )}
 
             {/* Счет сетов для первого игрока */}
-            {showSets && displaySets.length > 0 && (
+            {showSets && match.score.sets && (
               <>
-                {displaySets.map((set, idx) => (
+                {match.score.sets.map((set, idx) => (
                   <div
                     key={idx}
                     style={{
@@ -1417,16 +1326,36 @@ export default function CourtVmixPage({ params }: CourtParams) {
                       alignItems: "center",
                       justifyContent: "center",
                       fontSize: "1.8em",
-                      ...(set.isCurrent
-                        ? { backgroundColor: theme === "transparent" ? "transparent" : "rgba(59, 130, 246, 0.1)" }
-                        : {}),
                     }}
                   >
-                    {idx < match.score.sets.length && tiebreakScores[idx]
-                      ? formatSetScore(set.teamA, tiebreakScores[idx].teamA)
-                      : set.teamA}
+                    {tiebreakScores[idx] ? formatSetScore(set.teamA, tiebreakScores[idx].teamA) : set.teamA}
                   </div>
                 ))}
+                {/* Текущий сет */}
+                {match.score.currentSet && (
+                  <div
+                    style={{
+                      ...(theme === "transparent"
+                        ? { background: "transparent" }
+                        : setsGradient
+                          ? getGradientStyle(true, setsGradientFrom, setsGradientTo)
+                          : { background: setsBgColor }),
+                      color: theme === "transparent" ? textColor : setsTextColor,
+                      padding: "1px",
+                      flex: "0 0 auto",
+                      width: "40px",
+                      minWidth: "40px",
+                      textAlign: "center",
+                      borderLeft: theme === "transparent" ? "none" : "1px solid #e5e5e5",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: "1.8em",
+                    }}
+                  >
+                    {match.score.currentSet.teamA}
+                  </div>
+                )}
               </>
             )}
 
@@ -1492,9 +1421,6 @@ export default function CourtVmixPage({ params }: CourtParams) {
                   >
                     {match.teamB.players[0]?.name}
                   </span>
-                  {match.isCompleted && match.winner === "teamB" && (
-                    <Trophy size={16} className="ml-1 mr-2 text-yellow-500" style={{ flexShrink: 0 }} />
-                  )}
                 </div>
                 {match.teamB.players.length > 1 && (
                   <div style={{ display: "flex", alignItems: "center" }}>
@@ -1606,9 +1532,9 @@ export default function CourtVmixPage({ params }: CourtParams) {
             )}
 
             {/* Счет сетов для второго игрока */}
-            {showSets && displaySets.length > 0 && (
+            {showSets && match.score.sets && (
               <>
-                {displaySets.map((set, idx) => (
+                {match.score.sets.map((set, idx) => (
                   <div
                     key={idx}
                     style={{
@@ -1628,16 +1554,37 @@ export default function CourtVmixPage({ params }: CourtParams) {
                       alignItems: "center",
                       justifyContent: "center",
                       fontSize: "1.8em",
-                      ...(set.isCurrent
-                        ? { backgroundColor: theme === "transparent" ? "transparent" : "rgba(59, 130, 246, 0.1)" }
-                        : {}),
                     }}
                   >
-                    {idx < match.score.sets.length && tiebreakScores[idx]
-                      ? formatSetScore(set.teamB, tiebreakScores[idx].teamB)
-                      : set.teamB}
+                    {tiebreakScores[idx] ? formatSetScore(set.teamB, tiebreakScores[idx].teamB) : set.teamB}
                   </div>
                 ))}
+
+                {/* Текущий сет */}
+                {match.score.currentSet && (
+                  <div
+                    style={{
+                      ...(theme === "transparent"
+                        ? { background: "transparent" }
+                        : setsGradient
+                          ? getGradientStyle(true, setsGradientFrom, setsGradientTo)
+                          : { background: setsBgColor }),
+                      color: theme === "transparent" ? textColor : setsTextColor,
+                      padding: "1px",
+                      flex: "0 0 auto",
+                      width: "40px",
+                      minWidth: "40px",
+                      textAlign: "center",
+                      borderLeft: theme === "transparent" ? "none" : "1px solid #e5e5e5",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: "1.8em",
+                    }}
+                  >
+                    {match.score.currentSet.teamB}
+                  </div>
+                )}
               </>
             )}
 
