@@ -15,6 +15,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { useLanguage } from "@/contexts/language-context"
+import { Trophy } from "lucide-react"
 
 export function ScoreBoard({ match, updateMatch }) {
   const [showMatchEndDialog, setShowMatchEndDialog] = useState(false)
@@ -457,7 +458,7 @@ export function ScoreBoard({ match, updateMatch }) {
   }
 
   // Добавляем текущий сет, если матч не завершен
-  if (!match.isCompleted) {
+  if (!match.isCompleted && currentSet) {
     allSets.push({
       teamA: currentSet.teamA,
       teamB: currentSet.teamB,
@@ -606,6 +607,9 @@ export function ScoreBoard({ match, updateMatch }) {
         <div className="text-center">
           <span className="text-xl font-bold">
             {match.courtSides?.teamA === "left" ? currentSet.teamA : currentSet.teamB}
+            {match.isCompleted && match.winner === (match.courtSides?.teamA === "left" ? "teamA" : "teamB") && (
+              <Trophy size={20} className="ml-1 text-yellow-500 inline-block" />
+            )}
           </span>
         </div>
         <div className="text-center text-muted-foreground">
@@ -617,6 +621,9 @@ export function ScoreBoard({ match, updateMatch }) {
         <div className="text-center">
           <span className="text-xl font-bold">
             {match.courtSides?.teamA === "right" ? currentSet.teamA : currentSet.teamB}
+            {match.isCompleted && match.winner === (match.courtSides?.teamA === "right" ? "teamA" : "teamB") && (
+              <Trophy size={20} className="ml-1 text-yellow-500 inline-block" />
+            )}
           </span>
         </div>
       </div>
@@ -628,20 +635,27 @@ export function ScoreBoard({ match, updateMatch }) {
             <div className="text-center font-medium">{t("match.teamA")}</div>
             <div className="text-center font-medium">{t("match.teamB")}</div>
 
-            {allSets.map((set, index) => (
-              <div key={index} className="contents">
-                <div className="font-medium flex items-center">
-                  {t("match.setX").replace("{{number}}", (index + 1).toString())}
-                  {set.isCurrent && (
-                    <Badge variant="outline" className="ml-2 bg-blue-100 text-blue-800">
-                      {t("match.current")}
-                    </Badge>
-                  )}
+            {allSets.map((set, index) => {
+              // Skip rendering the current set if the match is completed
+              if (match.isCompleted && set.isCurrent) {
+                return null
+              }
+
+              return (
+                <div key={index} className="contents">
+                  <div className="font-medium flex items-center">
+                    {t("match.setX").replace("{{number}}", (index + 1).toString())}
+                    {set.isCurrent && (
+                      <Badge variant="outline" className="ml-2 bg-blue-100 text-blue-800">
+                        {t("match.current")}
+                      </Badge>
+                    )}
+                  </div>
+                  <div className={`text-center ${set.isFuture ? "text-muted-foreground" : ""}`}>{set.teamA}</div>
+                  <div className={`text-center ${set.isFuture ? "text-muted-foreground" : ""}`}>{set.teamB}</div>
                 </div>
-                <div className={`text-center ${set.isFuture ? "text-muted-foreground" : ""}`}>{set.teamA}</div>
-                <div className={`text-center ${set.isFuture ? "text-muted-foreground" : ""}`}>{set.teamB}</div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         </div>
       )}

@@ -7,6 +7,7 @@ import { getTennisPointName } from "@/lib/tennis-utils"
 import { logEvent } from "@/lib/error-logger"
 import { subscribeToMatchUpdates } from "@/lib/match-storage"
 import { decompressFromUTF16 } from "lz-string"
+import { Trophy } from "lucide-react"
 
 type CourtParams = {
   params: {
@@ -698,7 +699,7 @@ export default function CourtVmixPage({ params }: CourtParams) {
               }
 
               setError("")
-              logEvent("debug", "vMix страница корта: получено обновление ��атча", "court-vmix-page", {
+              logEvent("debug", "vMix страница корта: получено обновление атча", "court-vmix-page", {
                 matchId: updatedMatch.id,
                 scoreA: updatedMatch.score.teamA,
                 scoreB: updatedMatch.score.teamB,
@@ -1224,8 +1225,8 @@ export default function CourtVmixPage({ params }: CourtParams) {
                     {tiebreakScores[idx] ? formatSetScore(set.teamA, tiebreakScores[idx].teamA) : set.teamA}
                   </div>
                 ))}
-                {/* Текущий сет */}
-                {match.score.currentSet && (
+                {/* Текущий сет - показываем только если матч не завершен */}
+                {match.score.currentSet && !match.isCompleted && (
                   <div
                     style={{
                       ...(theme === "transparent"
@@ -1253,7 +1254,7 @@ export default function CourtVmixPage({ params }: CourtParams) {
             )}
 
             {/* Текущий счет в гейме для первого игрока */}
-            {showPoints && match.score.currentSet && (
+            {showPoints && (
               <div
                 style={{
                   color: theme === "transparent" ? textColor : "white",
@@ -1275,7 +1276,11 @@ export default function CourtVmixPage({ params }: CourtParams) {
                       : { background: pointsBgColor }),
                 }}
               >
-                {getCurrentGameScore("teamA")}
+                {match.isCompleted && match.winner === "teamA" ? (
+                  <Trophy size={24} />
+                ) : (
+                  match.score.currentSet && getCurrentGameScore("teamA")
+                )}
               </div>
             )}
           </div>
@@ -1453,8 +1458,8 @@ export default function CourtVmixPage({ params }: CourtParams) {
                   </div>
                 ))}
 
-                {/* Текущий сет */}
-                {match.score.currentSet && (
+                {/* Текущий сет - показываем только если матч не завершен */}
+                {match.score.currentSet && !match.isCompleted && (
                   <div
                     style={{
                       ...(theme === "transparent"
@@ -1482,7 +1487,7 @@ export default function CourtVmixPage({ params }: CourtParams) {
             )}
 
             {/* Текущий счет в гейме для второго игрока */}
-            {showPoints && match.score.currentSet && (
+            {showPoints && (
               <div
                 style={{
                   color: theme === "transparent" ? textColor : "white",
@@ -1504,7 +1509,11 @@ export default function CourtVmixPage({ params }: CourtParams) {
                       : { background: pointsBgColor }),
                 }}
               >
-                {getCurrentGameScore("teamB")}
+                {match.isCompleted && match.winner === "teamB" ? (
+                  <Trophy size={24} />
+                ) : (
+                  match.score.currentSet && getCurrentGameScore("teamB")
+                )}
               </div>
             )}
           </div>
