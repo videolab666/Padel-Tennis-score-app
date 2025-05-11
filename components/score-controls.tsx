@@ -18,7 +18,14 @@ export function ScoreControls({ match, updateMatch }) {
 
   // Локальное состояние для отслеживания необходимости смены сторон
   const [localMatch, setLocalMatch] = useState(match)
-  const [fixedSides, setFixedSides] = useState(true)
+  const [fixedSides, setFixedSides] = useState(() => {
+    // Try to get the saved preference from localStorage
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("fixedSidesPreference")
+      return saved ? saved === "true" : true
+    }
+    return true // Default to fixed sides
+  })
 
   // Обновляем локальное состояние при изменении match
   useEffect(() => {
@@ -31,6 +38,12 @@ export function ScoreControls({ match, updateMatch }) {
       changeSides()
     }
   }, [localMatch?.shouldChangeSides])
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("fixedSidesPreference", fixedSides.toString())
+    }
+  }, [fixedSides])
 
   if (!localMatch) return null
 
@@ -47,7 +60,7 @@ export function ScoreControls({ match, updateMatch }) {
       teamB: updatedMatch.courtSides.teamB === "left" ? "right" : "left",
     }
 
-    // Сбрасываем флаг необходимости смены сторон
+    // Сбрасываем флаг необходим��сти смены сторон
     updatedMatch.shouldChangeSides = false
 
     // Обновляем локальное состояние немедленно

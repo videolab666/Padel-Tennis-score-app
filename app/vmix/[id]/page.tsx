@@ -807,7 +807,7 @@ export default function VmixPage({ params }: MatchParams) {
     if ((!currentType || currentType === "GAME") && prevType && prevType !== "GAME") {
       setIndicatorState("exiting")
 
-      // Через 1 секунду (длительность анимации) меняем состояние на "hidden"
+      // Через 1 секун��у (длительность анимации) меняем состояние на "hidden"
       const timer = setTimeout(() => {
         setIndicatorState("hidden")
       }, 1000)

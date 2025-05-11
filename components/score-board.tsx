@@ -3,7 +3,7 @@
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { getTennisPointName } from "@/lib/tennis-utils"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -23,8 +23,32 @@ export function ScoreBoard({ match, updateMatch }) {
   const [showMatchEndDialog, setShowMatchEndDialog] = useState(false)
   const [pendingMatchUpdate, setPendingMatchUpdate] = useState(null)
   const [previousMatchState, setPreviousMatchState] = useState(null)
-  const [fixedSides, setFixedSides] = useState(true)
+  const [fixedSides, setFixedSides] = useState(() => {
+    // Try to get the saved preference from localStorage
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("fixedSidesPreference")
+      return saved ? saved === "true" : true
+    }
+    return true // Default to fixed sides
+  })
   const { t } = useLanguage()
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("fixedSidesPreference", fixedSides.toString())
+    }
+  }, [fixedSides])
+
+  useEffect(() => {
+    const handleStorageChange = (e) => {
+      if (e.key === "fixedSidesPreference") {
+        setFixedSides(e.newValue === "true")
+      }
+    }
+
+    window.addEventListener("storage", handleStorageChange)
+    return () => window.removeEventListener("storage", handleStorageChange)
+  }, [])
 
   if (!match) return null
 
@@ -217,6 +241,46 @@ export function ScoreBoard({ match, updateMatch }) {
     const totalGames = currentSet.teamA + currentSet.teamB
     if (totalGames % 2 === 1) {
       updatedMatch.shouldChangeSides = true
+    }
+
+    // Handle Super Set rules
+    if (updatedMatch.settings.isSuperSet) {
+      const teamAScore = currentSet.teamA
+      const teamBScore = currentSet.teamB
+
+      // Check if we've reached 8-8, start tiebreak
+      if (teamAScore === 8 && teamBScore === 8) {
+        currentSet.isTiebreak = true
+        console.log("Starting tiebreak at 8-8 in Super Set")
+        updateMatch(updatedMatch)
+        return
+      }
+
+      // Check if we've reached 7-7, continue to 9
+      if (teamAScore === 7 && teamBScore === 7) {
+        // Continue playing to 9
+        updateMatch(updatedMatch)
+        return
+      }
+
+      // Check for win with 2 game difference
+      if (
+        (teamAScore >= 8 && teamAScore - teamBScore >= 2) ||
+        (teamBScore >= 8 && teamBScore - teamAScore >= 2) ||
+        (teamAScore === 9 && teamBScore < 8) ||
+        (teamBScore === 9 && teamAScore < 8)
+      ) {
+        return winSet(team, updatedMatch, previousState)
+      }
+
+      // Check for win at 9-7 or 7-9
+      if ((teamAScore === 9 && teamBScore === 7) || (teamBScore === 9 && teamAScore === 7)) {
+        return winSet(team, updatedMatch, previousState)
+      }
+
+      // Continue normal play
+      updateMatch(updatedMatch)
+      return
     }
 
     // Проверяем, нужно ли использовать Fast4 правила
@@ -474,6 +538,56 @@ export function ScoreBoard({ match, updateMatch }) {
     allSets.push({ teamA: "-", teamB: "-", isFuture: true })
   }
 
+  const isGamePoint = (team) => {
+    const currentGame = match.score.currentSet.currentGame
+    const otherTeam = team === "teamA" ? "teamB" : "teamA"
+    const teamAIndex = currentGame.teamA
+    const teamBIndex = currentGame.teamB
+
+    if (match.settings.scoringSystem === "classic") {
+      if (currentGame[team] === 40 && currentGame[otherTeam] < 40) {
+        return team
+      } else if (currentGame[team] === "Ad") {
+        return team
+      }
+    } else if (match.settings.scoringSystem === "no-ad" || match.settings.scoringSystem === "fast4") {
+      if (currentGame[team] === 40) {
+        return team
+      }
+    }
+
+    // Add this to the isGamePoint function or similar logic
+    if (match.settings.isSuperSet) {
+      const teamAScore = match.score.currentSet.teamA
+      const teamBScore = match.score.currentSet.teamB
+
+      // Special case for 7-7 in Super Set
+      if (teamAScore === 7 && teamBScore === 7) {
+        // Check if this point would make it 8-7
+        if (currentGame.teamA > currentGame.teamB && teamAIndex >= 3 && teamBIndex <= 2) {
+          return "teamA"
+        }
+        // Check if this point would make it 7-8
+        if (currentGame.teamB > currentGame.teamA && teamBIndex >= 3 && teamAIndex <= 2) {
+          return "teamB"
+        }
+      }
+
+      // Special case for 8-7 or 7-8 in Super Set
+      if ((teamAScore === 8 && teamBScore === 7) || (teamAScore === 7 && teamBScore === 8)) {
+        // Check if this point would make it 9-7 or 7-9 (winning the set)
+        if (teamAScore > teamBScore && teamAIndex >= 3 && teamBIndex <= 2) {
+          return "teamA"
+        }
+        if (teamBScore > teamAScore && teamBIndex >= 3 && teamAIndex <= 2) {
+          return "teamB"
+        }
+      }
+    }
+
+    return null
+  }
+
   return (
     <div className="space-y-4">
       <AlertDialog open={showMatchEndDialog} onOpenChange={setShowMatchEndDialog}>
@@ -481,7 +595,13 @@ export function ScoreBoard({ match, updateMatch }) {
           <AlertDialogHeader>
             <AlertDialogTitle>{t("match.finishMatch")}</AlertDialogTitle>
             <AlertDialogDescription>
-              {t("match.teamWonMatch", { team: pendingMatchUpdate?.winner === "teamA" ? "A" : "B" })}
+              {pendingMatchUpdate &&
+                t("match.teamWonMatch", {
+                  team:
+                    pendingMatchUpdate.winner === "teamA"
+                      ? pendingMatchUpdate.teamA.players.map((p) => p.name).join(" & ")
+                      : pendingMatchUpdate.teamB.players.map((p) => p.name).join(" & "),
+                })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

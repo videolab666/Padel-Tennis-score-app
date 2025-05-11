@@ -221,18 +221,22 @@ export default function NewMatchPage() {
       return numericId
     }
 
-    // Ensure proper settings for final set tiebreak
+    // Ensure proper settings for final set tiebreak and handle Super Set logic
     const matchSettings = {
-      sets: Number.parseInt(sets),
+      sets: sets === "super" ? 1 : Number.parseInt(sets), // Super Set is played as 1 set
       scoringSystem: scoringSystem,
-      tiebreakEnabled,
-      tiebreakType, // Используем выбранный тип тайбрейка напрямую
-      tiebreakAt,
-      finalSetTiebreak: sets === "2" ? true : finalSetTiebreak, // Всегда включаем для матчей из 2 сетов
+      tiebreakEnabled: sets === "super" ? true : tiebreakEnabled, // Always enable tiebreak for Super Set
+      tiebreakType: sets === "super" ? "regular" : tiebreakType, // Use regular tiebreak for Super Set
+      tiebreakAt: sets === "super" ? "8-8" : tiebreakAt, // Special tiebreak at 8-8 for Super Set
+      finalSetTiebreak: sets === "2" ? true : finalSetTiebreak, // Always enable for 2-set matches
       finalSetTiebreakLength: Number.parseInt(finalSetTiebreakLength),
       goldenGame,
       goldenPoint,
       windbreak,
+      // Add special Super Set settings
+      isSuperSet: sets === "super",
+      superSetTarget: 8, // Target is 8 games
+      superSetTiebreakAt: 8, // Tiebreak at 8-8
     }
 
     // Добавляем отладочную информацию
@@ -294,6 +298,15 @@ export default function NewMatchPage() {
       history: [],
       isCompleted: false,
       courtNumber: courtNumber,
+      // Add special handling for Super Set
+      superSetRules:
+        sets === "super"
+          ? {
+              target: 8,
+              tiebreakAt: 8,
+              extendedTarget: 9, // For 7-7 scenario
+            }
+          : null,
     }
 
     // Сохранение матча и переход на страницу матча
@@ -385,6 +398,19 @@ export default function NewMatchPage() {
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="5" id="sets-5" />
                   <Label htmlFor="sets-5">{t("newMatch.fiveSets")}</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="super" id="sets-super" />
+                  <div>
+                    <Label htmlFor="sets-super" className="font-medium">
+                      {t("newMatch.superSet")}
+                    </Label>
+                    <p className="text-xs text-muted-foreground">
+                      Матч играется одним сетом до 8 геймов. Необходимо выиграть минимум с разницей в 2 гейма. Если счёт
+                      становится 7–7, играется гейм до 9. Если счёт становится 8–8, играется тайбрейк до 7 очков (с
+                      преимуществом в 2 очка).
+                    </p>
+                  </div>
                 </div>
               </RadioGroup>
             </div>

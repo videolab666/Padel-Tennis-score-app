@@ -311,9 +311,6 @@ export type TranslationKeys = {
     superTiebreak: string
     tiebreakAt: string
     selectTiebreakScore: string
-    selectTiebreakLength: string
-    tiebreakLength7: string
-    tiebreakLength10: string
     additional: string
     firstServe: string
     teamASide: string
@@ -329,6 +326,7 @@ export type TranslationKeys = {
     selectAllPlayers: string
     selectAllPlayersForDoubles: string
     courtOccupied: string
+    superSet: string
   }
   vmixSettings: {
     title: string
@@ -561,14 +559,15 @@ export type TranslationKeys = {
     savingButton: string
     saveButton: string
     selectSettings: string
-    createNewSettings: string
-    updateSettings: string
-    deleteSettings: string
-    saveToDatabase: string
-    deletingButton: string
-    deleteButton: string
-    deleteSettingsDialog: string
-    deleteSettingsDescription: string
+    createNewSettings: "Створити нові"
+    updateSettings: "Оновити"
+    deleteSettings: "Видалити"
+    saveToDatabase: "Зберегти в базу даних"
+    deletingButton: "Видалення..."
+    deleteButton: "Видалити"
+    deleteSettingsDialog: "Видалення налаштувань"
+    deleteSettingsDescription: "Ви впевнені, що хочете видалити ці налаштування? Цю дію не можна скасувати."
+    matchInfo: "Інформація про матч"
   }
 }
 
@@ -680,7 +679,7 @@ export const translations: { [key in Language]: TranslationKeys } = {
       endMatch: "Завершить матч",
       confirmEndMatch: "Вы уверены, что хотите завершить матч? Вы сможете разблокировать его позже, если потребуется.",
       finishMatch: "Завершить матч",
-      teamWonMatch: "Команда {{team}} выиграла матч! Что вы хотите сделать?",
+      teamWonMatch: "{{team}} выиграли матч! Что вы хотите сделать?",
       serving: "Подача",
       currentGame: "Текущий гейм",
       setXofY: "Сет {{current}} из {{total}}",
@@ -880,9 +879,6 @@ export const translations: { [key in Language]: TranslationKeys } = {
       superTiebreak: "Супер-тай-брейк (вместо 3-го сета)",
       tiebreakAt: "Тай-брейк при счете",
       selectTiebreakScore: "Выберите счет для тай-брейка",
-      selectTiebreakLength: "Выберите длину тай-брейка",
-      tiebreakLength7: "До 7 очков",
-      tiebreakLength10: "До 10 очков",
       additional: "Дополнительно",
       firstServe: "Первая подача",
       teamASide: "Сторона команды A",
@@ -898,6 +894,7 @@ export const translations: { [key in Language]: TranslationKeys } = {
       selectAllPlayers: "Выберите игроков для обеих команд",
       selectAllPlayersForDoubles: "Для парной игры необходимо выбрать всех игроков",
       courtOccupied: "Корт {{court}} уже занят. Выберите другой корт.",
+      superSet: "🟢 ПРО сет до 8 геймов (Fast Set / Short Set)",
     },
     vmixSettings: {
       title: "Настройки vMix для матча",
@@ -1024,7 +1021,7 @@ export const translations: { [key in Language]: TranslationKeys } = {
       playerCountryBlock: "Блок стран игроков",
       playerCountryBgColor: "Цвет фона стран игроков",
       useApiToGetMatchData: "Используйте этот API для получения данных матча в формате JSON",
-      goToSettingsDataSources: 'В vMix перейдите в меню "Settings" → "Data Sources"',
+      goToSettingsDataSources: 'В vMix, go to "Settings" → "Data Sources"',
       clickAddAndSelectWeb: 'Нажмите "Add" и выберите "Web"',
       pasteApiUrl: 'Вставьте URL API в поле "URL"',
       setUpdateInterval: 'Установите "Update Interval" на 1-2 секунды',
@@ -1286,7 +1283,7 @@ export const translations: { [key in Language]: TranslationKeys } = {
       endMatch: "End match",
       confirmEndMatch: "Are you sure you want to end this match? You can unlock it later if needed.",
       finishMatch: "Finish match",
-      teamWonMatch: "Team {{team}} won the match! What would you like to do?",
+      teamWonMatch: "{{team}} won the match! What would you like to do?",
       serving: "Serving",
       currentGame: "Current game",
       setXofY: "Set {{current}} of {{total}}",
@@ -1486,9 +1483,6 @@ export const translations: { [key in Language]: TranslationKeys } = {
       superTiebreak: "Super tiebreak (instead of 3rd set)",
       tiebreakAt: "Tiebreak at score",
       selectTiebreakScore: "Select tiebreak score",
-      selectTiebreakLength: "Select tiebreak length",
-      tiebreakLength7: "Up to 7 points",
-      tiebreakLength10: "Up to 10 points",
       additional: "Additional",
       firstServe: "First serve",
       teamASide: "Team A side",
@@ -1504,6 +1498,7 @@ export const translations: { [key in Language]: TranslationKeys } = {
       selectAllPlayers: "Select players for both teams",
       selectAllPlayersForDoubles: "For doubles, you need to select all players",
       courtOccupied: "Court {{court}} is already occupied. Please select another court.",
+      superSet: "🟢 PRO Set to 8 games (Fast Set / Short Set)",
     },
     vmixSettings: {
       title: "vMix Settings for Match",
@@ -1892,7 +1887,7 @@ export const translations: { [key in Language]: TranslationKeys } = {
       confirmEndMatch:
         "Ви впевнені, що хочете завершити цей матч? Ви зможете розблокувати його пізніше, якщо потрібно.",
       finishMatch: "Завершити матч",
-      teamWonMatch: "Команда {{team}} виграла матч! Що ви хочете зробити?",
+      teamWonMatch: "{{team}} виграли матч! Що ви хочете зробити?",
       serving: "Подача",
       currentGame: "Поточний гейм",
       setXofY: "Сет {{current}} з {{total}}",
@@ -1993,6 +1988,8 @@ export const translations: { [key in Language]: TranslationKeys } = {
       completed: "Завершено",
       inProgress: "В процесі",
       court: "Корт",
+      code: "Код",
+      error: "Помилка завантаження",
     },
     courtsList: {
       title: "Статус кортів",
@@ -2091,9 +2088,6 @@ export const translations: { [key in Language]: TranslationKeys } = {
       superTiebreak: "Супер-тай-брейк (замість 3-го сету)",
       tiebreakAt: "Тай-брейк при рахунку",
       selectTiebreakScore: "Виберіть рахунок для тай-брейку",
-      selectTiebreakLength: "Виберіть довжину тай-брейку",
-      tiebreakLength7: "До 7 очок",
-      tiebreakLength10: "До 10 очок",
       additional: "Додатково",
       firstServe: "Перша подача",
       teamASide: "Сторона команди A",
@@ -2109,6 +2103,7 @@ export const translations: { [key in Language]: TranslationKeys } = {
       selectAllPlayers: "Виберіть гравців для обох команд",
       selectAllPlayersForDoubles: "Для парної гри необхідно вибрати всіх гравців",
       courtOccupied: "Корт {{court}} вже зайнятий. Виберіть інший корт.",
+      superSet: "🟢 ПРО сет до 8 геймів (Fast Set / Short Set)",
     },
     vmixSettings: {
       title: "Налаштування vMix для матчу",
@@ -2239,37 +2234,3 @@ export const translations: { [key in Language]: TranslationKeys } = {
     },
   },
 }
-
-// Добавим новые строки перевода для кода матча и ошибки
-if (!translations.ru.matchList.code) {
-  translations.ru.matchList.code = "Код"
-}
-
-if (!translations.en.matchList.code) {
-  translations.en.matchList.code = "Code"
-}
-
-if (!translations.uk.matchList.code) {
-  translations.uk.matchList.code = "Код"
-}
-
-if (!translations.ru.matchList.error) {
-  translations.ru.matchList.error = "Ошибка загрузки"
-}
-
-if (!translations.en.matchList.error) {
-  translations.en.matchList.error = "Loading error"
-}
-
-if (!translations.uk.matchList.error) {
-  translations.uk.matchList.error = "Помилка завантаження"
-}
-
-translations.ru.match.fixedSides = "Фиксированные стороны"
-translations.ru.match.fixedPlayers = "Фиксированные игроки"
-
-translations.en.match.fixedSides = "Fixed court sides"
-translations.en.match.fixedPlayers = "Fixed players"
-
-translations.uk.match.fixedSides = "Фіксовані сторони"
-translations.uk.match.fixedPlayers = "Фіксовані гравці"

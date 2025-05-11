@@ -1232,7 +1232,7 @@ export async function getAllMatches() {
           try {
             const item = localStorage.getItem(key)
             if (item) {
-              // Пробуем распаковать, если это сжатые данные
+              // Пробуем распаковать, если э��о сжатые данные
               try {
                 const decompressed = decompressFromUTF16(item)
                 if (decompressed && isValidJSON(decompressed)) {

@@ -297,7 +297,7 @@ export default function CourtVmixSettingsPage({ params }) {
         })
       } else {
         toast({
-          title: "Ошибка",
+          title: "��шибка",
           description: "Не удалось загрузить настройки из базы данных",
           variant: "destructive",
         })
@@ -609,8 +609,8 @@ export default function CourtVmixSettingsPage({ params }) {
       ) : match ? (
         <div className="mb-4">
           <p className="font-medium">
-            {t("courtVmixSettings.matchOnCourt")}: {match.teamA.players.map((p) => p.name).join(" / ")} vs{" "}
-            {match.teamB.players.map((p) => p.name).join(" / ")}
+            {t("courtVmixSettings.matchOnCourt")}: {courtNumber}: {match.teamA.players.map((p) => p.name).join(" / ")}{" "}
+            vs {match.teamB.players.map((p) => p.name).join(" / ")}
           </p>
         </div>
       ) : (
