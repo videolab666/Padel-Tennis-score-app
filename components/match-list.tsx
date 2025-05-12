@@ -111,7 +111,7 @@ export function MatchList({ limit }: { limit?: number }) {
       {displayedMatches.map((match) => (
         <Link href={`/match/${match.id}`} key={match.id}>
           <Card className="hover:bg-muted/50 transition-colors">
-            <CardContent className="p-4">
+            <CardContent className={`p-4 ${!match.isCompleted ? "bg-[#fef6f6] shadow-sm" : "bg-[#f0f2fc] shadow-sm"}`}>
               <div className="flex justify-between items-center mb-2">
                 <span className="text-xs sm:text-sm text-muted-foreground">
                   {formatDistanceToNow(new Date(match.createdAt), {
@@ -120,13 +120,13 @@ export function MatchList({ limit }: { limit?: number }) {
                   })}
                 </span>
                 <div className="flex gap-2">
-                  <Badge variant="outline" className="text-xs sm:text-sm px-2 py-0.5">
+                  <Badge variant="outline" className="text-xs sm:text-sm px-2 py-0.5 bg-[#ffeec6] shadow-sm">
                     {match.type === "tennis" ? t("home.tennis") : t("home.padel")}
                   </Badge>
                   {match.courtNumber !== null && match.courtNumber !== undefined && (
                     <Badge
                       variant="outline"
-                      className="text-xs sm:text-sm px-2 py-0.5 bg-blue-100 text-blue-800 hover:bg-blue-100"
+                      className="text-xs sm:text-sm px-2 py-0.5 bg-blue-100 text-blue-800 hover:bg-blue-100 shadow-sm"
                     >
                       {t("matchList.court")} {match.courtNumber}
                     </Badge>
@@ -134,14 +134,14 @@ export function MatchList({ limit }: { limit?: number }) {
                   {match.isCompleted ? (
                     <Badge
                       variant="outline"
-                      className="text-xs sm:text-sm px-2 py-0.5 bg-green-100 text-green-800 hover:bg-green-100"
+                      className="text-xs sm:text-sm px-2 py-0.5 bg-green-100 text-green-800 hover:bg-green-100 shadow-sm"
                     >
                       {t("matchList.completed")}
                     </Badge>
                   ) : (
                     <Badge
                       variant="outline"
-                      className="text-xs sm:text-sm px-2 py-0.5 bg-blue-100 text-blue-800 hover:bg-blue-100"
+                      className="text-xs sm:text-sm px-2 py-0.5 bg-[#a5fe50] text-green-800 hover:bg-[#a5fe50] shadow-sm"
                     >
                       {t("matchList.inProgress")}
                     </Badge>

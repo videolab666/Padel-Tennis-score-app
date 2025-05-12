@@ -85,7 +85,7 @@ export function FullScreenScoreboard({
 
     const handleResize = () => {
       if (wrapperRef.current) {
-        // Сбрасываем стили, чтобы получить естественные размеры
+        // Сбрасываем стили, чтобы получить естественные ��азмеры
         wrapperRef.current.style.transform = ""
         wrapperRef.current.style.width = "100%"
         wrapperRef.current.style.height = "100%"
@@ -770,7 +770,7 @@ export function FullScreenScoreboard({
                                   : { fontSize: "clamp(1.5rem, 5vw, 2.5rem)" }
                               }
                             >
-                              •
+                              ���
                             </span>
                           )}
                           <span

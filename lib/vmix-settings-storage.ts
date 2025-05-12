@@ -34,7 +34,7 @@ export const getAllVmixSettings = async (): Promise<VmixSettings[]> => {
   }
 }
 
-// Получение настроек vMix по ID
+// Получение настроек vMix п�� ID
 export const getVmixSettingsById = async (id: string): Promise<VmixSettings | null> => {
   try {
     const supabase = createClientSupabaseClient()

@@ -443,7 +443,7 @@ export default function NewMatchPage() {
               )}
             </div>
 
-            <div>
+            <div className="border rounded-md p-3 bg-[#f8fdf9] shadow-md">
               <Label>{t("newMatch.scoringSystem")}</Label>
               <Select value={scoringSystem} onValueChange={setScoringSystem}>
                 <SelectTrigger className="w-full mt-2">
@@ -517,9 +517,9 @@ export default function NewMatchPage() {
               )}
             </div>
 
-            <div className="space-y-2 border-t pt-4">
+            <div className="border rounded-md p-4 bg-[#f8fdf9] shadow-md">
               <Label className="text-base font-medium">{t("newMatch.additional")}</Label>
-              <div className="space-y-2">
+              <div className="space-y-2 mt-3">
                 <div className="flex items-center space-x-2">
                   <Checkbox id="golden-game" checked={goldenGame} onCheckedChange={setGoldenGame} />
                   <Label htmlFor="golden-game" className="text-sm">

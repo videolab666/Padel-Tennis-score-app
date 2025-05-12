@@ -30,7 +30,7 @@ export default function HomePage() {
       <OfflineNotice />
 
       <div className="mb-8">
-        <Card>
+        <Card className="bg-[#eeffbd] shadow-md">
           <CardHeader>
             <CardTitle>{t("home.newMatch")}</CardTitle>
             <CardDescription>{t("home.newMatchDesc")}</CardDescription>
@@ -57,12 +57,12 @@ export default function HomePage() {
       </div>
 
       {/* Активные матчи */}
-      <Card className="mb-6">
+      <Card className="mb-6 bg-[#f6f6f5] shadow-md">
         <CardHeader>
           <CardTitle>{t("home.activeMatches")}</CardTitle>
           <CardDescription>{t("home.activeMatchesDesc")}</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="bg-[#f6f6f5] shadow-md rounded-b-lg">
           <MatchList limit={12} />
           <div className="mt-4">
             <Link href="/history">

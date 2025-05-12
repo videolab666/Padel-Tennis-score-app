@@ -461,7 +461,7 @@ export const initializeDatabase = async () => {
         }
       } catch (fetchError) {
         if (fetchError.name === "AbortError") {
-          logEvent("error", "Таймаут при выполнении SQL", "initializeDatabase", { statement })
+          logEvent("error", "Тайма��т при выполнении SQL", "initializeDatabase", { statement })
         } else {
           logEvent("error", `Ошибка при запросе к Supabase: ${fetchError.message}`, "initializeDatabase", {
             error: fetchError,
