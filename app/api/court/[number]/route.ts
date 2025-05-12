@@ -405,7 +405,7 @@ export async function GET(request: NextRequest, { params }: { params: { number: 
       update_time: new Date().toLocaleTimeString(),
     }
 
-    // Динамически добавляем данные о сетах в зависимости от настроек матча
+    // Динамически добавляем данные о сетах в зависимости от настр��ек матча
     // Гарантируем, что будет как минимум 5 сетов для совместимости с vMix
     const maxSets = Math.max(5, totalSets)
     for (let i = 0; i < maxSets; i++) {

@@ -371,10 +371,10 @@ export default function NewMatchPage() {
           </Tabs>
 
           <div className="space-y-4">
-            <div>
+            <div className="border rounded-md p-3 bg-[#f8fdf9] shadow-md">
               <Label>{t("newMatch.format")}</Label>
               <Select value={matchFormat} onValueChange={setMatchFormat}>
-                <SelectTrigger>
+                <SelectTrigger className="mt-2">
                   <SelectValue placeholder={t("newMatch.selectFormat")} />
                 </SelectTrigger>
                 <SelectContent>
@@ -384,153 +384,138 @@ export default function NewMatchPage() {
               </Select>
             </div>
 
-            <div>
+            <div className="border rounded-md p-3 bg-[#f8fdf9] shadow-md">
               <Label>{t("newMatch.sets")}</Label>
-              <RadioGroup value={sets} onValueChange={setSets} className="grid grid-cols-2 gap-2 mt-2">
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="1" id="sets-1" />
-                  <Label htmlFor="sets-1">{t("newMatch.oneSets")}</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="3" id="sets-3" />
-                  <Label htmlFor="sets-3">{t("newMatch.threeSets")}</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="5" id="sets-5" />
-                  <Label htmlFor="sets-5">{t("newMatch.fiveSets")}</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="super" id="sets-super" />
-                  <div>
-                    <Label htmlFor="sets-super" className="font-medium">
-                      {t("newMatch.superSet")}
-                    </Label>
-                    <p className="text-xs text-muted-foreground">
-                      Матч играется одним сетом до 8 геймов. Необходимо выиграть минимум с разницей в 2 гейма. Если счёт
-                      становится 7–7, играется гейм до 9. Если счёт становится 8–8, играется тайбрейк до 7 очков (с
-                      преимуществом в 2 очка).
-                    </p>
+              <Select value={sets} onValueChange={setSets}>
+                <SelectTrigger className="w-full mt-2">
+                  <SelectValue placeholder={t("newMatch.selectSets")} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="1">{t("newMatch.oneSets")}</SelectItem>
+                  <SelectItem value="3">{t("newMatch.threeSets")}</SelectItem>
+                  <SelectItem value="5">{t("newMatch.fiveSets")}</SelectItem>
+                  <SelectItem value="super">
+                    <div>
+                      <span className="font-medium">{t("newMatch.superSet")}</span>
+                      <p className="text-xs text-muted-foreground">{t("newMatch.superSetDescription")}</p>
+                    </div>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="border border-green-200 rounded-md p-3 bg-green-50 shadow-md">
+              <div className="flex items-center justify-between mb-3">
+                <Label>{t("newMatch.finalSetTiebreak")}</Label>
+                <Switch
+                  checked={finalSetTiebreak}
+                  onCheckedChange={(checked) => {
+                    setFinalSetTiebreak(checked)
+                    console.log("Final set tiebreak changed to:", checked)
+                  }}
+                  className="data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-red-500"
+                />
+              </div>
+
+              {finalSetTiebreak && (
+                <div className="space-y-2">
+                  <Label>{t("newMatch.finalSetTiebreakLength")}</Label>
+                  <Select
+                    value={finalSetTiebreakLength}
+                    onValueChange={(value) => {
+                      setFinalSetTiebreakLength(value)
+                      // Удаляем синхронизацию с типом тайбрейка
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder={t("newMatch.selectTiebreakLength")} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="7">{t("newMatch.tiebreakLength7")}</SelectItem>
+                      <SelectItem value="10">{t("newMatch.tiebreakLength10")}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <div className="text-xs text-green-700 mt-1">
+                    <p>{t("newMatch.finalSetTiebreakLengthDescription")}</p>
+                    <p className="mt-1 font-medium">{t("newMatch.finalSetTiebreakNote")}</p>
                   </div>
                 </div>
-              </RadioGroup>
+              )}
             </div>
-
-            <div className="flex items-center justify-between">
-              <Label>{t("newMatch.finalSetTiebreak")}</Label>
-              <Switch
-                checked={finalSetTiebreak}
-                onCheckedChange={(checked) => {
-                  setFinalSetTiebreak(checked)
-                  console.log("Final set tiebreak changed to:", checked)
-                }}
-                className="data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-red-500"
-              />
-            </div>
-
-            {finalSetTiebreak && (
-              <div className="space-y-2 border border-green-200 rounded-md p-3 bg-green-50">
-                <Label>{t("newMatch.finalSetTiebreakLength")}</Label>
-                <Select
-                  value={finalSetTiebreakLength}
-                  onValueChange={(value) => {
-                    setFinalSetTiebreakLength(value)
-                    // Удаляем синхронизацию с типом тайбрейка
-                  }}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder={t("newMatch.selectTiebreakLength")} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="7">{t("newMatch.tiebreakLength7")}</SelectItem>
-                    <SelectItem value="10">{t("newMatch.tiebreakLength10")}</SelectItem>
-                  </SelectContent>
-                </Select>
-                <div className="text-xs text-green-700 mt-1">
-                  <p>{t("newMatch.finalSetTiebreakLengthDescription")}</p>
-                  <p className="mt-1 font-medium">{t("newMatch.finalSetTiebreakNote")}</p>
-                </div>
-              </div>
-            )}
 
             <div>
               <Label>{t("newMatch.scoringSystem")}</Label>
-              <RadioGroup
-                value={scoringSystem}
-                onValueChange={setScoringSystem}
-                className="grid grid-cols-1 gap-2 mt-2"
-              >
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="classic" id="scoring-classic" />
-                  <Label htmlFor="scoring-classic">{t("newMatch.classicScoring")}</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="no-ad" id="scoring-no-ad" />
-                  <Label htmlFor="scoring-no-ad">{t("newMatch.noAdScoring")}</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="fast4" id="scoring-fast4" />
-                  <Label htmlFor="scoring-fast4">{t("newMatch.fast4Scoring")}</Label>
-                </div>
-              </RadioGroup>
+              <Select value={scoringSystem} onValueChange={setScoringSystem}>
+                <SelectTrigger className="w-full mt-2">
+                  <SelectValue placeholder={t("newMatch.selectScoringSystem")} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="classic">{t("newMatch.classicScoring")}</SelectItem>
+                  <SelectItem value="no-ad">{t("newMatch.noAdScoring")}</SelectItem>
+                  <SelectItem value="fast4">{t("newMatch.fast4Scoring")}</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
-            <div className="flex items-center justify-between">
-              <Label>{t("newMatch.tiebreak")}</Label>
-              <Switch
-                checked={tiebreakEnabled}
-                onCheckedChange={setTiebreakEnabled}
-                className="data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-red-500"
-              />
+            <div className="border rounded-md p-4 bg-[#f3f5f7] shadow-md">
+              <div className="flex items-center justify-between mb-4">
+                <Label>{t("newMatch.tiebreak")}</Label>
+                <Switch
+                  checked={tiebreakEnabled}
+                  onCheckedChange={setTiebreakEnabled}
+                  className="data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-red-500"
+                />
+              </div>
+
+              {tiebreakEnabled && (
+                <>
+                  <div>
+                    <Label>{t("newMatch.tiebreakType")}</Label>
+                    <RadioGroup
+                      value={tiebreakType}
+                      onValueChange={(value) => {
+                        setTiebreakType(value)
+                        // Удаляем синхронизацию с длиной финального тайбрейка
+                      }}
+                      className="grid grid-cols-1 gap-2 mt-2"
+                    >
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="regular" id="tiebreak-regular" />
+                        <div>
+                          <Label htmlFor="tiebreak-regular" className="font-medium">
+                            {t("newMatch.regularTiebreak")}
+                          </Label>
+                          <p className="text-xs text-muted-foreground">До 7 очков (с разницей в 2 очка)</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="championship" id="tiebreak-championship" />
+                        <div>
+                          <Label htmlFor="tiebreak-championship" className="font-medium">
+                            {t("newMatch.championshipTiebreak")}
+                          </Label>
+                          <p className="text-xs text-muted-foreground">До 10 очков (с разницей в 2 очка)</p>
+                        </div>
+                      </div>
+                    </RadioGroup>
+                  </div>
+
+                  <div className="mt-4">
+                    <Label>{t("newMatch.tiebreakAt")}</Label>
+                    <Select value={tiebreakAt} onValueChange={setTiebreakAt}>
+                      <SelectTrigger>
+                        <SelectValue placeholder={t("newMatch.selectTiebreakScore")} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="6-6">6:6</SelectItem>
+                        <SelectItem value="5-5">5:5</SelectItem>
+                        <SelectItem value="4-4">4:4</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </>
+              )}
             </div>
-
-            {tiebreakEnabled && (
-              <>
-                <div>
-                  <Label>{t("newMatch.tiebreakType")}</Label>
-                  <RadioGroup
-                    value={tiebreakType}
-                    onValueChange={(value) => {
-                      setTiebreakType(value)
-                      // Удаляем синхронизацию с длиной финального тайбрейка
-                    }}
-                    className="grid grid-cols-1 gap-2 mt-2"
-                  >
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="regular" id="tiebreak-regular" />
-                      <div>
-                        <Label htmlFor="tiebreak-regular" className="font-medium">
-                          {t("newMatch.regularTiebreak")}
-                        </Label>
-                        <p className="text-xs text-muted-foreground">До 7 очков (с разницей в 2 очка)</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="championship" id="tiebreak-championship" />
-                      <div>
-                        <Label htmlFor="tiebreak-championship" className="font-medium">
-                          {t("newMatch.championshipTiebreak")}
-                        </Label>
-                        <p className="text-xs text-muted-foreground">До 10 очков (с разницей в 2 очка)</p>
-                      </div>
-                    </div>
-                  </RadioGroup>
-                </div>
-
-                <div>
-                  <Label>{t("newMatch.tiebreakAt")}</Label>
-                  <Select value={tiebreakAt} onValueChange={setTiebreakAt}>
-                    <SelectTrigger>
-                      <SelectValue placeholder={t("newMatch.selectTiebreakScore")} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="6-6">6:6</SelectItem>
-                      <SelectItem value="5-5">5:5</SelectItem>
-                      <SelectItem value="4-4">4:4</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </>
-            )}
 
             <div className="space-y-2 border-t pt-4">
               <Label className="text-base font-medium">{t("newMatch.additional")}</Label>
@@ -687,7 +672,7 @@ export default function NewMatchPage() {
                       </Label>
                     </div>
 
-                    <div className="grid grid-cols-5 gap-2">
+                    <div className="grid grid-cols-2 gap-2">
                       {Array.from({ length: MAX_COURTS }, (_, i) => i + 1).map((num) => (
                         <div key={num} className="flex items-center space-x-2">
                           <RadioGroupItem

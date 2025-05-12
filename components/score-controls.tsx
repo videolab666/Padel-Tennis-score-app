@@ -10,11 +10,15 @@ import { useLanguage } from "@/contexts/language-context"
 import { useEffect, useState } from "react"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
+import { CourtVisualization } from "@/components/court-visualization"
 
 export function ScoreControls({ match, updateMatch }) {
   // Используем хук для звуковых эффектов
   const { soundsEnabled, playSound, toggleSounds } = useSoundEffects()
   const { t } = useLanguage()
+
+  // Ensure t.match exists to prevent errors
+  const tMatch = t?.match || {}
 
   // Локальное состояние для отслеживания необходимости смены сторон
   const [localMatch, setLocalMatch] = useState(match)
@@ -60,7 +64,7 @@ export function ScoreControls({ match, updateMatch }) {
       teamB: updatedMatch.courtSides.teamB === "left" ? "right" : "left",
     }
 
-    // Сбрасываем флаг необходим��сти смены сторон
+    // Сбрасываем флаг необходимости смены сторон
     updatedMatch.shouldChangeSides = false
 
     // Обновляем локальное состояние немедленно
@@ -609,7 +613,7 @@ export function ScoreControls({ match, updateMatch }) {
     <Card className="w-full">
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>
-          {t("match.scoreControls")}
+          {tMatch.scoreControls || "Score Controls"}
           {isFinalSet && localMatch.settings.finalSetTiebreak && !currentSet.isTiebreak && (
             <span className="ml-2 text-sm text-red-600 font-normal">
               (Финальный сет - тайбрейк при {localMatch.settings.tiebreakAt})
@@ -633,7 +637,7 @@ export function ScoreControls({ match, updateMatch }) {
               disabled={localMatch.isCompleted}
             />
             <Label htmlFor="fixed-sides" className="text-sm">
-              {fixedSides ? t("match.fixedSides") : t("match.fixedPlayers")}
+              {fixedSides ? tMatch.fixedSides || "Fixed Sides" : tMatch.fixedPlayers || "Fixed Players"}
             </Label>
           </div>
         </div>
@@ -756,6 +760,8 @@ export function ScoreControls({ match, updateMatch }) {
           </Card>
         </div>
 
+        <CourtVisualization match={localMatch} fixedSides={fixedSides} />
+
         <div className="flex gap-2">
           <Button
             variant="outline"
@@ -763,7 +769,7 @@ export function ScoreControls({ match, updateMatch }) {
             onClick={manualSwitchServer}
             disabled={localMatch.isCompleted}
           >
-            {t("match.switchServer")}
+            {tMatch.switchServer || "Switch Server"}
           </Button>
 
           <Button
@@ -773,7 +779,7 @@ export function ScoreControls({ match, updateMatch }) {
             disabled={localMatch.isCompleted}
           >
             <ArrowLeftRightIcon className="h-4 w-4 mr-1" />
-            {t("match.switchSides")}
+            {tMatch.switchSides || "Switch Sides"}
           </Button>
         </div>
       </CardContent>

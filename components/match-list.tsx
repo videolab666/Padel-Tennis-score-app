@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { getMatches, subscribeToMatchesListUpdates } from "@/lib/match-storage"
 import { useLanguage } from "@/contexts/language-context"
 
-export function MatchList() {
+export function MatchList({ limit }: { limit?: number }) {
   const [matches, setMatches] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -103,9 +103,12 @@ export function MatchList() {
     return <div className="text-center py-8 text-muted-foreground">{t("matchList.noMatches")}</div>
   }
 
+  // Apply limit if specified
+  const displayedMatches = limit ? matches.slice(0, limit) : matches
+
   return (
     <div className="space-y-4">
-      {matches.map((match) => (
+      {displayedMatches.map((match) => (
         <Link href={`/match/${match.id}`} key={match.id}>
           <Card className="hover:bg-muted/50 transition-colors">
             <CardContent className="p-4">
@@ -198,6 +201,11 @@ export function MatchList() {
           </Card>
         </Link>
       ))}
+      {limit && matches.length > limit && (
+        <div className="text-center text-sm text-muted-foreground pt-2">
+          {t("matchList.showingLatest").replace("{{count}}", limit.toString())}
+        </div>
+      )}
     </div>
   )
 }

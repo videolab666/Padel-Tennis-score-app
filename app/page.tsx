@@ -63,7 +63,7 @@ export default function HomePage() {
           <CardDescription>{t("home.activeMatchesDesc")}</CardDescription>
         </CardHeader>
         <CardContent>
-          <MatchList />
+          <MatchList limit={12} />
           <div className="mt-4">
             <Link href="/history">
               <Button variant="outline" className="w-full">

@@ -248,7 +248,7 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
     // Запускаем первоначальную загрузку и подписку
     setupSubscription()
 
-    // Настраиваем периодическую проверку наличия нового матча
+    // Настраиваем пери��дическую проверку наличия нового матча
     checkInterval = setInterval(async () => {
       // Если текущий матч завершен, проверяем наличие нового матча
       if (isCompletedMatch) {
