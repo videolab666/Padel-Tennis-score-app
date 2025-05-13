@@ -733,10 +733,10 @@ export function ScoreBoard({ match, updateMatch }) {
 
       <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-0 items-center w-full">
         <div className="text-right space-y-1 pr-3 border-r border-gray-200">
-          <div className="text-sm text-muted-foreground mb-1 text-right">{t("match.leftSide")}</div>
+          {fixedSides && <div className="text-sm text-muted-foreground mb-1 text-right">Ліва сторона</div>}
           {!fixedSides && (
             <div className="text-xs text-green-600 font-medium">
-              {match.courtSides?.teamA === "left" ? t("match.teamA") : t("match.teamB")}
+              {match.courtSides?.teamA === "left" ? "Ліва сторона" : "Права сторона"}
             </div>
           )}
           {fixedSides
@@ -795,6 +795,7 @@ export function ScoreBoard({ match, updateMatch }) {
                       <Badge
                         variant="outline"
                         className="mr-2 w-3 h-3 rounded-full bg-lime-400 border-lime-600 p-0 flex items-center justify-center flex-shrink-0"
+                        variant="outline"
                       >
                         <span className="sr-only">{t("match.serving")}</span>
                       </Badge>
@@ -809,10 +810,10 @@ export function ScoreBoard({ match, updateMatch }) {
               })}
         </div>
         <div className="text-left space-y-1 pl-3">
-          <div className="text-sm text-muted-foreground mb-1 text-left">{t("match.rightSide")}</div>
+          {fixedSides && <div className="text-sm text-muted-foreground mb-1 text-left">Права сторона</div>}
           {!fixedSides && (
             <div className="text-xs text-green-600 font-medium">
-              {match.courtSides?.teamA === "right" ? t("match.teamA") : t("match.teamB")}
+              {match.courtSides?.teamB === "left" ? "Ліва сторона" : "Права сторона"}
             </div>
           )}
           {fixedSides
