@@ -24,7 +24,97 @@ import { logEvent } from "@/lib/error-logger"
 import { useLanguage } from "@/contexts/language-context"
 
 // Добавим импорт функций для работы с кортами
-import { getOccupiedCourts, MAX_COURTS, isCourtAvailable } from "@/lib/court-utils"
+import { getOccupiedCourts, isCourtAvailable } from "@/lib/court-utils"
+
+// Custom animations for the button
+const customStyles = `
+  @keyframes gradient-x {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+  
+  .animate-gradient-x {
+    background-size: 200% 200%;
+    animation: gradient-x 3s ease infinite;
+  }
+  
+  .orange-button-container {
+    position: relative;
+    width: 100%;
+    overflow: visible;
+  }
+  
+  .orange-button {
+    position: relative;
+    display: block;
+    width: 100%;
+    background: linear-gradient(90deg, #ff9d4d, #ff6b00, #ff9d4d);
+    background-size: 200% auto;
+    animation: gradient-x 3s ease infinite;
+    border-radius: 0.5rem;
+    padding: 3px;
+    transition: transform 0.3s ease;
+  }
+  
+  .orange-button:hover {
+    transform: scale(1.03);
+  }
+  
+  .orange-button-inner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(90deg, #ff7e1a, #e65c00, #ff7e1a);
+    background-size: 200% auto;
+    animation: gradient-x 3s ease infinite;
+    border-radius: 0.375rem;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    position: relative;
+    z-index: 1;
+    transition: all 0.3s ease;
+    color: white;
+    font-weight: 500;
+  }
+  
+  .orange-button:hover .orange-button-inner {
+    background: linear-gradient(90deg, #ff8c33, #ff6600, #ff8c33);
+    background-size: 200% auto;
+  }
+  
+  .orange-button-glow {
+    position: absolute;
+    inset: -4px;
+    background: linear-gradient(90deg, rgba(255, 157, 77, 0.5), rgba(255, 107, 0, 0.5), rgba(255, 157, 77, 0.5));
+    background-size: 200% auto;
+    animation: gradient-x 3s ease infinite;
+    border-radius: 0.625rem;
+    z-index: 0;
+    filter: blur(8px);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  
+  .orange-button:hover .orange-button-glow {
+    opacity: 1;
+  }
+  
+  .arrow-icon {
+    margin-left: 0.5rem;
+    transition: transform 0.3s ease;
+  }
+  
+  .orange-button:hover .arrow-icon {
+    transform: translateX(4px);
+  }
+`
 
 export default function NewMatchPage() {
   const { t } = useLanguage()
@@ -320,7 +410,10 @@ export default function NewMatchPage() {
   }
 
   return (
-    <div className="container max-w-2xl mx-auto px-4 py-8">
+    <div className="container max-w-2xl mx-auto px-1.5 py-8">
+      <style jsx global>
+        {customStyles}
+      </style>
       {showAlert && (
         <Alert
           className={`fixed top-4 right-4 w-auto z-50 ${
@@ -365,10 +458,10 @@ export default function NewMatchPage() {
             : "bg-gradient-to-r from-[#01a0e3] to-[#0056a9]"
         } transition-colors duration-500`}
       >
-        <CardHeader className="text-white">
+        <CardHeader className="text-white px-3">
           <CardTitle className="text-center text-white">{t("newMatch.title")}</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-6 px-3">
           <Tabs defaultValue={matchType} onValueChange={setMatchType}>
             <TabsList className="grid w-full grid-cols-2 bg-[#f5fef3] shadow-md">
               <TabsTrigger
@@ -698,22 +791,45 @@ export default function NewMatchPage() {
                   </div>
 
                   <div className="grid grid-cols-2 gap-2">
-                    {Array.from({ length: MAX_COURTS }, (_, i) => i + 1).map((num) => (
-                      <div key={num} className="flex items-center space-x-2">
-                        <RadioGroupItem
-                          value={num.toString()}
-                          id={`court-${num}`}
-                          disabled={isCourtOccupied(num) || loadingCourts}
-                          className="scale-75 sm:scale-100"
-                        />
-                        <Label
-                          htmlFor={`court-${num}`}
-                          className={`text-[0.65rem] sm:text-sm ${isCourtOccupied(num) ? "text-muted-foreground line-through" : ""}`}
-                        >
-                          {t("newMatch.court")} {num}
-                        </Label>
-                      </div>
-                    ))}
+                    <div className="space-y-2">
+                      {/* Первый столбец: корты 1-5 */}
+                      {Array.from({ length: 5 }, (_, i) => i + 1).map((num) => (
+                        <div key={num} className="flex items-center space-x-2">
+                          <RadioGroupItem
+                            value={num.toString()}
+                            id={`court-${num}`}
+                            disabled={isCourtOccupied(num) || loadingCourts}
+                            className="scale-75 sm:scale-100"
+                          />
+                          <Label
+                            htmlFor={`court-${num}`}
+                            className={`text-[0.65rem] sm:text-sm ${isCourtOccupied(num) ? "text-muted-foreground line-through" : ""}`}
+                          >
+                            {t("newMatch.court")} {num}
+                          </Label>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="space-y-2">
+                      {/* Второй столбец: корты 6-10 */}
+                      {Array.from({ length: 5 }, (_, i) => i + 6).map((num) => (
+                        <div key={num} className="flex items-center space-x-2">
+                          <RadioGroupItem
+                            value={num.toString()}
+                            id={`court-${num}`}
+                            disabled={isCourtOccupied(num) || loadingCourts}
+                            className="scale-75 sm:scale-100"
+                          />
+                          <Label
+                            htmlFor={`court-${num}`}
+                            className={`text-[0.65rem] sm:text-sm ${isCourtOccupied(num) ? "text-muted-foreground line-through" : ""}`}
+                          >
+                            {t("newMatch.court")} {num}
+                          </Label>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </RadioGroup>
               </div>
@@ -733,10 +849,18 @@ export default function NewMatchPage() {
             </div>
           </div>
         </CardContent>
-        <CardFooter>
-          <Button className="w-full" onClick={handleCreateMatch}>
-            {t("newMatch.startMatch")}
-          </Button>
+        <CardFooter className="px-3">
+          <div className="orange-button-container">
+            <div className="orange-button">
+              <div className="orange-button-glow"></div>
+              <button className="orange-button-inner" onClick={handleCreateMatch}>
+                {t("newMatch.startMatch")}
+                <svg className="arrow-icon h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+              </button>
+            </div>
+          </div>
         </CardFooter>
       </Card>
     </div>

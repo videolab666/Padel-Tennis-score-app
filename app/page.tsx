@@ -36,17 +36,17 @@ export default function HomePage() {
             <CardDescription>{t("home.newMatchDesc")}</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
+            <div className="space-y-6">
               <div className="grid grid-cols-2 gap-4">
                 <Link href="/new-match?type=tennis">
-                  <Button className="w-full">{t("home.tennis")}</Button>
+                  <Button className="w-full shadow-md">{t("home.tennis")}</Button>
                 </Link>
                 <Link href="/new-match?type=padel">
-                  <Button className="w-full">{t("home.padel")}</Button>
+                  <Button className="w-full shadow-md">{t("home.padel")}</Button>
                 </Link>
               </div>
               <Link href="/players">
-                <Button variant="outline" className="w-full">
+                <Button variant="outline" className="w-full shadow-md">
                   <Users className="h-4 w-4 mr-2" />
                   {t("home.managePlayers")}
                 </Button>

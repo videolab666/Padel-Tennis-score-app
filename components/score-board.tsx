@@ -16,8 +16,9 @@ import {
 } from "@/components/ui/alert-dialog"
 import { useLanguage } from "@/contexts/language-context"
 import { Trophy } from "lucide-react"
-import { Switch } from "@/components/ui/switch"
-import { Label } from "@/components/ui/label"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { CircleDot } from "lucide-react"
+import { Button } from "@/components/ui/button"
 
 export function ScoreBoard({ match, updateMatch }) {
   const [showMatchEndDialog, setShowMatchEndDialog] = useState(false)
@@ -31,6 +32,7 @@ export function ScoreBoard({ match, updateMatch }) {
     }
     return true // Default to fixed sides
   })
+  const [matchHistory, setMatchHistory] = useState([])
   const { t } = useLanguage()
 
   useEffect(() => {
@@ -64,12 +66,14 @@ export function ScoreBoard({ match, updateMatch }) {
 
     // Save the current match state before any changes
     const previousState = JSON.parse(JSON.stringify(match))
+    // Save to history
+    setMatchHistory((prev) => [...prev, previousState])
 
     // Create a copy of the match
     const updatedMatch = { ...match }
 
     // Clear history to save space
-    updatedMatch.history = []
+    // updatedMatch.history = []
 
     const otherTeam = team === "teamA" ? "teamB" : "teamA"
 
@@ -503,6 +507,45 @@ export function ScoreBoard({ match, updateMatch }) {
     return match.currentServer.team === team && match.currentServer.playerIndex === playerIndex
   }
 
+  const manualSwitchServer = () => {
+    if (!updateMatch || match.isCompleted) return
+
+    // Save the current match state before any changes
+    const previousState = JSON.parse(JSON.stringify(match))
+    // Save to history
+    setMatchHistory((prev) => [...prev, previousState])
+
+    // Create a copy of the match
+    const updatedMatch = { ...match }
+
+    // Switch server
+    switchServer(updatedMatch)
+
+    // Update match
+    updateMatch(updatedMatch)
+  }
+
+  const manualSwitchSides = () => {
+    if (!updateMatch || match.isCompleted) return
+
+    // Save the current match state before any changes
+    const previousState = JSON.parse(JSON.stringify(match))
+    // Save to history
+    setMatchHistory((prev) => [...prev, previousState])
+
+    // Create a copy of the match
+    const updatedMatch = { ...match }
+
+    // Switch sides
+    updatedMatch.courtSides = {
+      teamA: updatedMatch.courtSides.teamA === "left" ? "right" : "left",
+      teamB: updatedMatch.courtSides.teamB === "left" ? "right" : "left",
+    }
+
+    // Update match
+    updateMatch(updatedMatch)
+  }
+
   // Получаем текущий счет в виде строки (0, 15, 30, 40, Ad)
   const getCurrentGameScore = (team) => {
     if (currentSet.isTiebreak) {
@@ -612,18 +655,57 @@ export function ScoreBoard({ match, updateMatch }) {
         </AlertDialogContent>
       </AlertDialog>
 
-      <div className="flex items-center justify-end mb-2">
-        <div className="flex items-center space-x-2">
-          <Switch
-            id="fixed-sides-scoreboard"
-            checked={fixedSides}
-            onCheckedChange={setFixedSides}
-            disabled={match.isCompleted}
-          />
-          <Label htmlFor="fixed-sides-scoreboard" className="text-sm">
-            {fixedSides ? t("match.fixedSides") : t("match.fixedPlayers")}
-          </Label>
-        </div>
+      <div className="flex items-center justify-center mb-4 w-full -mx-4">
+        <Tabs
+          defaultValue={fixedSides ? "sides" : "players"}
+          value={fixedSides ? "sides" : "players"}
+          onValueChange={(value) => {
+            const newValue = value === "sides"
+            setFixedSides(newValue)
+            // Генерируем пользовательское событие для синхронизации с другими компонентами
+            const event = new CustomEvent("fixedSidesChanged", {
+              detail: { value: newValue },
+            })
+            window.dispatchEvent(event)
+          }}
+          className="w-full"
+        >
+          <TabsList className="grid w-[calc(100%+32px)] grid-cols-2 bg-[#f5fef3] shadow-md">
+            <TabsTrigger
+              value="sides"
+              className="data-[state=active]:bg-[#c5f87e] data-[state=inactive]:bg-[#f5fef3] flex items-center justify-center gap-1 px-3 py-1 text-xs sm:text-sm"
+            >
+              {fixedSides && <CircleDot className="h-3 w-3 text-green-700" />}
+              {t("match.fixedSides")}
+            </TabsTrigger>
+            <TabsTrigger
+              value="players"
+              className="data-[state=active]:bg-[#c5f87e] data-[state=inactive]:bg-[#f5fef3] flex items-center justify-center gap-1 px-3 py-1 text-xs sm:text-sm"
+            >
+              {!fixedSides && <CircleDot className="h-3 w-3 text-green-700" />}
+              {t("match.fixedPlayers")}
+            </TabsTrigger>
+          </TabsList>
+
+          <div className="grid grid-cols-2 w-full">
+            <Button
+              variant="outline"
+              size="sm"
+              className="text-xs sm:text-sm py-1 rounded-none border-r-0 bg-white hover:bg-blue-50"
+              onClick={manualSwitchServer}
+            >
+              {t("match.switchServer") || "Switch Server"}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="text-xs sm:text-sm py-1 rounded-none bg-white hover:bg-blue-50"
+              onClick={manualSwitchSides}
+            >
+              {t("match.switchSides") || "Switch Sides"}
+            </Button>
+          </div>
+        </Tabs>
       </div>
 
       <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-0 items-center w-full">
@@ -799,6 +881,38 @@ export function ScoreBoard({ match, updateMatch }) {
               </button>
             </div>
           </div>
+
+          {/* Кнопка отмены изменения счета */}
+          <div className="mt-4">
+            <button
+              className="w-full py-2 px-4 bg-gray-100 hover:bg-gray-200 active:bg-gray-300 rounded-md text-sm font-medium flex items-center justify-center transition-all"
+              onClick={() => {
+                if (matchHistory.length > 0) {
+                  const previousMatch = matchHistory[matchHistory.length - 1]
+                  updateMatch(previousMatch)
+                  setMatchHistory((prev) => prev.slice(0, -1))
+                }
+              }}
+              disabled={matchHistory.length === 0}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="mr-2"
+              >
+                <path d="M3 7v6h6"></path>
+                <path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"></path>
+              </svg>
+              {t("match.undo") || "Undo"}
+            </button>
+          </div>
         </CardContent>
       </Card>
 
@@ -837,8 +951,26 @@ export function ScoreBoard({ match, updateMatch }) {
         <div className="mt-4">
           <div className="grid grid-cols-[auto_1fr_1fr] gap-2 text-sm">
             <div></div>
-            <div className="text-center font-medium">{t("match.teamA")}</div>
-            <div className="text-center font-medium">{t("match.teamB")}</div>
+            <div className="text-center">
+              <div className="font-medium">{t("match.teamA")}</div>
+              <div className="flex flex-col">
+                {teamA.players.map((player, idx) => (
+                  <div key={idx} className="text-xs text-gray-500 truncate">
+                    {player.name}
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="text-center">
+              <div className="font-medium">{t("match.teamB")}</div>
+              <div className="flex flex-col">
+                {teamB.players.map((player, idx) => (
+                  <div key={idx} className="text-xs text-gray-500 truncate">
+                    {player.name}
+                  </div>
+                ))}
+              </div>
+            </div>
 
             {allSets.map((set, index) => {
               // Skip rendering the current set if the match is completed

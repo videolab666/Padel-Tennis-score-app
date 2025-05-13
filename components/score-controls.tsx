@@ -1,15 +1,11 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { MinusIcon, PlusIcon, ArrowLeftRightIcon } from "lucide-react"
+import { ArrowLeftRightIcon, RepeatIcon } from "lucide-react"
 import { shouldChangeSides } from "@/lib/tennis-utils"
 import { useSoundEffects } from "@/hooks/use-sound-effects"
-import { SoundToggle } from "@/components/sound-toggle"
 import { useLanguage } from "@/contexts/language-context"
 import { useEffect, useState } from "react"
-import { Switch } from "@/components/ui/switch"
-import { Label } from "@/components/ui/label"
 import { CourtVisualization } from "@/components/court-visualization"
 
 export function ScoreControls({ match, updateMatch }) {
@@ -31,6 +27,8 @@ export function ScoreControls({ match, updateMatch }) {
     return true // Default to fixed sides
   })
 
+  const [matchHistory, setMatchHistory] = useState([])
+
   // Обновляем локальное состояние при изменении match
   useEffect(() => {
     setLocalMatch(match)
@@ -46,6 +44,19 @@ export function ScoreControls({ match, updateMatch }) {
   useEffect(() => {
     if (typeof window !== "undefined") {
       localStorage.setItem("fixedSidesPreference", fixedSides.toString())
+    }
+
+    // Добавляем обработчик пользовательского события
+    const handleFixedSidesChanged = (event) => {
+      if (event.detail && event.detail.value !== undefined) {
+        setFixedSides(event.detail.value)
+      }
+    }
+
+    window.addEventListener("fixedSidesChanged", handleFixedSidesChanged)
+
+    return () => {
+      window.removeEventListener("fixedSidesChanged", handleFixedSidesChanged)
     }
   }, [fixedSides])
 
@@ -76,6 +87,10 @@ export function ScoreControls({ match, updateMatch }) {
 
   // Изменяем функцию addPoint
   const addPoint = (team) => {
+    // Сохраняем текущее состояние матча в историю
+    const previousState = JSON.parse(JSON.stringify(localMatch))
+    setMatchHistory((prev) => [...prev, previousState])
+
     // Создаем новый объект матча
     const updatedMatch = { ...localMatch }
 
@@ -214,6 +229,10 @@ export function ScoreControls({ match, updateMatch }) {
 
   // Изменяем функцию removePoint
   const removePoint = (team) => {
+    // Сохраняем текущее состояние матча в историю
+    const previousState = JSON.parse(JSON.stringify(localMatch))
+    setMatchHistory((prev) => [...prev, previousState])
+
     // Создаем новый объект матча
     const updatedMatch = { ...localMatch }
 
@@ -339,7 +358,7 @@ export function ScoreControls({ match, updateMatch }) {
       if (currentSet.teamA === tiebreakAt && currentSet.teamB === tiebreakAt) {
         // Начинаем тайбрейк в финальном сете
         currentSet.isTiebreak = true
-        currentSet.isSuperTiebreak = true // Отмечаем, что это супер-тайбрейк
+        currentSet.isSuperTiebreak = true // Отмечаем, что это супер-тай-брейк
         console.log("Starting final set tiebreak at", tiebreakAt, "all")
       }
     }
@@ -610,179 +629,31 @@ export function ScoreControls({ match, updateMatch }) {
   const isFinalSet = isDecidingSet || isTwoSetsMatch
 
   return (
-    <Card className="w-full">
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>
-          {tMatch.scoreControls || "Score Controls"}
-          {isFinalSet && localMatch.settings.finalSetTiebreak && !currentSet.isTiebreak && (
-            <span className="ml-2 text-sm text-red-600 font-normal">
-              (Финальный сет - тайбрейк при {localMatch.settings.tiebreakAt})
-            </span>
-          )}
-          {currentSet.isTiebreak && currentSet.isSuperTiebreak && (
-            <span className="ml-2 text-sm text-red-600 font-normal">
-              (Финальный тайбрейк до {localMatch.settings.finalSetTiebreakLength})
-            </span>
-          )}
-        </CardTitle>
-        <SoundToggle enabled={soundsEnabled} onToggle={toggleSounds} />
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center space-x-2">
-            <Switch
-              id="fixed-sides"
-              checked={fixedSides}
-              onCheckedChange={setFixedSides}
-              disabled={localMatch.isCompleted}
-            />
-            <Label htmlFor="fixed-sides" className="text-sm">
-              {fixedSides ? tMatch.fixedSides || "Fixed Sides" : tMatch.fixedPlayers || "Fixed Players"}
-            </Label>
-          </div>
-        </div>
+    <div className="w-full space-y-4">
+      {/* Кнопки управления сервером и сменой сторон */}
+      <div className="flex gap-2 mb-4">
+        <Button
+          variant="outline"
+          className="flex-1 text-xs sm:text-sm py-1 sm:py-2 score-button transition-all hover:bg-blue-50"
+          onClick={manualSwitchServer}
+          disabled={localMatch.isCompleted}
+        >
+          <RepeatIcon className="h-4 w-4 mr-1" />
+          {tMatch.switchServer || "Switch Server"}
+        </Button>
 
-        <div className="grid grid-cols-2 gap-4">
-          {/* Левая сторона корта */}
-          <Card className="w-full">
-            <CardContent className="p-2 sm:p-4">
-              <div className="min-h-[60px] sm:min-h-[80px] flex flex-col justify-center w-full">
-                <h3 className="text-sm sm:text-base font-medium text-center w-full overflow-hidden truncate">
-                  {fixedSides
-                    ? localMatch.courtSides?.teamA === "left"
-                      ? t("match.teamA")
-                      : t("match.teamB")
-                    : t("match.teamA")}
-                  <span className="ml-2 text-xs sm:text-sm text-muted-foreground">
-                    {fixedSides
-                      ? `(${t("match.leftSide")})`
-                      : localMatch.courtSides?.teamA === "left"
-                        ? `(${t("match.leftSide")})`
-                        : `(${t("match.rightSide")})`}
-                  </span>
-                </h3>
-                {fixedSides
-                  ? localMatch.courtSides?.teamA === "left"
-                    ? renderPlayerNames(localMatch.teamA)
-                    : renderPlayerNames(localMatch.teamB)
-                  : renderPlayerNames(localMatch.teamA)}
-              </div>
-              <div className="flex gap-2 items-center mt-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={
-                    fixedSides
-                      ? localMatch.courtSides?.teamA === "left"
-                        ? handleRemovePointTeamA
-                        : handleRemovePointTeamB
-                      : handleRemovePointTeamA
-                  }
-                  className="flex-none w-8 h-8 p-0 score-button score-button-minus"
-                  disabled={localMatch.isCompleted}
-                >
-                  <MinusIcon className="h-3 w-3" />
-                </Button>
-                <Button
-                  onClick={
-                    fixedSides
-                      ? localMatch.courtSides?.teamA === "left"
-                        ? handleAddPointTeamA
-                        : handleAddPointTeamB
-                      : handleAddPointTeamA
-                  }
-                  className="flex-1 h-10 sm:h-12 text-sm sm:text-lg font-bold score-button score-button-plus"
-                  disabled={localMatch.isCompleted}
-                >
-                  <PlusIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-1" />
-                  {t("match.addPoint")}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+        <Button
+          variant="outline"
+          className="flex-1 text-xs sm:text-sm py-1 sm:py-2 score-button transition-all hover:bg-blue-50"
+          onClick={changeSides}
+          disabled={localMatch.isCompleted}
+        >
+          <ArrowLeftRightIcon className="h-4 w-4 mr-1" />
+          {tMatch.switchSides || "Switch Sides"}
+        </Button>
+      </div>
 
-          {/* Правая сторона корта */}
-          <Card className="w-full">
-            <CardContent className="p-2 sm:p-4">
-              <div className="min-h-[60px] sm:min-h-[80px] flex flex-col justify-center w-full">
-                <h3 className="text-sm sm:text-base font-medium text-center w-full overflow-hidden truncate">
-                  {fixedSides
-                    ? localMatch.courtSides?.teamA === "right"
-                      ? t("match.teamA")
-                      : t("match.teamB")
-                    : t("match.teamB")}
-                  <span className="ml-2 text-xs sm:text-sm text-muted-foreground">
-                    {fixedSides
-                      ? `(${t("match.rightSide")})`
-                      : localMatch.courtSides?.teamB === "right"
-                        ? `(${t("match.rightSide")})`
-                        : `(${t("match.leftSide")})`}
-                  </span>
-                </h3>
-                {fixedSides
-                  ? localMatch.courtSides?.teamA === "right"
-                    ? renderPlayerNames(localMatch.teamA)
-                    : renderPlayerNames(localMatch.teamB)
-                  : renderPlayerNames(localMatch.teamB)}
-              </div>
-              <div className="flex gap-2 items-center mt-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={
-                    fixedSides
-                      ? localMatch.courtSides?.teamA === "right"
-                        ? handleRemovePointTeamA
-                        : handleRemovePointTeamB
-                      : handleRemovePointTeamB
-                  }
-                  className="flex-none w-8 h-8 p-0 score-button score-button-minus"
-                  disabled={localMatch.isCompleted}
-                >
-                  <MinusIcon className="h-3 w-3" />
-                </Button>
-                <Button
-                  onClick={
-                    fixedSides
-                      ? localMatch.courtSides?.teamA === "right"
-                        ? handleAddPointTeamA
-                        : handleAddPointTeamB
-                      : handleAddPointTeamB
-                  }
-                  className="flex-1 h-10 sm:h-12 text-sm sm:text-lg font-bold score-button score-button-plus"
-                  disabled={localMatch.isCompleted}
-                >
-                  <PlusIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-1" />
-                  {t("match.addPoint")}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        <CourtVisualization match={localMatch} fixedSides={fixedSides} />
-
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            className="flex-1 text-xs sm:text-sm py-1 sm:py-2 score-button transition-all hover:bg-blue-50"
-            onClick={manualSwitchServer}
-            disabled={localMatch.isCompleted}
-          >
-            {tMatch.switchServer || "Switch Server"}
-          </Button>
-
-          <Button
-            variant="outline"
-            className="flex-1 text-xs sm:text-sm py-1 sm:py-2 score-button transition-all hover:bg-blue-50"
-            onClick={changeSides}
-            disabled={localMatch.isCompleted}
-          >
-            <ArrowLeftRightIcon className="h-4 w-4 mr-1" />
-            {tMatch.switchSides || "Switch Sides"}
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+      <CourtVisualization match={localMatch} fixedSides={fixedSides} />
+    </div>
   )
 }
