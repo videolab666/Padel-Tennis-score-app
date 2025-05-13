@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useContext } from "react"
 import { useRouter } from "next/navigation"
-import { ArrowLeft, Share2, Copy, Download, Upload, ExternalLink } from "lucide-react"
+import { ArrowLeft, Share2, Copy, Download, Upload, ExternalLink, CircleDot } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { ScoreBoard } from "@/components/score-board"
@@ -296,11 +296,31 @@ export default function MatchPage({ params }: MatchParams) {
         </TabsList>
 
         <TabsContent value="match">
-          <Card className="mb-6 p-4" aria-label={t.match.scoreCard}>
-            <ScoreBoard match={match} updateMatch={handleUpdateMatch} />
-          </Card>
+          <div className="flex flex-col gap-1 mb-3">
+            <Card className="px-4 py-2" aria-label={t.match.scoreCard}>
+              <ScoreBoard match={match} updateMatch={handleUpdateMatch} />
 
-          <div className="flex flex-col gap-4 w-full">
+              <div className="mt-2 pt-1.5 border-t border-gray-200 flex justify-center">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-xs"
+                  onClick={() => {
+                    // Dispatch an event to trigger the server switch in ScoreBoard
+                    const event = new CustomEvent("switchServer", {
+                      detail: { matchId: params.id },
+                    })
+                    window.dispatchEvent(event)
+                  }}
+                >
+                  <CircleDot className="h-3 w-3 mr-2 text-lime-500" />
+                  {t.matchPage.switchServer || "Сменить подающего"}
+                </Button>
+              </div>
+            </Card>
+          </div>
+
+          <div className="flex flex-col gap-2 w-full">
             <ScoreControls match={match} updateMatch={handleUpdateMatch} />
             <MatchSettings match={match} updateMatch={handleUpdateMatch} />
           </div>
@@ -336,7 +356,7 @@ export default function MatchPage({ params }: MatchParams) {
         </TabsContent>
       </Tabs>
       {activeTab === "match" && (
-        <Card className="mt-6 p-4">
+        <Card className="mt-3 p-4">
           <h3 className="text-sm font-medium mb-3 text-muted-foreground">{t.matchPage.technicalFunctions}</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
             <Button variant="outline" onClick={copyMatchId} className="w-full text-sm" size="sm">

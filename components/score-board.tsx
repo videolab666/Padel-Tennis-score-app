@@ -94,6 +94,29 @@ export function ScoreBoard({ match, updateMatch }) {
     return () => window.removeEventListener("courtSidesSwapped", handleCourtSidesSwapped)
   }, [match, updateMatch])
 
+  useEffect(() => {
+    const handleSwitchServer = (e) => {
+      if (!updateMatch || match.isCompleted) return
+
+      // Save the current match state before any changes
+      const previousState = JSON.parse(JSON.stringify(match))
+      // Save to history
+      setMatchHistory((prev) => [...prev, previousState])
+
+      // Create a copy of the match
+      const updatedMatch = { ...match }
+
+      // Switch server
+      switchServer(updatedMatch)
+
+      // Update match
+      updateMatch(updatedMatch)
+    }
+
+    window.addEventListener("switchServer", handleSwitchServer)
+    return () => window.removeEventListener("switchServer", handleSwitchServer)
+  }, [match, updateMatch])
+
   if (!match) return null
 
   const { teamA, teamB } = match
@@ -994,12 +1017,12 @@ export function ScoreBoard({ match, updateMatch }) {
       </div>
 
       {allSets.length > 0 && (
-        <div className="mt-4">
-          <div className="grid grid-cols-[auto_1fr_1fr] gap-2 text-sm">
+        <div className="mt-2">
+          <div className="grid grid-cols-[auto_1fr_1fr] gap-1 text-sm leading-tight">
             <div></div>
             <div className="text-center">
-              <div className="font-medium">{t("match.teamA")}</div>
-              <div className="flex flex-col">
+              <div className="font-medium -mt-1 mb-0">{t("match.teamA")}</div>
+              <div className="flex flex-col -space-y-0.5">
                 {teamA.players.map((player, idx) => (
                   <div key={idx} className="text-xs text-gray-500 truncate">
                     {player.name}
@@ -1008,8 +1031,8 @@ export function ScoreBoard({ match, updateMatch }) {
               </div>
             </div>
             <div className="text-center">
-              <div className="font-medium">{t("match.teamB")}</div>
-              <div className="flex flex-col">
+              <div className="font-medium -mt-1 mb-0">{t("match.teamB")}</div>
+              <div className="flex flex-col -space-y-0.5">
                 {teamB.players.map((player, idx) => (
                   <div key={idx} className="text-xs text-gray-500 truncate">
                     {player.name}
@@ -1029,7 +1052,7 @@ export function ScoreBoard({ match, updateMatch }) {
                   <div className="font-medium flex items-center">
                     {t("match.setX").replace("{{number}}", (index + 1).toString())}
                     {set.isCurrent && (
-                      <Badge variant="outline" className="ml-2 bg-blue-100 text-blue-800">
+                      <Badge variant="outline" className="ml-1 bg-blue-100 text-blue-800 text-[10px] px-1 py-0">
                         {t("match.current")}
                       </Badge>
                     )}
