@@ -1,6 +1,5 @@
 "use client"
 
-import { Card, CardContent } from "@/components/ui/card"
 import { useLanguage } from "@/contexts/language-context"
 
 export function CourtVisualization({ match, fixedSides }) {
@@ -83,67 +82,5 @@ export function CourtVisualization({ match, fixedSides }) {
 
   const positions = getPlayerPositions()
 
-  return (
-    <Card className="w-full overflow-hidden">
-      <CardContent className="p-0">
-        <div className="relative bg-gray-800 text-white">
-          {/* Game number */}
-          <div className="absolute top-2 left-4 text-xl font-bold text-cyan-300">
-            {tMatch.game || "Game"} {currentGameNumber}
-          </div>
-
-          {/* Court layout */}
-          <div className="relative pt-10 pb-12">
-            {/* Court grid */}
-            <div className="grid grid-cols-2 gap-px bg-white">
-              {/* Top row */}
-              <div
-                className={`p-4 h-24 flex items-center justify-center ${
-                  isServing(positions.topLeft.team, positions.topLeft.playerIndex) ? "bg-red-600" : "bg-gray-800"
-                }`}
-              >
-                <div className="text-center">
-                  {getPlayerName(positions.topLeft.team, positions.topLeft.playerIndex)}
-                </div>
-              </div>
-              <div
-                className={`p-4 h-24 flex items-center justify-center ${
-                  isServing(positions.topRight.team, positions.topRight.playerIndex) ? "bg-red-600" : "bg-gray-800"
-                }`}
-              >
-                <div className="text-center">
-                  {getPlayerName(positions.topRight.team, positions.topRight.playerIndex)}
-                </div>
-              </div>
-
-              {/* Bottom row */}
-              <div
-                className={`p-4 h-24 flex items-center justify-center ${
-                  isServing(positions.bottomLeft.team, positions.bottomLeft.playerIndex) ? "bg-red-600" : "bg-gray-800"
-                }`}
-              >
-                <div className="text-center">
-                  {getPlayerName(positions.bottomLeft.team, positions.bottomLeft.playerIndex)}
-                </div>
-              </div>
-              <div
-                className={`p-4 h-24 flex items-center justify-center ${
-                  isServing(positions.bottomRight.team, positions.bottomRight.playerIndex)
-                    ? "bg-red-600"
-                    : "bg-gray-800"
-                }`}
-              >
-                <div className="text-center">
-                  {getPlayerName(positions.bottomRight.team, positions.bottomRight.playerIndex)}
-                </div>
-              </div>
-            </div>
-
-            {/* Serving information */}
-            <div className="absolute bottom-0 left-0 right-0 p-2 text-center text-white">{getServingText()}</div>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  )
+  return null
 }

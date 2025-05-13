@@ -6,7 +6,7 @@ import { shouldChangeSides } from "@/lib/tennis-utils"
 import { useSoundEffects } from "@/hooks/use-sound-effects"
 import { useLanguage } from "@/contexts/language-context"
 import { useEffect, useState } from "react"
-import { CourtVisualization } from "@/components/court-visualization"
+import CourtPreview from "@/components/court-svg-preview"
 
 export function ScoreControls({ match, updateMatch }) {
   // Используем хук для звуковых эффектов
@@ -629,31 +629,32 @@ export function ScoreControls({ match, updateMatch }) {
   const isFinalSet = isDecidingSet || isTwoSetsMatch
 
   return (
-    <div className="w-full space-y-4">
-      {/* Кнопки управления сервером и сменой сторон */}
-      <div className="flex gap-2 mb-4">
-        <Button
-          variant="outline"
-          className="flex-1 text-xs sm:text-sm py-1 sm:py-2 score-button transition-all hover:bg-blue-50"
-          onClick={manualSwitchServer}
-          disabled={localMatch.isCompleted}
-        >
-          <RepeatIcon className="h-4 w-4 mr-1" />
-          {tMatch.switchServer || "Switch Server"}
-        </Button>
+    <div className="w-full">
+      {/* Court SVG Preview with buttons */}
+      <CourtPreview match={localMatch}>
+        {/* Кнопки управления сервером и сменой сторон */}
+        <div className="flex gap-2 mt-2">
+          <Button
+            variant="outline"
+            className="flex-1 text-xs sm:text-sm py-1 sm:py-2 score-button transition-all hover:bg-blue-50"
+            onClick={manualSwitchServer}
+            disabled={localMatch.isCompleted}
+          >
+            <RepeatIcon className="h-4 w-4 mr-1" />
+            {tMatch.switchServer || "Switch Server"}
+          </Button>
 
-        <Button
-          variant="outline"
-          className="flex-1 text-xs sm:text-sm py-1 sm:py-2 score-button transition-all hover:bg-blue-50"
-          onClick={changeSides}
-          disabled={localMatch.isCompleted}
-        >
-          <ArrowLeftRightIcon className="h-4 w-4 mr-1" />
-          {tMatch.switchSides || "Switch Sides"}
-        </Button>
-      </div>
-
-      <CourtVisualization match={localMatch} fixedSides={fixedSides} />
+          <Button
+            variant="outline"
+            className="flex-1 text-xs sm:text-sm py-1 sm:py-2 score-button transition-all hover:bg-blue-50"
+            onClick={changeSides}
+            disabled={localMatch.isCompleted}
+          >
+            <ArrowLeftRightIcon className="h-4 w-4 mr-1" />
+            {tMatch.switchSides || "Switch Sides"}
+          </Button>
+        </div>
+      </CourtPreview>
     </div>
   )
 }

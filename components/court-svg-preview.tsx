@@ -287,7 +287,18 @@ function CourtSVG({
                 <foreignObject x="913" y="197" width="132" height="600">
                   <button
                     xmlns="http://www.w3.org/1999/xhtml"
-                    onClick={swapCourtSides}
+                    onClick={() => {
+                      // Call the local function to update the visualization
+                      const newSides = swapCourtSides()
+
+                      // Dispatch a custom event to notify other components
+                      const event = new CustomEvent("courtSidesSwapped", {
+                        detail: {
+                          newSides: newSides,
+                        },
+                      })
+                      window.dispatchEvent(event)
+                    }}
                     style={{
                       width: "100%",
                       height: "100%",
@@ -309,7 +320,10 @@ function CourtSVG({
                       style={{
                         transform: "rotate(90deg)",
                         width: "100%",
-                        textAlign: "center",
+                        height: "100%",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
                         whiteSpace: "nowrap",
                       }}
                     >
@@ -322,7 +336,7 @@ function CourtSVG({
           </g>
 
           {/* Игрок в верхнем левом углу */}
-          <foreignObject x="252" y="174" width="600" height="120">
+          <foreignObject x="252" y="120" width="600" height="120">
             <div
               xmlns="http://www.w3.org/1999/xhtml"
               style={{
@@ -330,9 +344,10 @@ function CourtSVG({
                 height: "100%",
                 color: "white",
                 fontFamily: "Inter, sans-serif",
-                fontSize: "72px",
+                fontSize: "54px",
                 fontWeight: "bold",
                 userSelect: "text",
+                lineHeight: "1",
               }}
             >
               {getPlayerName(positions.topLeft)}
@@ -343,7 +358,7 @@ function CourtSVG({
           </foreignObject>
 
           {/* Игрок в нижнем левом углу */}
-          <foreignObject x="252" y="716" width="600" height="120">
+          <foreignObject x="252" y="770" width="600" height="120">
             <div
               xmlns="http://www.w3.org/1999/xhtml"
               style={{
@@ -351,9 +366,10 @@ function CourtSVG({
                 height: "100%",
                 color: "white",
                 fontFamily: "Inter, sans-serif",
-                fontSize: "72px",
+                fontSize: "54px",
                 fontWeight: "bold",
                 userSelect: "text",
+                lineHeight: "1",
               }}
             >
               {getPlayerName(positions.bottomLeft)}
@@ -364,7 +380,7 @@ function CourtSVG({
           </foreignObject>
 
           {/* Игрок в верхнем правом углу */}
-          <foreignObject x="1169" y="174" width="600" height="120">
+          <foreignObject x="1169" y="120" width="600" height="120">
             <div
               xmlns="http://www.w3.org/1999/xhtml"
               style={{
@@ -372,10 +388,11 @@ function CourtSVG({
                 height: "100%",
                 color: "white",
                 fontFamily: "Inter, sans-serif",
-                fontSize: "72px",
+                fontSize: "54px",
                 fontWeight: "bold",
                 userSelect: "text",
                 textAlign: "right",
+                lineHeight: "1",
               }}
             >
               {isServing(positions.topRight.team, positions.topRight.playerIndex) && (
@@ -386,7 +403,7 @@ function CourtSVG({
           </foreignObject>
 
           {/* Игрок в нижнем правом углу */}
-          <foreignObject x="1169" y="716" width="600" height="120">
+          <foreignObject x="1169" y="770" width="600" height="120">
             <div
               xmlns="http://www.w3.org/1999/xhtml"
               style={{
@@ -394,10 +411,11 @@ function CourtSVG({
                 height: "100%",
                 color: "white",
                 fontFamily: "Inter, sans-serif",
-                fontSize: "72px",
+                fontSize: "54px",
                 fontWeight: "bold",
                 userSelect: "text",
                 textAlign: "right",
+                lineHeight: "1",
               }}
             >
               {isServing(positions.bottomRight.team, positions.bottomRight.playerIndex) && (
@@ -720,20 +738,36 @@ export default function CourtPreview({ match }) {
 
   // Функция для смены позиций игроков команды А
   const swapTeamAPlayers = () => {
-    setSwappedTeamA((prev) => !prev)
+    const newValue = !swappedTeamA
+    setSwappedTeamA(newValue)
+
+    // Генерируем пользовательское событие для синхронизации с другими компонентами
+    const event = new CustomEvent("teamPlayersSwapped", {
+      detail: { team: "teamA", swapped: newValue },
+    })
+    window.dispatchEvent(event)
   }
 
   // Функция для смены позиций игроков команды B
   const swapTeamBPlayers = () => {
-    setSwappedTeamB((prev) => !prev)
+    const newValue = !swappedTeamB
+    setSwappedTeamB(newValue)
+
+    // Генерируем пользовательское событие для синхронизации с другими компонентами
+    const event = new CustomEvent("teamPlayersSwapped", {
+      detail: { team: "teamB", swapped: newValue },
+    })
+    window.dispatchEvent(event)
   }
 
   // Функция для смены сторон корта
   const swapCourtSides = () => {
-    setLocalCourtSides((prev) => ({
-      teamA: prev.teamA === "left" ? "right" : "left",
-      teamB: prev.teamB === "left" ? "right" : "left",
-    }))
+    const newSides = {
+      teamA: localCourtSides.teamA === "left" ? "right" : "left",
+      teamB: localCourtSides.teamB === "left" ? "right" : "left",
+    }
+    setLocalCourtSides(newSides)
+    return newSides
   }
 
   // Получаем информацию о текущем подающем
@@ -741,9 +775,8 @@ export default function CourtPreview({ match }) {
   const servingPlayerIndex = match?.currentServer?.playerIndex || 0
 
   return (
-    <div className="flex flex-col items-center justify-center w-full mt-6">
-      <h2 className="text-2xl font-bold mb-4">{language === "ru" ? "Визуализация корта" : "Court Visualization"}</h2>
-      <div className="w-full aspect-[2020/1093] max-h-[600px] border border-gray-300 rounded-lg">
+    <div className="flex flex-col items-center justify-center w-full">
+      <div className="w-full aspect-[2020/1093] max-h-[400px] border border-gray-300 rounded-lg">
         <CourtSVG
           teamAPlayer1={teamAPlayer1}
           teamAPlayer2={teamAPlayer2}

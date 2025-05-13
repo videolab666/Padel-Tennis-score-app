@@ -25,7 +25,6 @@ import { VmixButton } from "@/components/vmix-button"
 import { Badge } from "@/components/ui/badge"
 import { LanguageContext } from "@/contexts/language-context"
 import { translations } from "@/lib/translations"
-import CourtPreview from "@/components/court-svg-preview"
 
 type MatchParams = {
   params: {
@@ -305,7 +304,6 @@ export default function MatchPage({ params }: MatchParams) {
             <ScoreControls match={match} updateMatch={handleUpdateMatch} />
             <MatchSettings match={match} updateMatch={handleUpdateMatch} />
           </div>
-          <CourtPreview match={match} />
         </TabsContent>
 
         <TabsContent value="export">
