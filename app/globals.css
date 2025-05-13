@@ -93,6 +93,19 @@ body {
   }
 }
 
+/* Force light theme and background color */
+html,
+body {
+  background-color: #f3f5f7 !important;
+}
+
+/* Override dark mode variables to ensure they're not used */
+.dark {
+  --background: 0 0% 98%;
+  --foreground: 0 0% 3.9%;
+  /* Keep other light theme variables */
+}
+
 /* Стили для кнопок управления счетом */
 .score-button {
   transition: all 0.1s ease;

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { ArrowLeft, Loader2, Plus } from "lucide-react"
+import { ArrowLeft, Loader2, Plus, CircleDot } from "lucide-react"
 import { v4 as uuidv4 } from "uuid"
 
 import { Button } from "@/components/ui/button"
@@ -358,15 +358,33 @@ export default function NewMatchPage() {
 
       <OfflineNotice />
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-center">{t("newMatch.title")}</CardTitle>
+      <Card
+        className={`${
+          matchType === "tennis"
+            ? "bg-gradient-to-r from-[#95ff81] to-[#58964c]"
+            : "bg-gradient-to-r from-[#01a0e3] to-[#0056a9]"
+        } transition-colors duration-500`}
+      >
+        <CardHeader className="text-white">
+          <CardTitle className="text-center text-white">{t("newMatch.title")}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
           <Tabs defaultValue={matchType} onValueChange={setMatchType}>
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="tennis">{t("home.tennis")}</TabsTrigger>
-              <TabsTrigger value="padel">{t("home.padel")}</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-2 bg-[#f5fef3] shadow-md">
+              <TabsTrigger
+                value="tennis"
+                className="data-[state=active]:bg-[#c5f87e] data-[state=inactive]:bg-[#f5fef3] flex items-center justify-center gap-1"
+              >
+                {matchType === "tennis" && <CircleDot className="h-4 w-4 text-green-700" />}
+                {t("home.tennis")}
+              </TabsTrigger>
+              <TabsTrigger
+                value="padel"
+                className="data-[state=active]:bg-[#c5f87e] data-[state=inactive]:bg-[#f5fef3] flex items-center justify-center gap-1"
+              >
+                {matchType === "padel" && <CircleDot className="h-4 w-4 text-green-700" />}
+                {t("home.padel")}
+              </TabsTrigger>
             </TabsList>
           </Tabs>
 
@@ -542,170 +560,176 @@ export default function NewMatchPage() {
             </div>
           </div>
 
-          <div className="space-y-4">
-            <h3 className="font-medium">{t("newMatch.players")}</h3>
+          <div className="border rounded-md p-4 bg-[#f8fdf9] shadow-md">
+            <h3 className="font-medium mb-4">{t("newMatch.players")}</h3>
 
-            <div className="flex gap-2">
-              <Input
-                placeholder={t("players.addPlayer")}
-                value={newPlayerName}
-                onChange={(e) => setNewPlayerName(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && !isAddingPlayer && handleAddPlayer()}
-                disabled={isAddingPlayer}
-              />
-              <Button onClick={handleAddPlayer} disabled={isAddingPlayer || !newPlayerName.trim()}>
-                {isAddingPlayer ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}
-                {t("common.add")}
-              </Button>
-            </div>
-
-            {loading ? (
-              <div className="text-center py-4 text-muted-foreground">
-                <Loader2 className="h-6 w-6 animate-spin mx-auto mb-2" />
-                {t("common.loadingPlayers")}
+            <div className="space-y-4">
+              <div className="flex gap-2">
+                <Input
+                  placeholder={t("players.addPlayer")}
+                  value={newPlayerName}
+                  onChange={(e) => setNewPlayerName(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && !isAddingPlayer && handleAddPlayer()}
+                  disabled={isAddingPlayer}
+                />
+                <Button onClick={handleAddPlayer} disabled={isAddingPlayer || !newPlayerName.trim()}>
+                  {isAddingPlayer ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <Plus className="mr-2 h-4 w-4" />
+                  )}
+                  {t("common.add")}
+                </Button>
               </div>
-            ) : (
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>{t("match.teamA")}</Label>
-                  <div className="space-y-2 mt-2">
-                    <PlayerSelector
-                      players={players}
-                      value={teamAPlayer1}
-                      onChange={setTeamAPlayer1}
-                      placeholder={t("newMatch.player1")}
-                    />
 
-                    {matchFormat === "doubles" && (
+              {loading ? (
+                <div className="text-center py-4 text-muted-foreground">
+                  <Loader2 className="h-6 w-6 animate-spin mx-auto mb-2" />
+                  {t("common.loadingPlayers")}
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>{t("match.teamA")}</Label>
+                    <div className="space-y-2 mt-2">
                       <PlayerSelector
                         players={players}
-                        value={teamAPlayer2}
-                        onChange={setTeamAPlayer2}
-                        placeholder={t("newMatch.player2")}
+                        value={teamAPlayer1}
+                        onChange={setTeamAPlayer1}
+                        placeholder={t("newMatch.player1")}
                       />
-                    )}
+
+                      {matchFormat === "doubles" && (
+                        <PlayerSelector
+                          players={players}
+                          value={teamAPlayer2}
+                          onChange={setTeamAPlayer2}
+                          placeholder={t("newMatch.player2")}
+                        />
+                      )}
+                    </div>
                   </div>
-                </div>
 
-                <div>
-                  <Label>{t("match.teamB")}</Label>
-                  <div className="space-y-2 mt-2">
-                    <PlayerSelector
-                      players={players}
-                      value={teamBPlayer1}
-                      onChange={setTeamBPlayer1}
-                      placeholder={t("newMatch.player1")}
-                    />
-
-                    {matchFormat === "doubles" && (
+                  <div>
+                    <Label>{t("match.teamB")}</Label>
+                    <div className="space-y-2 mt-2">
                       <PlayerSelector
                         players={players}
-                        value={teamBPlayer2}
-                        onChange={setTeamBPlayer2}
-                        placeholder={t("newMatch.player2")}
+                        value={teamBPlayer1}
+                        onChange={setTeamBPlayer1}
+                        placeholder={t("newMatch.player1")}
                       />
-                    )}
+
+                      {matchFormat === "doubles" && (
+                        <PlayerSelector
+                          players={players}
+                          value={teamBPlayer2}
+                          onChange={setTeamBPlayer2}
+                          placeholder={t("newMatch.player2")}
+                        />
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
+          </div>
 
-            {/* Первая подача - перемещена вверх */}
-            <div className="w-full border rounded-md p-2 sm:p-3 mb-4">
-              <Label className="block mb-1 sm:mb-2 text-[0.65rem] sm:text-sm">{t("newMatch.firstServe")}</Label>
-              <div className="grid grid-cols-2 gap-2 text-center">
-                <div
-                  className={`p-2 rounded cursor-pointer ${servingTeam === "teamA" ? "bg-green-200 font-medium" : "bg-gray-100"}`}
-                  onClick={() => setServingTeam("teamA")}
-                >
-                  {t("match.teamA")}
-                </div>
-                <div
-                  className={`p-2 rounded cursor-pointer ${servingTeam === "teamB" ? "bg-green-200 font-medium" : "bg-gray-100"}`}
-                  onClick={() => setServingTeam("teamB")}
-                >
-                  {t("match.teamB")}
-                </div>
+          {/* Первая подача - перемещена вверх */}
+          <div className="w-full border rounded-md p-2 sm:p-3 mb-4 bg-[#f8fdf9] shadow-md">
+            <Label className="block mb-1 sm:mb-2 text-[0.65rem] sm:text-sm">{t("newMatch.firstServe")}</Label>
+            <div className="grid grid-cols-2 gap-2 text-center">
+              <div
+                className={`p-2 rounded cursor-pointer ${servingTeam === "teamA" ? "bg-green-200 font-medium" : "bg-gray-100"}`}
+                onClick={() => setServingTeam("teamA")}
+              >
+                {t("match.teamA")}
+              </div>
+              <div
+                className={`p-2 rounded cursor-pointer ${servingTeam === "teamB" ? "bg-green-200 font-medium" : "bg-gray-100"}`}
+                onClick={() => setServingTeam("teamB")}
+              >
+                {t("match.teamB")}
               </div>
             </div>
+          </div>
 
-            {/* Сторона команды A */}
-            <div className="w-full border rounded-md p-2 sm:p-3 mb-4">
-              <div className="flex justify-between items-center mb-1 sm:mb-2">
-                <Label className="text-[0.65rem] sm:text-sm">{t("newMatch.teamASide")}</Label>
+          {/* Сторона команды A */}
+          <div className="w-full border rounded-md p-2 sm:p-3 mb-4 bg-[#f8fdf9] shadow-md">
+            <div className="flex justify-between items-center mb-1 sm:mb-2">
+              <Label className="text-[0.65rem] sm:text-sm">{t("newMatch.teamASide")}</Label>
+            </div>
+            <div className="grid grid-cols-2 gap-2 text-center">
+              <div
+                className={`p-2 rounded cursor-pointer ${teamASide === "left" ? "bg-blue-200 font-medium" : "bg-gray-100"}`}
+                onClick={() => setTeamASide("left")}
+              >
+                {t("newMatch.left")}
               </div>
-              <div className="grid grid-cols-2 gap-2 text-center">
-                <div
-                  className={`p-2 rounded cursor-pointer ${teamASide === "left" ? "bg-blue-200 font-medium" : "bg-gray-100"}`}
-                  onClick={() => setTeamASide("left")}
-                >
-                  {t("newMatch.left")}
-                </div>
-                <div
-                  className={`p-2 rounded cursor-pointer ${teamASide === "right" ? "bg-blue-200 font-medium" : "bg-gray-100"}`}
-                  onClick={() => setTeamASide("right")}
-                >
-                  {t("newMatch.right")}
-                </div>
+              <div
+                className={`p-2 rounded cursor-pointer ${teamASide === "right" ? "bg-blue-200 font-medium" : "bg-gray-100"}`}
+                onClick={() => setTeamASide("right")}
+              >
+                {t("newMatch.right")}
               </div>
             </div>
+          </div>
 
-            {/* Выбор корта */}
-            <div className="space-y-2 mb-4">
-              <Label className="text-[0.65rem] sm:text-sm">{t("newMatch.courtSelection")}</Label>
-              <div className="border rounded-md p-2 sm:p-3">
-                <div className="mb-2">
-                  <RadioGroup
-                    value={courtNumber === null ? "no-court" : courtNumber.toString()}
-                    onValueChange={(value) => {
-                      if (value === "no-court") {
-                        setCourtNumber(null)
-                      } else {
-                        setCourtNumber(Number.parseInt(value))
-                      }
-                    }}
-                  >
-                    <div className="flex items-center space-x-2 mb-2">
-                      <RadioGroupItem value="no-court" id="no-court" className="scale-75 sm:scale-100" />
-                      <Label htmlFor="no-court" className="text-[0.65rem] sm:text-sm">
-                        {t("newMatch.noCourt")}
-                      </Label>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-2">
-                      {Array.from({ length: MAX_COURTS }, (_, i) => i + 1).map((num) => (
-                        <div key={num} className="flex items-center space-x-2">
-                          <RadioGroupItem
-                            value={num.toString()}
-                            id={`court-${num}`}
-                            disabled={isCourtOccupied(num) || loadingCourts}
-                            className="scale-75 sm:scale-100"
-                          />
-                          <Label
-                            htmlFor={`court-${num}`}
-                            className={`text-[0.65rem] sm:text-sm ${isCourtOccupied(num) ? "text-muted-foreground line-through" : ""}`}
-                          >
-                            {t("newMatch.court")} {num}
-                          </Label>
-                        </div>
-                      ))}
-                    </div>
-                  </RadioGroup>
-                </div>
-
-                {loadingCourts ? (
-                  <div className="text-center py-2 text-[0.65rem] sm:text-sm text-muted-foreground">
-                    <Loader2 className="h-4 w-4 animate-spin inline mr-1" />
-                    {t("newMatch.checkingCourtAvailability")}
+          {/* Выбор корта */}
+          <div className="border rounded-md p-4 bg-[#e5febd] shadow-md mb-4">
+            <Label className="text-[0.65rem] sm:text-sm">{t("newMatch.courtSelection")}</Label>
+            <div className="border rounded-md p-2 sm:p-3 bg-white mt-2">
+              <div className="mb-2">
+                <RadioGroup
+                  value={courtNumber === null ? "no-court" : courtNumber.toString()}
+                  onValueChange={(value) => {
+                    if (value === "no-court") {
+                      setCourtNumber(null)
+                    } else {
+                      setCourtNumber(Number.parseInt(value))
+                    }
+                  }}
+                >
+                  <div className="flex items-center space-x-2 mb-2">
+                    <RadioGroupItem value="no-court" id="no-court" className="scale-75 sm:scale-100" />
+                    <Label htmlFor="no-court" className="text-[0.65rem] sm:text-sm">
+                      {t("newMatch.noCourt")}
+                    </Label>
                   </div>
-                ) : occupiedCourts.length > 0 ? (
-                  <div className="text-[0.65rem] sm:text-sm text-muted-foreground">
-                    {t("newMatch.occupiedCourts")}: {occupiedCourts.sort((a, b) => a - b).join(", ")}
+
+                  <div className="grid grid-cols-2 gap-2">
+                    {Array.from({ length: MAX_COURTS }, (_, i) => i + 1).map((num) => (
+                      <div key={num} className="flex items-center space-x-2">
+                        <RadioGroupItem
+                          value={num.toString()}
+                          id={`court-${num}`}
+                          disabled={isCourtOccupied(num) || loadingCourts}
+                          className="scale-75 sm:scale-100"
+                        />
+                        <Label
+                          htmlFor={`court-${num}`}
+                          className={`text-[0.65rem] sm:text-sm ${isCourtOccupied(num) ? "text-muted-foreground line-through" : ""}`}
+                        >
+                          {t("newMatch.court")} {num}
+                        </Label>
+                      </div>
+                    ))}
                   </div>
-                ) : (
-                  <div className="text-[0.65rem] sm:text-sm text-green-600">{t("newMatch.allCourtsAvailable")}</div>
-                )}
+                </RadioGroup>
               </div>
+
+              {loadingCourts ? (
+                <div className="text-center py-2 text-[0.65rem] sm:text-sm text-muted-foreground">
+                  <Loader2 className="h-4 w-4 animate-spin inline mr-1" />
+                  {t("newMatch.checkingCourtAvailability")}
+                </div>
+              ) : occupiedCourts.length > 0 ? (
+                <div className="text-[0.65rem] sm:text-sm text-muted-foreground">
+                  {t("newMatch.occupiedCourts")}: {occupiedCourts.sort((a, b) => a - b).join(", ")}
+                </div>
+              ) : (
+                <div className="text-[0.65rem] sm:text-sm text-green-600">{t("newMatch.allCourtsAvailable")}</div>
+              )}
             </div>
           </div>
         </CardContent>
