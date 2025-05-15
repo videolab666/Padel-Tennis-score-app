@@ -517,11 +517,11 @@ export function MatchSettings({ match, updateMatch, type, settings, onChange }: 
   return (
     <>
       {/* Score Editing Card */}
-      <Card className="w-full mb-4 bg-gradient-to-b from-[#019fe3] to-[#00336d] text-white">
+      <Card className="w-full mb-4 bg-gradient-to-b from-[#019fe3] to-[#00336d]">
         <CardHeader>
-          <CardTitle>{t("match.scoreEditing")}</CardTitle>
+          <CardTitle className="text-white">{t("match.scoreEditing")}</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-4 text-gray-800">
           <div className="p-2 bg-blue-50 border border-blue-200 rounded-md text-sm text-center">
             {t("match.matchCode")}: <span className="font-bold">{match.code || match.id}</span>
           </div>
@@ -693,7 +693,7 @@ export function MatchSettings({ match, updateMatch, type, settings, onChange }: 
             {match.isCompleted ? (
               <Button
                 variant="outline"
-                className="w-full mt-2 shadow-md transition-all duration-200 active:scale-95 bg-gradient-to-b from-white to-[#f5f9fd] hover:from-[#f5f9fd] hover:to-[#e1e9f5] border-white text-white"
+                className="w-full mt-2 shadow-md transition-all duration-200 active:scale-95 bg-gradient-to-b from-white to-[#f5f9fd] hover:from-[#f5f9fd] hover:to-[#e1e9f5] border-white text-[#00336d]"
                 onClick={unlockMatch}
               >
                 <LockOpenIcon className="mr-2 h-4 w-4" />
@@ -702,7 +702,7 @@ export function MatchSettings({ match, updateMatch, type, settings, onChange }: 
             ) : (
               <Button
                 variant="destructive"
-                className="w-full mt-2 shadow-md transition-all duration-200 active:scale-95 bg-gradient-to-b from-[#ff6b6b] to-[#dc3545] hover:from-[#ff8585] hover:to-[#ff6b6b]"
+                className="w-full mt-2 shadow-md transition-all duration-200 active:scale-95 bg-gradient-to-b from-[#ff6b6b] to-[#dc3545] hover:from-[#ff8585] hover:to-[#ff6b6b] text-white"
                 onClick={() => {
                   if (confirm(t("match.confirmEndMatch"))) {
                     endMatch()
