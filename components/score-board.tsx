@@ -962,7 +962,7 @@ export function ScoreBoard({ match, updateMatch }) {
       </div>
 
       <Card>
-        <CardContent className="p-3 shadow-md rounded-lg bg-gradient-to-br from-[#f0ffe0] to-[#e8f5d9]">
+        <CardContent className="p-3 shadow-md rounded-lg">
           <div className="grid grid-cols-2 gap-4 items-center">
             <div className="text-center">
               <button
