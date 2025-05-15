@@ -955,8 +955,9 @@ export function ScoreBoard({ match, updateMatch }) {
                       >
                         <span className="text-[10.88px] font-bold text-lime-800">{getServeSide()}</span>
                       </Badge>
-                    </div>
-                  )
+                    )}
+                  </div>
+                )
               })}
         </div>
       </div>
