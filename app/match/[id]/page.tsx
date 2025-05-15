@@ -44,6 +44,7 @@ export default function MatchPage({ params }: MatchParams) {
   const [alertMessage, setAlertMessage] = useState("")
   const [importData, setImportData] = useState("")
   const [activeTab, setActiveTab] = useState("match")
+  const [sideChangeAlert, setSideChangeAlert] = useState(false)
 
   useEffect(() => {
     const loadMatch = async () => {
@@ -100,12 +101,23 @@ export default function MatchPage({ params }: MatchParams) {
 
     window.addEventListener("match-updated", handleMatchUpdated)
 
+    // Добавляем обработчик события смены сторон
+    const handleCourtSidesSwapped = (event) => {
+      if (event.detail && event.detail.newSides) {
+        setSideChangeAlert(true)
+        setTimeout(() => setSideChangeAlert(false), 2000)
+      }
+    }
+
+    window.addEventListener("courtSidesSwapped", handleCourtSidesSwapped)
+
     return () => {
       // Отписываемся при размонтировании компонента
       if (unsubscribe) {
         unsubscribe()
       }
       window.removeEventListener("match-updated", handleMatchUpdated)
+      window.removeEventListener("courtSidesSwapped", handleCourtSidesSwapped)
     }
   }, [params.id, language])
 
@@ -251,7 +263,13 @@ export default function MatchPage({ params }: MatchParams) {
 
   return (
     <div className="container max-w-4xl mx-auto px-4 py-8">
-      {showAlert && (
+      {sideChangeAlert && (
+        <Alert className="fixed top-4 right-4 w-auto z-50 bg-yellow-50 border-yellow-200">
+          <AlertTitle>{t.matchPage.sideChange || "Стороны изменены"}</AlertTitle>
+          <AlertDescription>{t.matchPage.sidesSwapped || "Команды поменялись сторонами корта"}</AlertDescription>
+        </Alert>
+      )}
+      {showAlert && !sideChangeAlert && (
         <Alert className="fixed top-4 right-4 w-auto z-50 bg-green-50 border-green-200">
           <AlertTitle>{t.matchPage.notification}</AlertTitle>
           <AlertDescription>{alertMessage}</AlertDescription>
@@ -304,7 +322,7 @@ export default function MatchPage({ params }: MatchParams) {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="text-xs"
+                  className="text-xs shadow-md hover:bg-gradient-to-b hover:from-white hover:to-[#f5f9fd] bg-gradient-to-b from-white to-[#f8fcff] transition-all duration-200 active:scale-95 active:translate-y-0.5 active:shadow-inner"
                   onClick={() => {
                     // Dispatch an event to trigger the server switch in ScoreBoard
                     const event = new CustomEvent("switchServer", {

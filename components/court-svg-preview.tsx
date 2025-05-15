@@ -412,21 +412,29 @@ function CourtSVG({
                       border: "none",
                       cursor: "pointer",
                       padding: "0",
-                      transition: "transform 0.1s ease-in-out",
+                      margin: "0",
+                      position: "absolute",
+                      top: "0",
+                      left: "0",
+                      right: "0",
+                      bottom: "0",
+                      transition: "all 0.2s ease-in-out",
                     }}
                     onMouseDown={(e) => {
-                      e.currentTarget.style.transform = "scale(0.95)"
+                      e.currentTarget.style.transform = "scale(0.9)"
+                      e.currentTarget.style.opacity = "0.8"
                     }}
                     onMouseUp={(e) => {
                       e.currentTarget.style.transform = "scale(1)"
+                      e.currentTarget.style.opacity = "1"
                     }}
                     onMouseLeave={(e) => {
                       e.currentTarget.style.transform = "scale(1)"
+                      e.currentTarget.style.opacity = "1"
                     }}
                   >
                     <div
                       style={{
-                        transform: "rotate(90deg)",
                         width: "100%",
                         height: "100%",
                         display: "flex",
@@ -434,9 +442,27 @@ function CourtSVG({
                         justifyContent: "center",
                         whiteSpace: "nowrap",
                         fontSize: "84px", // Увеличено в 3 раза с 28px
+                        position: "relative",
+                        zIndex: "1",
+                        transition: "all 0.2s ease-in-out",
                       }}
                     >
-                      {language === "ru" ? "СМЕНИТЬ СТОРОНЫ" : "SWAP SIDES"}
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="120"
+                        height="120"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M8 3L4 7l4 4" />
+                        <path d="M4 7h16" />
+                        <path d="m16 21 4-4-4-4" />
+                        <path d="M20 17H4" />
+                      </svg>
                     </div>
                   </button>
                 </foreignObject>
@@ -476,7 +502,7 @@ function CourtSVG({
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      fontSize: "50px",
+                      fontSize: "75px", // Увеличено с 50px в 1.5 раза
                       fontWeight: "bold",
                       boxShadow: "0 0 15px rgba(0,0,0,0.5)",
                       border: "3px solid white",
@@ -522,7 +548,7 @@ function CourtSVG({
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      fontSize: "50px",
+                      fontSize: "75px", // Увеличено с 50px в 1.5 раза
                       fontWeight: "bold",
                       boxShadow: "0 0 15px rgba(0,0,0,0.5)",
                       border: "3px solid white",
@@ -571,7 +597,7 @@ function CourtSVG({
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      fontSize: "50px",
+                      fontSize: "75px", // Увеличено с 50px в 1.5 раза
                       fontWeight: "bold",
                       boxShadow: "0 0 15px rgba(0,0,0,0.5)",
                       border: "3px solid white",
@@ -619,7 +645,7 @@ function CourtSVG({
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      fontSize: "50px",
+                      fontSize: "75px", // Увеличено с 50px в 1.5 раза
                       fontWeight: "bold",
                       boxShadow: "0 0 15px rgba(0,0,0,0.5)",
                       border: "3px solid white",

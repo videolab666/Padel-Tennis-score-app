@@ -821,9 +821,9 @@ export function ScoreBoard({ match, updateMatch }) {
                         <Badge
                           variant="outline"
                           className="mr-2 rounded-full bg-lime-400 border-lime-600 p-0 flex items-center justify-center flex-shrink-0"
-                          style={{ width: "24px", height: "24px" }}
+                          style={{ width: "14.4px", height: "14.4px" }}
                         >
-                          <span className="text-[13.6px] font-bold text-lime-800">{getServeSide()}</span>
+                          <span className="text-[10.88px] font-bold text-lime-800">{getServeSide()}</span>
                         </Badge>
                       )}
                       <div className="w-full overflow-hidden max-w-full">
@@ -844,9 +844,9 @@ export function ScoreBoard({ match, updateMatch }) {
                         <Badge
                           variant="outline"
                           className="mr-2 rounded-full bg-lime-400 border-lime-600 p-0 flex items-center justify-center flex-shrink-0"
-                          style={{ width: "24px", height: "24px" }}
+                          style={{ width: "14.4px", height: "14.4px" }}
                         >
-                          <span className="text-[13.6px] font-bold text-lime-800">{getServeSide()}</span>
+                          <span className="text-[10.88px] font-bold text-lime-800">{getServeSide()}</span>
                         </Badge>
                       )}
                       <div className="w-full overflow-hidden max-w-full">
@@ -867,9 +867,9 @@ export function ScoreBoard({ match, updateMatch }) {
                       <Badge
                         variant="outline"
                         className="mr-2 rounded-full bg-lime-400 border-lime-600 p-0 flex items-center justify-center flex-shrink-0"
-                        style={{ width: "24px", height: "24px" }}
+                        style={{ width: "14.4px", height: "14.4px" }}
                       >
-                        <span className="text-[13.6px] font-bold text-lime-800">{getServeSide()}</span>
+                        <span className="text-[10.88px] font-bold text-lime-800">{getServeSide()}</span>
                       </Badge>
                     )}
                     <div className="w-full overflow-hidden max-w-full">
@@ -905,9 +905,9 @@ export function ScoreBoard({ match, updateMatch }) {
                         <Badge
                           variant="outline"
                           className="ml-2 rounded-full bg-lime-400 border-lime-600 p-0 flex items-center justify-center flex-shrink-0"
-                          style={{ width: "24px", height: "24px" }}
+                          style={{ width: "14.4px", height: "14.4px" }}
                         >
-                          <span className="text-[13.6px] font-bold text-lime-800">{getServeSide()}</span>
+                          <span className="text-[10.88px] font-bold text-lime-800">{getServeSide()}</span>
                         </Badge>
                       )}
                     </div>
@@ -928,9 +928,9 @@ export function ScoreBoard({ match, updateMatch }) {
                         <Badge
                           variant="outline"
                           className="ml-2 rounded-full bg-lime-400 border-lime-600 p-0 flex items-center justify-center flex-shrink-0"
-                          style={{ width: "24px", height: "24px" }}
+                          style={{ width: "14.4px", height: "14.4px" }}
                         >
-                          <span className="text-[13.6px] font-bold text-lime-800">{getServeSide()}</span>
+                          <span className="text-[10.88px] font-bold text-lime-800">{getServeSide()}</span>
                         </Badge>
                       )}
                     </div>
@@ -951,26 +951,25 @@ export function ScoreBoard({ match, updateMatch }) {
                       <Badge
                         variant="outline"
                         className="ml-2 rounded-full bg-lime-400 border-lime-600 p-0 flex items-center justify-center flex-shrink-0"
-                        style={{ width: "24px", height: "24px" }}
+                        style={{ width: "14.4px", height: "14.4px" }}
                       >
-                        <span className="text-[13.6px] font-bold text-lime-800">{getServeSide()}</span>
+                        <span className="text-[10.88px] font-bold text-lime-800">{getServeSide()}</span>
                       </Badge>
-                    )}
-                  </div>
-                )
+                    </div>
+                  )
               })}
         </div>
       </div>
 
       <Card>
-        <CardContent className="p-3">
+        <CardContent className="p-3 shadow-md rounded-lg">
           <div className="grid grid-cols-2 gap-4 items-center">
             <div className="text-center">
               <button
-                className={`text-6xl font-bold px-8 py-4 rounded-md transition-all transform active:scale-95 active:translate-y-1 active:shadow-inner ${
+                className={`text-6xl font-bold px-8 py-4 rounded-md transition-all transform active:scale-95 active:translate-y-1 active:shadow-inner shadow-md ${
                   currentSet.isTiebreak
-                    ? "bg-red-50 hover:bg-red-100 active:bg-red-200"
-                    : "bg-blue-50 hover:bg-blue-100 active:bg-blue-200"
+                    ? "bg-gradient-to-br from-red-50 to-red-100 hover:from-red-100 hover:to-red-200 active:from-red-200 active:to-red-300"
+                    : "bg-gradient-to-br from-blue-50 to-blue-100 hover:from-blue-100 hover:to-blue-200 active:from-blue-200 active:to-blue-300"
                 }`}
                 onClick={() =>
                   handleScoreClick(fixedSides ? (match.courtSides?.teamA === "left" ? "teamA" : "teamB") : "teamA")
@@ -985,10 +984,10 @@ export function ScoreBoard({ match, updateMatch }) {
             </div>
             <div className="text-center">
               <button
-                className={`text-6xl font-bold px-8 py-4 rounded-md transition-all transform active:scale-95 active:translate-y-1 active:shadow-inner ${
+                className={`text-6xl font-bold px-8 py-4 rounded-md transition-all transform active:scale-95 active:translate-y-1 active:shadow-inner shadow-md ${
                   currentSet.isTiebreak
-                    ? "bg-red-50 hover:bg-red-100 active:bg-red-200"
-                    : "bg-blue-50 hover:bg-blue-100 active:bg-blue-200"
+                    ? "bg-gradient-to-br from-red-50 to-red-100 hover:from-red-100 hover:to-red-200 active:from-red-200 active:to-red-300"
+                    : "bg-gradient-to-br from-blue-50 to-blue-100 hover:from-blue-100 hover:to-blue-200 active:from-blue-200 active:to-blue-300"
                 }`}
                 onClick={() =>
                   handleScoreClick(fixedSides ? (match.courtSides?.teamA === "right" ? "teamA" : "teamB") : "teamB")
@@ -1006,7 +1005,7 @@ export function ScoreBoard({ match, updateMatch }) {
           {/* Кнопка отмены изменения счета */}
           <div className="mt-4">
             <button
-              className="w-full py-2 px-4 bg-gray-100 hover:bg-gray-200 active:bg-gray-300 rounded-md text-sm font-medium flex items-center justify-center transition-all"
+              className="w-full py-2 px-4 bg-gradient-to-br from-gray-50 to-gray-100 hover:from-gray-100 hover:to-gray-200 active:from-gray-200 active:to-gray-300 rounded-md text-sm font-medium flex items-center justify-center transition-all shadow-md transform active:scale-95 active:translate-y-1 active:shadow-inner"
               onClick={() => {
                 if (matchHistory.length > 0) {
                   const previousMatch = matchHistory[matchHistory.length - 1]
