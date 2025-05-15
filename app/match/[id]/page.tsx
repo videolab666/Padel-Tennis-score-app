@@ -129,10 +129,10 @@ export default function MatchPage({ params }: MatchParams) {
       await updateMatch(updatedMatch)
       setMatch(updatedMatch)
 
-      // Показываем уведомление об успешном обновлении
-      setAlertMessage(t.matchPage.scoreUpdated)
-      setShowAlert(true)
-      setTimeout(() => setShowAlert(false), 2000)
+      // Убираем показ уведомления при обновлении счета
+      // setAlertMessage(t.matchPage.scoreUpdated)
+      // setShowAlert(true)
+      // setTimeout(() => setShowAlert(false), 2000)
     } catch (err) {
       console.error("Ошибка обновления матча:", err)
 
