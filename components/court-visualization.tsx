@@ -28,7 +28,7 @@ export function CourtVisualization({ match, fixedSides }) {
 
   // Determine which player is serving
   const isServing = (team, playerIndex) => {
-    return team === serverTeam && playerIndex === serverPlayerIndex
+    return match.currentServer.team === team && match.currentServer.playerIndex === playerIndex
   }
 
   // Get team names for display

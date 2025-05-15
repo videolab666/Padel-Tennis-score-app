@@ -85,6 +85,25 @@ export function ScoreControls({ match, updateMatch }) {
     updateMatch(updatedMatch)
   }
 
+  const manualSwitchSides = () => {
+    const updatedMatch = { ...localMatch, history: [] }
+
+    // Меняем стороны
+    updatedMatch.courtSides = {
+      teamA: updatedMatch.courtSides.teamA === "left" ? "right" : "left",
+      teamB: updatedMatch.courtSides.teamB === "left" ? "right" : "left",
+    }
+
+    // Сбрасываем флаг необходимости смены сторон
+    updatedMatch.shouldChangeSides = false
+
+    // Обновляем локальное состояние немедленно
+    setLocalMatch(updatedMatch)
+
+    // Обновляем глобальное состояние
+    updateMatch(updatedMatch)
+  }
+
   // Изменяем функцию addPoint
   const addPoint = (team) => {
     // Сохраняем текущее состояние матча в историю
@@ -291,7 +310,7 @@ export function ScoreControls({ match, updateMatch }) {
     }
   }
 
-  // Изменим функции обработчиков, чтобы они не использовали состояния
+  // Изменяем функции обработчиков, чтобы они не использовали состояния
   // Заменим функцию handleAddPointTeamA:
   const handleAddPointTeamA = () => {
     addPoint("teamA")
@@ -485,7 +504,7 @@ export function ScoreControls({ match, updateMatch }) {
     // Start new set
     let newSet
     if (isThirdSetTiebreak) {
-      // Если это решающий сет и включен тай-брейк в решающем сете
+      // Если это решающий сет и включен тайбрейк в решающем сете
       // Сразу начинаем с тайбрейка вместо обычного сета
       const tiebreakLength = updatedMatch.settings.finalSetTiebreakLength || 10
 
@@ -647,7 +666,7 @@ export function ScoreControls({ match, updateMatch }) {
           <Button
             variant="outline"
             className="flex-1 text-xs sm:text-sm py-1 sm:py-2 score-button transition-all hover:bg-blue-50"
-            onClick={changeSides}
+            onClick={manualSwitchSides}
             disabled={localMatch.isCompleted}
           >
             <ArrowLeftRightIcon className="h-4 w-4 mr-1" />
