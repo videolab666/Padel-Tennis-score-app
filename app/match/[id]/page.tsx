@@ -356,19 +356,29 @@ export default function MatchPage({ params }: MatchParams) {
         </TabsContent>
       </Tabs>
       {activeTab === "match" && (
-        <Card className="mt-3 p-4">
+        <Card className="mt-3 p-4" style={{ backgroundColor: "#fbf2da" }}>
           <h3 className="text-sm font-medium mb-3 text-muted-foreground">{t.matchPage.technicalFunctions}</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-            <Button variant="outline" onClick={copyMatchId} className="w-full text-sm" size="sm">
+            <Button
+              variant="outline"
+              onClick={copyMatchId}
+              className="w-full text-sm shadow-md transition-all duration-200 active:scale-95 hover:bg-gradient-to-b hover:from-white hover:to-[#f5f9fd]"
+              size="sm"
+            >
               <Copy className="mr-2 h-4 w-4" />
               {t.matchPage.matchCode}
             </Button>
-            <VmixButton matchId={params.id} courtNumber={match?.courtNumber} className="w-full text-sm" size="sm" />
+            <VmixButton
+              matchId={params.id}
+              courtNumber={match?.courtNumber}
+              className="w-full text-sm shadow-md transition-all duration-200 active:scale-95 hover:bg-gradient-to-b hover:from-white hover:to-[#f5f9fd]"
+              size="sm"
+            />
             {match?.courtNumber && (
               <Button
                 variant="outline"
                 onClick={() => window.open(`/api/court/${match.courtNumber}`, "_blank")}
-                className="w-full text-sm"
+                className="w-full text-sm shadow-md transition-all duration-200 active:scale-95 hover:bg-gradient-to-b hover:from-white hover:to-[#f5f9fd]"
                 size="sm"
               >
                 <ExternalLink className="mr-2 h-4 w-4" />
@@ -379,7 +389,7 @@ export default function MatchPage({ params }: MatchParams) {
               <Button
                 variant="outline"
                 onClick={() => window.open(`/court-vmix/${match.courtNumber}`, "_blank")}
-                className="w-full text-sm"
+                className="w-full text-sm shadow-md transition-all duration-200 active:scale-95 hover:bg-gradient-to-b hover:from-white hover:to-[#f5f9fd]"
                 size="sm"
               >
                 <ExternalLink className="mr-2 h-4 w-4" />
@@ -389,7 +399,7 @@ export default function MatchPage({ params }: MatchParams) {
             <Button
               variant="outline"
               onClick={() => window.open(`/api/vmix/${params.id}`, "_blank")}
-              className="w-full text-sm"
+              className="w-full text-sm shadow-md transition-all duration-200 active:scale-95 hover:bg-gradient-to-b hover:from-white hover:to-[#f5f9fd]"
               size="sm"
             >
               <ExternalLink className="mr-2 h-4 w-4" />
@@ -519,7 +529,7 @@ export default function MatchPage({ params }: MatchParams) {
                   window.open(`/vmix/${params.id}`, "_blank")
                 }
               }}
-              className="w-full text-sm"
+              className="w-full text-sm shadow-md transition-all duration-200 active:scale-95 hover:bg-gradient-to-b hover:from-white hover:to-[#f5f9fd]"
               size="sm"
             >
               <ExternalLink className="mr-2 h-4 w-4" />

@@ -331,6 +331,22 @@ export type TranslationKeys = {
     selectAllPlayersForDoubles: string
     courtOccupied: string
     superSet: string
+    matchRound: string
+    selectMatchRound: string
+    matchRounds: {
+      none: string
+      final: string
+      semifinal: string
+      quarterfinal: string
+      round16: string
+      round32: string
+      round64: string
+      round128: string
+      qualificationFinal: string
+      qualificationRound2: string
+      qualificationRound1: string
+      prequalifying: string
+    }
   }
   vmixSettings: {
     title: string
@@ -937,6 +953,22 @@ export const translations: { [key in Language]: TranslationKeys } = {
       selectAllPlayersForDoubles: "Для парной игры необходимо выбрать всех игроков",
       courtOccupied: "Корт {{court}} уже занят. Выберите другой корт.",
       superSet: "ПРО сет до 8 геймов",
+      matchRound: "Раунд матча",
+      selectMatchRound: "Выберите раунд матча",
+      matchRounds: {
+        none: "Не выбрано",
+        final: "Финал",
+        semifinal: "Полуфинал",
+        quarterfinal: "Четвертьфинал",
+        round16: "1/8 финала",
+        round32: "1/16 финала",
+        round64: "1/32 финала",
+        round128: "1/64 финала",
+        qualificationFinal: "Финал квалификации",
+        qualificationRound2: "Квалификация, раунд 2",
+        qualificationRound1: "Квалификация, раунд 1",
+        prequalifying: "Пре-квалификация",
+      },
     },
     vmixSettings: {
       title: "Настройки vMix для матча",
@@ -1544,6 +1576,22 @@ export const translations: { [key in Language]: TranslationKeys } = {
       selectAllPlayersForDoubles: "For doubles, you need to select all players",
       courtOccupied: "Court {{court}} is already occupied. Select another court.",
       superSet: "PRO set up to 8 games (Fast Set / Short Set)",
+      matchRound: "Match Round",
+      selectMatchRound: "Select match round",
+      matchRounds: {
+        none: "None",
+        final: "Final",
+        semifinal: "Semifinal",
+        quarterfinal: "Quarterfinal",
+        round16: "Round of 16",
+        round32: "Round of 32",
+        round64: "Round of 64",
+        round128: "Round of 128",
+        qualificationFinal: "Qualification Final",
+        qualificationRound2: "Qualification Round 2",
+        qualificationRound1: "Qualification Round 1",
+        prequalifying: "Pre-qualifying",
+      },
     },
     vmixSettings: {
       title: "vMix settings for match",
@@ -2021,7 +2069,7 @@ export const translations: { [key in Language]: TranslationKeys } = {
       vmixMatch: "vMix матч",
       scoreUpdated: "Рахунок оновлено",
       linkCopied: "Посилання скопійовано в буфер обміну",
-      matchCodeCopied: "Код матчу скопійовано в буфер обмі��у",
+      matchCodeCopied: "Код матчу скопійовано в буфер обміну",
       matchDataCopied: "Дані матчу скопійовано в буфер обміну",
       importDataRequired: "Введіть дані для імпорту",
       matchImported: "Матч успішно імпортовано",
@@ -2152,6 +2200,22 @@ export const translations: { [key in Language]: TranslationKeys } = {
       selectAllPlayersForDoubles: "Для парної гри необхідно вибрати всіх гравців",
       courtOccupied: "Корт {{court}} вже зайнятий. Виберіть інший корт.",
       superSet: "ПРО сет до 8 геймів",
+      matchRound: "Раунд матчу",
+      selectMatchRound: "Виберіть раунд матчу",
+      matchRounds: {
+        none: "Не вибрано",
+        final: "Фінал",
+        semifinal: "Півфінал",
+        quarterfinal: "Чвертьфінал",
+        round16: "1/8 фіналу",
+        round32: "1/16 фіналу",
+        round64: "1/32 фіналу",
+        round128: "1/64 фіналу",
+        qualificationFinal: "Фінал кваліфікації",
+        qualificationRound2: "Кваліфікація, раунд 2",
+        qualificationRound1: "Кваліфікація, раунд 1",
+        prequalifying: "Пре-кваліфікація",
+      },
     },
     vmixSettings: {
       title: "Налаштування vMix для матчу",
@@ -2233,6 +2297,7 @@ export const translations: { [key in Language]: TranslationKeys } = {
       dataFormatExample: "Приклад формату даних",
       settingsSaved: "Налаштування збережено",
       errorSavingSettings: "Не вдалося зберегти налаштування",
+      loadingSettings: "Завантаження налаштувань...",
       teamAName: "Ім'я команди A",
       teamAScore: "Рахунок команди A",
       teamAGameScore: "Поточний рахунок в геймі команди A",
@@ -2262,7 +2327,7 @@ export const translations: { [key in Language]: TranslationKeys } = {
       saveSettingsDescription:
         "Введіть назву для налаштувань і виберіть, чи будуть вони використовуватися за замовчуванням",
       settingsName: "Назва налаштувань",
-      settingsNamePlaceholder: "В��едіть назву налаштувань",
+      settingsNamePlaceholder: "Введіть назву налаштувань",
       useAsDefault: "Використовувати за замовчуванням",
       cancelButton: "Скасувати",
       savingButton: "Збереження...",

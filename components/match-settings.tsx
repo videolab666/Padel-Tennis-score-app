@@ -6,8 +6,7 @@ import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useState } from "react"
-import { MinusIcon, PlusIcon, LockOpenIcon } from "lucide-react"
-import { Input } from "@/components/ui/input"
+import { LockOpenIcon } from "lucide-react"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Checkbox } from "@/components/ui/checkbox"
 import { useLanguage } from "@/contexts/language-context"
@@ -518,158 +517,9 @@ export function MatchSettings({ match, updateMatch, type, settings, onChange }: 
   return (
     <>
       {/* Score Editing Card */}
-      <Card className="w-full mb-4">
+      <Card className="w-full mb-4 bg-gradient-to-b from-[#019fe3] to-[#00336d] text-white">
         <CardHeader>
           <CardTitle>{t("match.scoreEditing")}</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-4">
-            {/* Update 1 start */}
-            <div className="grid grid-cols-[1fr_2fr_2fr] gap-2 items-center">
-              <div className="font-medium text-center">{t("match.set")}</div>
-              <div className="font-medium text-center">{t("match.teamA")}</div>
-              <div className="font-medium text-center">{t("match.teamB")}</div>
-            </div>
-            {/* Update 1 end */}
-
-            {/* All Sets */}
-            {allSetsArray.map((set) => (
-              <div
-                key={set.index}
-                className={`grid grid-cols-[1fr_2fr_2fr] gap-2 items-center ${
-                  set.isCurrent ? "bg-blue-50 rounded-md p-2" : ""
-                }`}
-              >
-                <div className="text-center font-medium">
-                  {set.index + 1}
-                  {/* Update 2 start */}
-                  {set.isCurrent && <span className="text-xs block text-blue-600">{t("match.currentSet")}</span>}
-                  {/* Update 2 end */}
-                </div>
-                <div>
-                  <div className="flex">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="rounded-r-none"
-                      onClick={() => updateSetScore(set.index, "teamA", -1)}
-                      disabled={match.isCompleted}
-                    >
-                      <MinusIcon className="h-4 w-4" />
-                    </Button>
-                    <Input
-                      type="number"
-                      min="0"
-                      value={
-                        editSetIndex === set.index
-                          ? editSetScoreA
-                          : set.isCurrent
-                            ? match.score.currentSet.teamA
-                            : set.isCompleted
-                              ? match.score.sets[set.index].teamA
-                              : 0
-                      }
-                      onChange={(e) => {
-                        setEditSetIndex(set.index)
-                        setEditSetScoreA(Number.parseInt(e.target.value) || 0)
-                      }}
-                      onBlur={() => {
-                        if (editSetIndex === set.index) {
-                          saveSetScore()
-                        }
-                      }}
-                      disabled={match.isCompleted || (!set.isCompleted && !set.isCurrent)}
-                      className="text-center rounded-none border-x-0"
-                    />
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="rounded-l-none"
-                      onClick={() => updateSetScore(set.index, "teamA", 1)}
-                      disabled={match.isCompleted || (!set.isCompleted && !set.isCurrent)}
-                    >
-                      <PlusIcon className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-                <div>
-                  <div className="flex">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="rounded-r-none"
-                      onClick={() => updateSetScore(set.index, "teamB", -1)}
-                      disabled={match.isCompleted || (!set.isCompleted && !set.isCurrent)}
-                    >
-                      <MinusIcon className="h-4 w-4" />
-                    </Button>
-                    <Input
-                      type="number"
-                      min="0"
-                      value={
-                        editSetIndex === set.index
-                          ? editSetScoreB
-                          : set.isCurrent
-                            ? match.score.currentSet.teamB
-                            : set.isCompleted
-                              ? match.score.sets[set.index].teamB
-                              : 0
-                      }
-                      onChange={(e) => {
-                        setEditSetIndex(set.index)
-                        setEditSetScoreB(Number.parseInt(e.target.value) || 0)
-                      }}
-                      onBlur={() => {
-                        if (editSetIndex === set.index) {
-                          saveSetScore()
-                        }
-                      }}
-                      disabled={match.isCompleted || (!set.isCompleted && !set.isCurrent)}
-                      className="text-center rounded-none border-x-0"
-                    />
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="rounded-l-none"
-                      onClick={() => updateSetScore(set.index, "teamB", 1)}
-                      disabled={match.isCompleted || (!set.isCompleted && !set.isCurrent)}
-                    >
-                      <PlusIcon className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="pt-2 border-t">
-            <Button
-              variant="outline"
-              className="w-full mb-2"
-              onClick={startTiebreak}
-              disabled={match.isCompleted || match.score.currentSet.isTiebreak}
-            >
-              {t("match.startTiebreakManually")}
-            </Button>
-
-            {match.score.currentSet.isTiebreak && (
-              <div className="grid grid-cols-2 gap-2 mt-2">
-                <Button variant="outline" onClick={() => endTiebreak("teamA")} disabled={match.isCompleted}>
-                  {t("match.teamWonTiebreak")} A
-                </Button>
-                <Button variant="outline" onClick={() => endTiebreak("teamB")} disabled={match.isCompleted}>
-                  {t("match.teamWonTiebreak")} B
-                </Button>
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Match Settings Card */}
-      <Card className="w-full">
-        <CardHeader>
-          <CardTitle>{t("match.settings")}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="p-2 bg-blue-50 border border-blue-200 rounded-md text-sm text-center">
@@ -677,95 +527,123 @@ export function MatchSettings({ match, updateMatch, type, settings, onChange }: 
           </div>
 
           <div className="space-y-4">
-            <div>
-              <Label>{t("match.scoringSystem")}</Label>
-              <RadioGroup
-                value={scoringSystem}
-                onValueChange={setScoringSystem}
-                className="grid grid-cols-1 gap-2 mt-2"
+            {/* Sets selection - similar to new match page */}
+            <div className="border rounded-md p-3 bg-[#f8fdf9] shadow-md">
+              <Label>{t("newMatch.sets")}</Label>
+              <Select
+                value={match.settings?.sets?.toString() || "3"}
+                onValueChange={(value) => {
+                  const updatedMatch = { ...match }
+                  updatedMatch.settings.sets = Number.parseInt(value)
+                  updateMatch(updatedMatch)
+                }}
                 disabled={match.isCompleted}
               >
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="classic" id="scoring-classic" disabled={match.isCompleted} />
-                  <Label htmlFor="scoring-classic">{t("match.classicScoring")}</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="no-ad" id="scoring-no-ad" disabled={match.isCompleted} />
-                  <Label htmlFor="scoring-no-ad">{t("match.noAdScoring")}</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="fast4" id="scoring-fast4" disabled={match.isCompleted} />
-                  <Label htmlFor="scoring-fast4">{t("match.fast4Scoring")}</Label>
-                </div>
-              </RadioGroup>
+                <SelectTrigger className="mt-2">
+                  <SelectValue placeholder={t("newMatch.sets")} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="1">{t("newMatch.oneSets")}</SelectItem>
+                  <SelectItem value="3">{t("newMatch.threeSets")}</SelectItem>
+                  <SelectItem value="5">{t("newMatch.fiveSets")}</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
-            <div className="flex items-center justify-between">
-              <Label htmlFor="tiebreak-enabled">{t("match.tiebreak")}</Label>
-              <Switch
-                id="tiebreak-enabled"
-                checked={tiebreakEnabled}
-                onCheckedChange={setTiebreakEnabled}
-                disabled={match.isCompleted}
-                className="data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-red-500"
-              />
+            {/* Final Set Tiebreak - similar to new match page */}
+            <div className="border border-green-200 rounded-md p-3 bg-green-50 shadow-md mt-4">
+              <div className="flex items-center justify-between mb-3">
+                <Label>{t("newMatch.finalSetTiebreak")}</Label>
+                <Switch
+                  id="final-set-tiebreak"
+                  checked={finalSetTiebreak}
+                  onCheckedChange={setFinalSetTiebreak}
+                  disabled={match.isCompleted}
+                  className="data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-red-500"
+                />
+              </div>
             </div>
 
-            {tiebreakEnabled && (
-              <>
-                <div>
-                  <Label>{t("match.tiebreakType")}</Label>
-                  <RadioGroup
-                    value={tiebreakType}
-                    onValueChange={setTiebreakType}
-                    className="grid grid-cols-1 gap-2 mt-2"
-                    disabled={match.isCompleted}
-                  >
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="regular" id="tiebreak-regular" disabled={match.isCompleted} />
-                      <Label htmlFor="tiebreak-regular">{t("match.regularTiebreak")}</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="championship" id="tiebreak-championship" disabled={match.isCompleted} />
-                      <Label htmlFor="tiebreak-championship">{t("match.championshipTiebreak")}</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="super" id="tiebreak-super" disabled={match.isCompleted} />
-                      <Label htmlFor="tiebreak-super">{t("match.superTiebreak")}</Label>
-                    </div>
-                  </RadioGroup>
-                </div>
-
-                <div>
-                  <Label>{t("match.tiebreakAt")}</Label>
-                  <Select value={tiebreakAt} onValueChange={setTiebreakAt} disabled={match.isCompleted}>
-                    <SelectTrigger>
-                      <SelectValue placeholder={t("match.selectTiebreakScore")} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="6-6">6:6</SelectItem>
-                      <SelectItem value="5-5">5:5</SelectItem>
-                      <SelectItem value="4-4">4:4</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </>
-            )}
-
-            <div className="flex items-center justify-between">
-              <Label htmlFor="final-set-tiebreak">{t("newMatch.finalSetTiebreak")}</Label>
-              <Switch
-                id="final-set-tiebreak"
-                checked={finalSetTiebreak}
-                onCheckedChange={setFinalSetTiebreak}
-                disabled={match.isCompleted}
-                className="data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-red-500"
-              />
+            {/* Scoring System - similar to new match page */}
+            <div className="border rounded-md p-3 bg-[#f8fdf9] shadow-md">
+              <Label>{t("match.scoringSystem")}</Label>
+              <Select value={scoringSystem} onValueChange={setScoringSystem} disabled={match.isCompleted}>
+                <SelectTrigger className="mt-2">
+                  <SelectValue placeholder={t("match.scoringSystem")} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="classic">{t("match.classicScoring")}</SelectItem>
+                  <SelectItem value="no-ad">{t("match.noAdScoring")}</SelectItem>
+                  <SelectItem value="fast4">{t("match.fast4Scoring")}</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
-            <div className="space-y-2 border-t pt-4">
+            {/* Tiebreak settings - similar to new match page */}
+            <div className="border rounded-md p-4 bg-[#f3f5f7] shadow-md">
+              <div className="flex items-center justify-between mb-4">
+                <Label>{t("newMatch.tiebreak")}</Label>
+                <Switch
+                  id="tiebreak-enabled"
+                  checked={tiebreakEnabled}
+                  onCheckedChange={setTiebreakEnabled}
+                  disabled={match.isCompleted}
+                  className="data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-red-500"
+                />
+              </div>
+
+              {tiebreakEnabled && (
+                <>
+                  <div>
+                    <Label>{t("match.tiebreakType")}</Label>
+                    <RadioGroup
+                      value={tiebreakType}
+                      onValueChange={setTiebreakType}
+                      className="grid grid-cols-1 gap-2 mt-2"
+                      disabled={match.isCompleted}
+                    >
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="regular" id="tiebreak-regular" disabled={match.isCompleted} />
+                        <div>
+                          <Label htmlFor="tiebreak-regular" className="font-medium">
+                            {t("newMatch.regularTiebreak")}
+                          </Label>
+                          <p className="text-xs text-muted-foreground">До 7 очков (с разницей в 2 очка)</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="championship" id="tiebreak-championship" disabled={match.isCompleted} />
+                        <div>
+                          <Label htmlFor="tiebreak-championship" className="font-medium">
+                            {t("newMatch.championshipTiebreak")}
+                          </Label>
+                          <p className="text-xs text-muted-foreground">До 10 очков (с разницей в 2 очка)</p>
+                        </div>
+                      </div>
+                    </RadioGroup>
+                  </div>
+
+                  <div className="mt-4">
+                    <Label>{t("match.tiebreakAt")}</Label>
+                    <Select value={tiebreakAt} onValueChange={setTiebreakAt} disabled={match.isCompleted}>
+                      <SelectTrigger>
+                        <SelectValue placeholder={t("match.selectTiebreakScore")} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="6-6">6:6</SelectItem>
+                        <SelectItem value="5-5">5:5</SelectItem>
+                        <SelectItem value="4-4">4:4</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* Additional settings - similar to new match page */}
+            <div className="border rounded-md p-4 bg-[#f8fdf9] shadow-md">
               <Label className="text-base font-medium">{t("match.additional")}</Label>
-              <div className="space-y-2">
+              <div className="space-y-2 mt-3">
                 <div className="flex items-center space-x-2">
                   <Checkbox
                     id="golden-game"
@@ -802,21 +680,29 @@ export function MatchSettings({ match, updateMatch, type, settings, onChange }: 
               </div>
             </div>
 
-            <Button className="w-full" onClick={applySettings} disabled={match.isCompleted}>
+            <Button
+              className="w-full shadow-md transition-all duration-200 active:scale-95 bg-gradient-to-b from-[#f5f9fd] to-[#e1e9f5] hover:from-white hover:to-[#f5f9fd] text-[#00336d]"
+              onClick={applySettings}
+              disabled={match.isCompleted}
+            >
               {t("match.applySettings")}
             </Button>
           </div>
 
           <div className="pt-2 border-t">
             {match.isCompleted ? (
-              <Button variant="outline" className="w-full mt-2" onClick={unlockMatch}>
+              <Button
+                variant="outline"
+                className="w-full mt-2 shadow-md transition-all duration-200 active:scale-95 bg-gradient-to-b from-white to-[#f5f9fd] hover:from-[#f5f9fd] hover:to-[#e1e9f5] border-white text-white"
+                onClick={unlockMatch}
+              >
                 <LockOpenIcon className="mr-2 h-4 w-4" />
                 {t("match.unlockMatch")}
               </Button>
             ) : (
               <Button
                 variant="destructive"
-                className="w-full mt-2"
+                className="w-full mt-2 shadow-md transition-all duration-200 active:scale-95 bg-gradient-to-b from-[#ff6b6b] to-[#dc3545] hover:from-[#ff8585] hover:to-[#ff6b6b]"
                 onClick={() => {
                   if (confirm(t("match.confirmEndMatch"))) {
                     endMatch()

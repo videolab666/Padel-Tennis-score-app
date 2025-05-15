@@ -572,6 +572,53 @@ export function ScoreBoard({ match, updateMatch }) {
     return match.currentServer.team === team && match.currentServer.playerIndex === playerIndex
   }
 
+  const getServeSide = () => {
+    // Если матч не инициализирован, вернуть правую сторону по умолчанию
+    if (!match || !match.score || !match.score.currentSet) return "R"
+
+    // Получаем текущий гейм
+    const currentGame = match.score.currentSet.currentGame
+
+    // Считаем общее количество очков в текущем гейме
+    const totalPoints =
+      (currentGame.teamA === "Ad"
+        ? 4
+        : typeof currentGame.teamA === "number"
+          ? currentGame.teamA === 0
+            ? 0
+            : currentGame.teamA === 15
+              ? 1
+              : currentGame.teamA === 30
+                ? 2
+                : 3
+          : 0) +
+      (currentGame.teamB === "Ad"
+        ? 4
+        : typeof currentGame.teamB === "number"
+          ? currentGame.teamB === 0
+            ? 0
+            : currentGame.teamB === 15
+              ? 1
+              : currentGame.teamB === 30
+                ? 2
+                : 3
+          : 0)
+
+    // В тай-брейке логика немного другая
+    if (match.score.currentSet.isTiebreak) {
+      // В тай-брейке первая подача справа, затем чередуется каждые 2 очка
+      // Но первая смена происходит после 1 очка
+      if (totalPoints === 0) return "R"
+
+      // После первого очка и далее
+      // Нечетное количество очков - левая сторона, четное - правая
+      return totalPoints % 2 === 1 ? "L" : "R"
+    }
+
+    // В обычном гейме: четное количество очков - правая сторона, нечетное - левая
+    return totalPoints % 2 === 0 ? "R" : "L"
+  }
+
   const manualSwitchServer = () => {
     if (!updateMatch || match.isCompleted) return
 
@@ -773,9 +820,10 @@ export function ScoreBoard({ match, updateMatch }) {
                       {isServing("teamA", actualIdx) && (
                         <Badge
                           variant="outline"
-                          className="mr-2 w-3 h-3 rounded-full bg-lime-400 border-lime-600 p-0 flex items-center justify-center flex-shrink-0"
+                          className="mr-2 rounded-full bg-lime-400 border-lime-600 p-0 flex items-center justify-center flex-shrink-0"
+                          style={{ width: "24px", height: "24px" }}
                         >
-                          <span className="sr-only">{t("match.serving")}</span>
+                          <span className="text-[13.6px] font-bold text-lime-800">{getServeSide()}</span>
                         </Badge>
                       )}
                       <div className="w-full overflow-hidden max-w-full">
@@ -795,9 +843,10 @@ export function ScoreBoard({ match, updateMatch }) {
                       {isServing("teamB", actualIdx) && (
                         <Badge
                           variant="outline"
-                          className="mr-2 w-3 h-3 rounded-full bg-lime-400 border-lime-600 p-0 flex items-center justify-center flex-shrink-0"
+                          className="mr-2 rounded-full bg-lime-400 border-lime-600 p-0 flex items-center justify-center flex-shrink-0"
+                          style={{ width: "24px", height: "24px" }}
                         >
-                          <span className="sr-only">{t("match.serving")}</span>
+                          <span className="text-[13.6px] font-bold text-lime-800">{getServeSide()}</span>
                         </Badge>
                       )}
                       <div className="w-full overflow-hidden max-w-full">
@@ -817,10 +866,10 @@ export function ScoreBoard({ match, updateMatch }) {
                     {isServing("teamA", actualIdx) && (
                       <Badge
                         variant="outline"
-                        className="mr-2 w-3 h-3 rounded-full bg-lime-400 border-lime-600 p-0 flex items-center justify-center flex-shrink-0"
-                        variant="outline"
+                        className="mr-2 rounded-full bg-lime-400 border-lime-600 p-0 flex items-center justify-center flex-shrink-0"
+                        style={{ width: "24px", height: "24px" }}
                       >
-                        <span className="sr-only">{t("match.serving")}</span>
+                        <span className="text-[13.6px] font-bold text-lime-800">{getServeSide()}</span>
                       </Badge>
                     )}
                     <div className="w-full overflow-hidden max-w-full">
@@ -855,9 +904,10 @@ export function ScoreBoard({ match, updateMatch }) {
                       {isServing("teamA", actualIdx) && (
                         <Badge
                           variant="outline"
-                          className="ml-2 w-3 h-3 rounded-full bg-lime-400 border-lime-600 p-0 flex items-center justify-center flex-shrink-0"
+                          className="ml-2 rounded-full bg-lime-400 border-lime-600 p-0 flex items-center justify-center flex-shrink-0"
+                          style={{ width: "24px", height: "24px" }}
                         >
-                          <span className="sr-only">{t("match.serving")}</span>
+                          <span className="text-[13.6px] font-bold text-lime-800">{getServeSide()}</span>
                         </Badge>
                       )}
                     </div>
@@ -877,9 +927,10 @@ export function ScoreBoard({ match, updateMatch }) {
                       {isServing("teamB", actualIdx) && (
                         <Badge
                           variant="outline"
-                          className="ml-2 w-3 h-3 rounded-full bg-lime-400 border-lime-600 p-0 flex items-center justify-center flex-shrink-0"
+                          className="ml-2 rounded-full bg-lime-400 border-lime-600 p-0 flex items-center justify-center flex-shrink-0"
+                          style={{ width: "24px", height: "24px" }}
                         >
-                          <span className="sr-only">{t("match.serving")}</span>
+                          <span className="text-[13.6px] font-bold text-lime-800">{getServeSide()}</span>
                         </Badge>
                       )}
                     </div>
@@ -899,9 +950,10 @@ export function ScoreBoard({ match, updateMatch }) {
                     {isServing("teamB", actualIdx) && (
                       <Badge
                         variant="outline"
-                        className="ml-2 w-3 h-3 rounded-full bg-lime-400 border-lime-600 p-0 flex items-center justify-center flex-shrink-0"
+                        className="ml-2 rounded-full bg-lime-400 border-lime-600 p-0 flex items-center justify-center flex-shrink-0"
+                        style={{ width: "24px", height: "24px" }}
                       >
-                        <span className="sr-only">{t("match.serving")}</span>
+                        <span className="text-[13.6px] font-bold text-lime-800">{getServeSide()}</span>
                       </Badge>
                     )}
                   </div>

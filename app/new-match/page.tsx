@@ -134,6 +134,7 @@ export default function NewMatchPage() {
   const [goldenGame, setGoldenGame] = useState(false)
   const [goldenPoint, setGoldenPoint] = useState(false)
   const [windbreak, setWindbreak] = useState(false)
+  const [matchRound, setMatchRound] = useState<string | null>(null)
   const [players, setPlayers] = useState([])
   const [newPlayerName, setNewPlayerName] = useState("")
   const [loading, setLoading] = useState(true)
@@ -342,6 +343,7 @@ export default function NewMatchPage() {
       type: matchType,
       format: matchFormat,
       createdAt: new Date().toISOString(),
+      matchRound: matchRound, // Добавляем тип игры
       settings: matchSettings,
       teamA: {
         players: [
@@ -648,6 +650,31 @@ export default function NewMatchPage() {
                   <Label htmlFor="windbreak" className="text-sm">
                     {t("newMatch.windbreak")}
                   </Label>
+                </div>
+                <div className="mt-4 border rounded-md shadow-md bg-[#fdead1] p-2">
+                  <Label>{t("newMatch.matchRound") || "Match Round"}</Label>
+                  <Select
+                    value={matchRound || ""}
+                    onValueChange={(value) => setMatchRound(value === "" ? null : value)}
+                  >
+                    <SelectTrigger className="w-full mt-2">
+                      <SelectValue placeholder={t("newMatch.selectMatchRound") || "Select match round"} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">None</SelectItem>
+                      <SelectItem value="final">Final</SelectItem>
+                      <SelectItem value="semifinal">Semifinal</SelectItem>
+                      <SelectItem value="quarterfinal">Quarterfinal</SelectItem>
+                      <SelectItem value="round16">Round of 16</SelectItem>
+                      <SelectItem value="round32">Round of 32</SelectItem>
+                      <SelectItem value="round64">Round of 64</SelectItem>
+                      <SelectItem value="round128">Round of 128</SelectItem>
+                      <SelectItem value="qualificationFinal">Qualification Final</SelectItem>
+                      <SelectItem value="qualificationRound2">Qualification Round 2</SelectItem>
+                      <SelectItem value="qualificationRound1">Qualification Round 1</SelectItem>
+                      <SelectItem value="prequalifying">Pre-qualifying</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
             </div>
