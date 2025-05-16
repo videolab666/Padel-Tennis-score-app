@@ -137,6 +137,48 @@ const isGamePoint = (match) => {
   return false
 }
 
+// Функция для определения break point
+const isBreakPoint = (match) => {
+  if (!match || !match.score || !match.score.currentSet || !match.currentServer) {
+    return false
+  }
+
+  // Получаем текущий гейм-поинт
+  const gamePoint = isGamePoint(match)
+
+  // Если нет гейм-поинта, то не может быть и брейк-поинта
+  if (!gamePoint) {
+    return false
+  }
+
+  // Если гейм-поинт есть, проверяем, является ли он брейк-поинтом
+  // Брейк-поинт - это когда гейм-поинт у принимающей команды
+  const servingTeam = match.currentServer.team
+
+  // Если подающая команда не та, у которой гейм-поинт, значит это брейк-поинт
+  return gamePoint !== servingTeam ? gamePoint : false
+}
+
+// Функция для подсчета количества брейк-поинтов в текущем гейме
+const getBreakPointCount = (match) => {
+  if (!match || !match.score || !match.score.currentSet || !match.currentServer) {
+    return { current: 0, total: 0 }
+  }
+
+  // Получаем текущий брейк-поинт
+  const currentBreakPoint = isBreakPoint(match)
+
+  // Если нет текущего брейк-поинта, возвращаем 0
+  if (!currentBreakPoint) {
+    return { current: 0, total: 0 }
+  }
+
+  // Для простоты реализации, просто возвращаем номер текущего брейк-поинта как 1
+  // и общее количество как 1
+  // В реальном приложении здесь должна быть логика отслеживания всех брейк-поинтов в гейме
+  return { current: 1, total: 1 }
+}
+
 // Улучшенная функция для определения set point
 const isSetPoint = (match) => {
   if (!match || !match.score || !match.score.currentSet) {
@@ -285,6 +327,8 @@ export default function CourtVmixPage({ params }: CourtParams) {
   const [debugInfo, setDebugInfo] = useState("")
   const [prevImportantPoint, setPrevImportantPoint] = useState({ type: null, team: null })
   const [indicatorState, setIndicatorState] = useState("hidden") // "entering", "visible", "exiting", "hidden"
+  const [breakPointState, setBreakPointState] = useState("hidden") // "entering", "visible", "exiting", "hidden"
+  const [prevBreakPoint, setPrevBreakPoint] = useState({ team: null, count: { current: 0, total: 0 } })
   const courtNumber = Number.parseInt(params.number)
 
   // Параметры отображения из URL
@@ -514,6 +558,8 @@ export default function CourtVmixPage({ params }: CourtParams) {
                 gamePoint: isGamePoint(matchData),
                 setPoint: isSetPoint(matchData),
                 matchPoint: isMatchPoint(matchData),
+                breakPoint: isBreakPoint(matchData),
+                breakPointCount: getBreakPointCount(matchData),
               },
               null,
               2,
@@ -611,6 +657,8 @@ export default function CourtVmixPage({ params }: CourtParams) {
                   gamePoint: isGamePoint(currentMatchData),
                   setPoint: isSetPoint(currentMatchData),
                   matchPoint: isMatchPoint(currentMatchData),
+                  breakPoint: isBreakPoint(currentMatchData),
+                  breakPointCount: getBreakPointCount(currentMatchData),
                 },
                 null,
                 2,
@@ -690,6 +738,8 @@ export default function CourtVmixPage({ params }: CourtParams) {
                   gamePoint: isGamePoint(updatedMatch),
                   setPoint: isSetPoint(updatedMatch),
                   matchPoint: isMatchPoint(updatedMatch),
+                  breakPoint: isBreakPoint(updatedMatch),
+                  breakPointCount: getBreakPointCount(updatedMatch),
                 },
                 null,
                 2,
@@ -747,7 +797,7 @@ export default function CourtVmixPage({ params }: CourtParams) {
         matchUnsubscribe()
       }
     }
-  }, [match?.id, courtNumber, outputFormat, showDebug])
+  }, [match, courtNumber, outputFormat, showDebug])
 
   // Эффект для отслеживания изменений важного момента и управления анимацией
   useEffect(() => {
@@ -789,6 +839,47 @@ export default function CourtVmixPage({ params }: CourtParams) {
     // Обновляем предыдущее значение только если оно действительно изменилось
     setPrevImportantPoint(currentImportantPoint)
   }, [match, prevImportantPoint.type]) // Зависим только от match и prevImportantPoint.type
+
+  // Эффект для отслеживания изменений брейк-поинта и управления анимацией
+  useEffect(() => {
+    if (!match) return
+
+    const currentBreakPoint = isBreakPoint(match)
+    const breakPointCount = getBreakPointCount(match)
+
+    // Проверяем, действительно ли изменился брейк-поинт
+    const prevBreakPointTeam = prevBreakPoint.team
+
+    // Если брейк-поинт не изменился, ничего не делаем
+    if (currentBreakPoint === prevBreakPointTeam) return
+
+    // Если появился брейк-поинт
+    if (currentBreakPoint && !prevBreakPointTeam) {
+      setBreakPointState("entering")
+
+      // Через 1 секунду (длительность анимации) меняем состояние на "visible"
+      const timer = setTimeout(() => {
+        setBreakPointState("visible")
+      }, 1000)
+
+      return () => clearTimeout(timer)
+    }
+
+    // Если брейк-поинт исчез
+    if (!currentBreakPoint && prevBreakPointTeam) {
+      setBreakPointState("exiting")
+
+      // Через 1 секунду (длительность анимации) меняем состояние на "hidden"
+      const timer = setTimeout(() => {
+        setBreakPointState("hidden")
+      }, 1000)
+
+      return () => clearTimeout(timer)
+    }
+
+    // Обновляем предыдущее значение только если оно действительно изменилось
+    setPrevBreakPoint({ team: currentBreakPoint, count: breakPointCount })
+  }, [match, prevBreakPoint.team])
 
   // Получаем текущий счет в виде строки (0, 15, 30, 40, Ad)
   const getCurrentGameScore = (team) => {
@@ -984,12 +1075,18 @@ export default function CourtVmixPage({ params }: CourtParams) {
   // Получаем информацию о важном моменте матча
   const importantPoint = getImportantPoint(match)
 
+  // Получаем информацию о брейк-поинте
+  const breakPoint = isBreakPoint(match)
+  const breakPointCount = getBreakPointCount(match)
+
   // Для отладки - выводим информацию о важных моментах
   if (showDebug) {
     console.log("Важный момент матча:", importantPoint)
     console.log("Game Point:", isGamePoint(match))
     console.log("Set Point:", isSetPoint(match))
     console.log("Match Point:", isMatchPoint(match))
+    console.log("Break Point:", breakPoint)
+    console.log("Break Point Count:", breakPointCount)
   }
 
   // Определяем фиксированную ширину для ячеек имен
@@ -1072,6 +1169,51 @@ export default function CourtVmixPage({ params }: CourtParams) {
         }}
         className={styles.container}
       >
+        {/* Индикатор брейк-поинта (сверху) */}
+        <div
+          style={{
+            display: "flex",
+            width: `${tableWidth}px`, // Устанавливаем ширину равной ширине таблицы счета
+            height: "18px", // Такая же высота, как у индикатора важного события
+            marginBottom: "1px", // Небольшой отступ от таблицы счета
+            justifyContent: "flex-end", // Выравниваем содержимое по правому краю
+            position: "relative", // Добавляем позиционирование
+            overflow: "hidden", // Скрываем выходящие за пределы элементы
+          }}
+        >
+          {/* Показываем индикатор только если есть брейк-поинт */}
+          {(breakPoint || breakPointState === "exiting") && (
+            <div
+              className={
+                breakPointState === "entering" || breakPointState === "visible"
+                  ? "indicator-animation-enter"
+                  : "indicator-animation-exit"
+              }
+              style={{
+                color: theme === "transparent" ? accentColor : indicatorTextColor,
+                backgroundColor:
+                  theme === "transparent" ? "transparent" : indicatorGradient ? undefined : indicatorBgColor,
+                ...(indicatorGradient ? getGradientStyle(true, indicatorGradientFrom, indicatorGradientTo) : {}),
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: "33%", // Ширина индикатора - треть от общей ширины
+                height: "100%",
+                fontWeight: "bold",
+                fontSize: "0.8em", // Такой же размер шрифта, как у индикатора важного события
+                textTransform: "uppercase",
+                letterSpacing: "0.5px",
+                position: "absolute", // Абсолютное позиционирование
+                top: 0, // Прикрепляем к верхней части контейнера
+                right: 0, // Прикрепляем к правой части контейнера
+                zIndex: 1, // Устанавливаем z-index ниже, чем у основного блока
+              }}
+            >
+              {`BREAK POINT ${breakPointCount.current}/${breakPointCount.total}`}
+            </div>
+          )}
+        </div>
+
         {/* Контейнер для счета */}
         <div style={{ display: "flex", flexDirection: "column", width: "fit-content" }}>
           {/* Строка для первого игрока/команды */}

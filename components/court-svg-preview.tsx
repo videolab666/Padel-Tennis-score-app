@@ -511,7 +511,7 @@ function CourtSVG({
                     {getServeSide()}
                   </span>
                 )}
-                <div>{getPlayerName(positions.topLeft)}</div>
+                <div className="break-words max-w-[80%] leading-tight">{getPlayerName(positions.topLeft)}</div>
               </div>
             </div>
           </foreignObject>
@@ -557,7 +557,7 @@ function CourtSVG({
                     {getServeSide()}
                   </span>
                 )}
-                <div>{getPlayerName(positions.bottomLeft)}</div>
+                <div className="break-words max-w-[80%] leading-tight">{getPlayerName(positions.bottomLeft)}</div>
               </div>
             </div>
           </foreignObject>
@@ -583,8 +583,8 @@ function CourtSVG({
                 whiteSpace: "normal",
               }}
             >
-              <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
-                <div>{getPlayerName(positions.topRight)}</div>
+              <div style={{ display: "flex", alignItems: "center", gap: "20px", marginRight: "30px" }}>
+                <div className="break-words max-w-[95%] leading-tight">{getPlayerName(positions.topRight)}</div>
                 {isServing(positions.topRight.team, positions.topRight.playerIndex) && (
                   <span
                     style={{
@@ -631,8 +631,8 @@ function CourtSVG({
                 whiteSpace: "normal",
               }}
             >
-              <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
-                <div>{getPlayerName(positions.bottomRight)}</div>
+              <div style={{ display: "flex", alignItems: "center", gap: "20px", marginRight: "30px" }}>
+                <div className="break-words max-w-[95%] leading-tight">{getPlayerName(positions.bottomRight)}</div>
                 {isServing(positions.bottomRight.team, positions.bottomRight.playerIndex) && (
                   <span
                     style={{
