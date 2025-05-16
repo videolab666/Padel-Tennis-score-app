@@ -9,6 +9,7 @@ import { logEvent } from "@/lib/error-logger"
 import { subscribeToMatchUpdates } from "@/lib/match-storage"
 import { Maximize2, Minimize2, Trophy, ArrowLeft, Clock } from "lucide-react"
 import { translations, type Language } from "@/lib/translations"
+import { getDefaultVmixSettings } from "@/lib/vmix-settings-storage"
 
 type FullscreenScoreboardParams = {
   params: {
@@ -40,54 +41,216 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
   const searchParams = useSearchParams()
   const containerRef = useRef(null)
   const courtNumber = Number.parseInt(params.number)
+  const [loadingSettings, setLoadingSettings] = useState(false)
+  const [settingsLoaded, setSettingsLoaded] = useState(false)
 
-  // Параметры отображения из URL
-  const theme = searchParams.get("theme") || "default"
-  const showNames = searchParams.get("showNames") !== "false"
-  const showPoints = searchParams.get("showPoints") !== "false"
-  const showSets = searchParams.get("showSets") !== "false"
-  const showServer = searchParams.get("showServer") !== "false"
-  const showCountry = searchParams.get("showCountry") === "true"
-  const textColor = parseColorParam(searchParams.get("textColor"), "#ffffff")
-  const accentColor = parseColorParam(searchParams.get("accentColor"), "#a4fb23")
+  // Состояние для настроек отображения
+  const [theme, setTheme] = useState("default")
+  const [showNames, setShowNames] = useState(true)
+  const [showPoints, setShowPoints] = useState(true)
+  const [showSets, setShowSets] = useState(true)
+  const [showServer, setShowServer] = useState(true)
+  const [showCountry, setShowCountry] = useState(false)
+  const [textColor, setTextColor] = useState("#ffffff")
+  const [accentColor, setAccentColor] = useState("#a4fb23")
+
+  // Состояние для цветов с правильной обработкой параметров
+  const [namesBgColor, setNamesBgColor] = useState("#0369a1")
+  const [countryBgColor, setCountryBgColor] = useState("#0369a1")
+  const [pointsBgColor, setPointsBgColor] = useState("#0369a1")
+  const [setsBgColor, setSetsBgColor] = useState("#ffffff")
+  const [setsTextColor, setSetsTextColor] = useState("#000000")
+  const [serveBgColor, setServeBgColor] = useState("#000000")
+
+  // Состояние для параметров градиентов
+  const [namesGradient, setNamesGradient] = useState(true)
+  const [namesGradientFrom, setNamesGradientFrom] = useState("#0369a1")
+  const [namesGradientTo, setNamesGradientTo] = useState("#0284c7")
+  const [countryGradient, setCountryGradient] = useState(true)
+  const [countryGradientFrom, setCountryGradientFrom] = useState("#0369a1")
+  const [countryGradientTo, setCountryGradientTo] = useState("#0284c7")
+  const [pointsGradient, setPointsGradient] = useState(true)
+  const [pointsGradientFrom, setPointsGradientFrom] = useState("#0369a1")
+  const [pointsGradientTo, setPointsGradientTo] = useState("#0284c7")
+  const [setsGradient, setSetsGradient] = useState(true)
+  const [setsGradientFrom, setSetsGradientFrom] = useState("#ffffff")
+  const [setsGradientTo, setSetsGradientTo] = useState("#f0f0f0")
+  const [serveGradient, setServeGradient] = useState(true)
+  const [serveGradientFrom, setServeGradientFrom] = useState("#000000")
+  const [serveGradientTo, setServeGradientTo] = useState("#1e1e1e")
+
+  // Состояние для параметров индикатора важных событий
+  const [indicatorBgColor, setIndicatorBgColor] = useState("#7c2d12")
+  const [indicatorTextColor, setIndicatorTextColor] = useState("#ffffff")
+  const [indicatorGradient, setIndicatorGradient] = useState(true)
+  const [indicatorGradientFrom, setIndicatorGradientFrom] = useState("#7c2d12")
+  const [indicatorGradientTo, setIndicatorGradientTo] = useState("#991b1b")
+
+  const [language, setLanguage] = useState<Language>("ru")
   const showDebug = searchParams.get("debug") === "true"
 
-  // Цвета с правильной обработкой параметров
-  const namesBgColor = parseColorParam(searchParams.get("namesBgColor"), "#0369a1")
-  const countryBgColor = parseColorParam(searchParams.get("countryBgColor"), "#0369a1")
-  const pointsBgColor = parseColorParam(searchParams.get("pointsBgColor"), "#0369a1")
-  const setsBgColor = parseColorParam(searchParams.get("setsBgColor"), "#ffffff")
-  const setsTextColor = parseColorParam(searchParams.get("setsTextColor"), "#000000")
-  const serveBgColor = parseColorParam(searchParams.get("serveBgColor"), "#000000")
+  // Функция для загрузки настроек из базы данных
+  const loadSettingsFromDatabase = async () => {
+    try {
+      setLoadingSettings(true)
+      logEvent("info", "Загрузка настроек vMix из базы данных", "fullscreen-scoreboard")
 
-  // Параметры градиентов
-  const namesGradient = searchParams.get("namesGradient") === "true"
-  const namesGradientFrom = parseColorParam(searchParams.get("namesGradientFrom"), "#0369a1")
-  const namesGradientTo = parseColorParam(searchParams.get("namesGradientTo"), "#0284c7")
-  const countryGradient = searchParams.get("countryGradient") === "true"
-  const countryGradientFrom = parseColorParam(searchParams.get("countryGradientFrom"), "#0369a1")
-  const countryGradientTo = parseColorParam(searchParams.get("countryGradientTo"), "#0284c7")
-  const pointsGradient = searchParams.get("pointsGradient") === "true"
-  const pointsGradientFrom = parseColorParam(searchParams.get("pointsGradientFrom"), "#0369a1")
-  const pointsGradientTo = parseColorParam(searchParams.get("pointsGradientTo"), "#0284c7")
-  const setsGradient = searchParams.get("setsGradient") === "true"
-  const setsGradientFrom = parseColorParam(searchParams.get("setsGradientFrom"), "#ffffff")
-  const setsGradientTo = parseColorParam(searchParams.get("setsGradientTo"), "#f0f0f0")
-  const serveGradient = searchParams.get("serveGradient") === "true"
-  const serveGradientFrom = parseColorParam(searchParams.get("serveGradientFrom"), "#000000")
-  const serveGradientTo = parseColorParam(searchParams.get("serveGradientTo"), "#1e1e1e")
+      const defaultSettings = await getDefaultVmixSettings()
 
-  // Параметры для индикатора важных событий
-  const indicatorBgColor = parseColorParam(searchParams.get("indicatorBgColor"), "#7c2d12")
-  const indicatorTextColor = parseColorParam(searchParams.get("indicatorTextColor"), "#ffffff")
-  const indicatorGradient = searchParams.get("indicatorGradient") === "true"
-  const indicatorGradientFrom = parseColorParam(searchParams.get("indicatorGradientFrom"), "#7c2d12")
-  const indicatorGradientTo = parseColorParam(searchParams.get("indicatorGradientTo"), "#991b1b")
+      if (defaultSettings && defaultSettings.settings) {
+        logEvent("info", "Настройки vMix загружены из базы данных", "fullscreen-scoreboard", {
+          settingsName: defaultSettings.name,
+        })
 
-  // Заменить эту строку:
-  // const language = (searchParams.get("language") as Language) || "ru"
-  // На следующую, которая будет проверять параметр URL, а затем использовать localStorage:
-  const [language, setLanguage] = useState<Language>("ru")
+        // Применяем настройки из базы данных
+        applySettings(defaultSettings.settings)
+      } else {
+        logEvent("warn", "Настройки vMix по умолчанию не найдены в базе данных", "fullscreen-scoreboard")
+        // Если настроек по умолчанию нет, пробуем загрузить из localStorage
+        loadSettingsFromLocalStorage()
+      }
+    } catch (error) {
+      logEvent("error", "Ошибка при загрузке настроек vMix из базы данных", "fullscreen-scoreboard", error)
+      // В случае ошибки пробуем загрузить из localStorage
+      loadSettingsFromLocalStorage()
+    } finally {
+      setLoadingSettings(false)
+      setSettingsLoaded(true)
+    }
+  }
+
+  // Функция для загрузки настроек из localStorage
+  const loadSettingsFromLocalStorage = () => {
+    try {
+      const savedSettings = localStorage.getItem("vmix_settings")
+      if (savedSettings) {
+        const settings = JSON.parse(savedSettings)
+        applySettings(settings)
+        logEvent("info", "Настройки vMix загружены из localStorage", "fullscreen-scoreboard")
+      }
+    } catch (error) {
+      logEvent("error", "Ошибка при загрузке настроек vMix из localStorage", "fullscreen-scoreboard", error)
+    }
+  }
+
+  // Функция для применения настроек
+  const applySettings = (settings) => {
+    if (!settings) return
+
+    // Применяем основные настройки
+    setTheme(settings.theme || "default")
+    setShowNames(settings.showNames !== undefined ? settings.showNames : true)
+    setShowPoints(settings.showPoints !== undefined ? settings.showPoints : true)
+    setShowSets(settings.showSets !== undefined ? settings.showSets : true)
+    setShowServer(settings.showServer !== undefined ? settings.showServer : true)
+    setShowCountry(settings.showCountry !== undefined ? settings.showCountry : false)
+    setTextColor(settings.textColor || "#ffffff")
+    setAccentColor(settings.accentColor || "#a4fb23")
+
+    // Применяем настройки цветов
+    setNamesBgColor(settings.namesBgColor || "#0369a1")
+    setCountryBgColor(settings.countryBgColor || "#0369a1")
+    setPointsBgColor(settings.pointsBgColor || "#0369a1")
+    setSetsBgColor(settings.setsBgColor || "#ffffff")
+    setSetsTextColor(settings.setsTextColor || "#000000")
+    setServeBgColor(settings.serveBgColor || "#000000")
+
+    // Применяем настройки градиентов
+    setNamesGradient(settings.namesGradient !== undefined ? settings.namesGradient : true)
+    setNamesGradientFrom(settings.namesGradientFrom || "#0369a1")
+    setNamesGradientTo(settings.namesGradientTo || "#0284c7")
+
+    setCountryGradient(settings.countryGradient !== undefined ? settings.countryGradient : true)
+    setCountryGradientFrom(settings.countryGradientFrom || "#0369a1")
+    setCountryGradientTo(settings.countryGradientTo || "#0284c7")
+
+    setPointsGradient(settings.pointsGradient !== undefined ? settings.pointsGradient : true)
+    setPointsGradientFrom(settings.pointsGradientFrom || "#0369a1")
+    setPointsGradientTo(settings.pointsGradientTo || "#0284c7")
+
+    setSetsGradient(settings.setsGradient !== undefined ? settings.setsGradient : true)
+    setSetsGradientFrom(settings.setsGradientFrom || "#ffffff")
+    setSetsGradientTo(settings.setsGradientTo || "#f0f0f0")
+
+    setServeGradient(settings.serveGradient !== undefined ? settings.serveGradient : true)
+    setServeGradientFrom(settings.serveGradientFrom || "#000000")
+    setServeGradientTo(settings.serveGradientTo || "#1e1e1e")
+
+    // Применяем настройки индикатора
+    setIndicatorBgColor(settings.indicatorBgColor || "#7c2d12")
+    setIndicatorTextColor(settings.indicatorTextColor || "#ffffff")
+    setIndicatorGradient(settings.indicatorGradient !== undefined ? settings.indicatorGradient : true)
+    setIndicatorGradientFrom(settings.indicatorGradientFrom || "#7c2d12")
+    setIndicatorGradientTo(settings.indicatorGradientTo || "#991b1b")
+  }
+
+  // Загрузка настроек из URL или базы данных при первом рендере
+  useEffect(() => {
+    // Проверяем, есть ли параметры настроек в URL
+    const hasSettingsInUrl =
+      searchParams.has("theme") ||
+      searchParams.has("showNames") ||
+      searchParams.has("showPoints") ||
+      searchParams.has("showSets") ||
+      searchParams.has("showServer") ||
+      searchParams.has("showCountry") ||
+      searchParams.has("textColor") ||
+      searchParams.has("accentColor")
+
+    if (hasSettingsInUrl) {
+      // Если настройки есть в URL, применяем их
+      setTheme(searchParams.get("theme") || "default")
+      setShowNames(searchParams.get("showNames") !== "false")
+      setShowPoints(searchParams.get("showPoints") !== "false")
+      setShowSets(searchParams.get("showSets") !== "false")
+      setShowServer(searchParams.get("showServer") !== "false")
+      setShowCountry(searchParams.get("showCountry") === "true")
+      setTextColor(parseColorParam(searchParams.get("textColor"), "#ffffff"))
+      setAccentColor(parseColorParam(searchParams.get("accentColor"), "#a4fb23"))
+
+      // Применяем настройки цветов из URL
+      setNamesBgColor(parseColorParam(searchParams.get("namesBgColor"), "#0369a1"))
+      setCountryBgColor(parseColorParam(searchParams.get("countryBgColor"), "#0369a1"))
+      setPointsBgColor(parseColorParam(searchParams.get("pointsBgColor"), "#0369a1"))
+      setSetsBgColor(parseColorParam(searchParams.get("setsBgColor"), "#ffffff"))
+      setSetsTextColor(parseColorParam(searchParams.get("setsTextColor"), "#000000"))
+      setServeBgColor(parseColorParam(searchParams.get("serveBgColor"), "#000000"))
+
+      // Применяем настройки градиентов из URL
+      setNamesGradient(searchParams.get("namesGradient") === "true")
+      setNamesGradientFrom(parseColorParam(searchParams.get("namesGradientFrom"), "#0369a1"))
+      setNamesGradientTo(parseColorParam(searchParams.get("namesGradientTo"), "#0284c7"))
+
+      setCountryGradient(searchParams.get("countryGradient") === "true")
+      setCountryGradientFrom(parseColorParam(searchParams.get("countryGradientFrom"), "#0369a1"))
+      setCountryGradientTo(parseColorParam(searchParams.get("countryGradientTo"), "#0284c7"))
+
+      setPointsGradient(searchParams.get("pointsGradient") === "true")
+      setPointsGradientFrom(parseColorParam(searchParams.get("pointsGradientFrom"), "#0369a1"))
+      setPointsGradientTo(parseColorParam(searchParams.get("pointsGradientTo"), "#0284c7"))
+
+      setSetsGradient(searchParams.get("setsGradient") === "true")
+      setSetsGradientFrom(parseColorParam(searchParams.get("setsGradientFrom"), "#ffffff"))
+      setSetsGradientTo(parseColorParam(searchParams.get("setsGradientTo"), "#f0f0f0"))
+
+      setServeGradient(searchParams.get("serveGradient") === "true")
+      setServeGradientFrom(parseColorParam(searchParams.get("serveGradientFrom"), "#000000"))
+      setServeGradientTo(parseColorParam(searchParams.get("serveGradientTo"), "#1e1e1e"))
+
+      // Применяем настройки индикатора из URL
+      setIndicatorBgColor(parseColorParam(searchParams.get("indicatorBgColor"), "#7c2d12"))
+      setIndicatorTextColor(parseColorParam(searchParams.get("indicatorTextColor"), "#ffffff"))
+      setIndicatorGradient(searchParams.get("indicatorGradient") === "true")
+      setIndicatorGradientFrom(parseColorParam(searchParams.get("indicatorGradientFrom"), "#7c2d12"))
+      setIndicatorGradientTo(parseColorParam(searchParams.get("indicatorGradientTo"), "#991b1b"))
+
+      setSettingsLoaded(true)
+      logEvent("info", "Настройки vMix загружены из URL", "fullscreen-scoreboard")
+    } else {
+      // Если настроек нет в URL, загружаем из базы данных
+      loadSettingsFromDatabase()
+    }
+  }, [searchParams])
 
   useEffect(() => {
     // Сначала проверяем URL параметр
@@ -152,7 +315,7 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
 
   // Эффект для автоматического перехода в полноэкранный режим при параметре autoFullscreen=true
   useEffect(() => {
-    if (typeof window !== "undefined") {
+    if (typeof window !== "undefined" && settingsLoaded) {
       const searchParams = new URLSearchParams(window.location.search)
       const autoFullscreen = searchParams.get("autoFullscreen")
 
@@ -168,7 +331,7 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
         return () => clearTimeout(timer)
       }
     }
-  }, [match]) // Зависимость от match гарантирует, что эффект сработает после загрузки данных
+  }, [match, settingsLoaded]) // Зависимость от match и settingsLoaded гарантирует, что эффект сработает после загрузки данных и настроек
 
   // Функция для загрузки матча
   const loadMatch = async () => {
@@ -358,10 +521,6 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
 
     return tiebreakScores
   }
-
-  // Заменим функции определения важных событий на более надежные версии
-
-  // Заменить функции isMatchPoint, isSetPoint, isGamePoint и getImportantEvent на следующие:
 
   // Функция для преобразования числового значения очков в теннисе в индекс
   const getPointIndex = (point) => {
@@ -706,11 +865,13 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
     })
   }
 
-  if (loading) {
+  if (loading || loadingSettings) {
     return (
       <div className="flex items-center justify-center h-screen w-screen bg-black text-white">
         <div className="text-center">
-          <div className="mb-4 text-xl">{getTranslation("common.loading", "Loading...", language)}</div>
+          <div className="mb-4 text-xl">
+            {loading ? getTranslation("common.loading", "Loading...", language) : "Загрузка настроек..."}
+          </div>
           <div className="w-16 h-16 border-4 border-gray-300 border-t-white rounded-full animate-spin mx-auto"></div>
         </div>
       </div>
@@ -725,7 +886,7 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
     )
   }
 
-  if (!match) return null
+  if (!match || !settingsLoaded) return null
 
   const tiebreakScores = getTiebreakScores()
 
