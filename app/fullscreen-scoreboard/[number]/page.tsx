@@ -150,6 +150,26 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
     }
   }, [])
 
+  // Эффект для автоматического перехода в полноэкранный режим при параметре autoFullscreen=true
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const searchParams = new URLSearchParams(window.location.search)
+      const autoFullscreen = searchParams.get("autoFullscreen")
+
+      if (autoFullscreen === "true" && containerRef.current && !document.fullscreenElement) {
+        // Небольшая задержка для уверенности, что компонент полностью отрендерился
+        const timer = setTimeout(() => {
+          containerRef.current.requestFullscreen().catch((err) => {
+            console.error("Ошибка при переходе в полноэкранный режим:", err)
+            logEvent("error", "Ошибка при автоматическом переходе в полноэкранный режим", "fullscreen-scoreboard", err)
+          })
+        }, 1000)
+
+        return () => clearTimeout(timer)
+      }
+    }
+  }, [match]) // Зависимость от match гарантирует, что эффект сработает после загрузки данных
+
   // Функция для загрузки матча
   const loadMatch = async () => {
     try {
@@ -248,7 +268,7 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
     // Запускаем первоначальную загрузку и подписку
     setupSubscription()
 
-    // Настраиваем пери��дическую проверку наличия нового матча
+    // Настраиваем перидическую проверку наличия нового матча
     checkInterval = setInterval(async () => {
       // Если текущий матч завершен, проверяем наличие нового матча
       if (isCompletedMatch) {
