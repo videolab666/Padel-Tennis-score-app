@@ -502,7 +502,7 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
     return (
       <span className="relative">
         {score}
-        <span className="absolute -top-0 -right-4 text-[0.45em] font-bold" style={{ color: "inherit" }}>
+        <span className="absolute -top-[12px] -right-4 text-[0.45em] font-bold" style={{ color: "inherit" }}>
           {tiebreakScore}
         </span>
       </span>
@@ -968,10 +968,10 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
 
         .team-row {
           display: grid;
-          grid-template-columns: ${showNames ? "5fr " : ""}${showCountry ? "1fr " : ""}${showServer ? "0.5fr " : ""}${showSets ? `repeat(${(match.score.sets?.length || 0) + (match.score.currentSet ? 1 : 0)}, 0.8fr) ` : ""}${showPoints ? "1fr 0fr" : ""};
+          grid-template-columns: ${showNames ? "4.6fr " : ""}${showCountry ? "1fr " : ""}${showServer ? "0.5fr " : ""}${showSets ? `repeat(${(match.score.sets?.length || 0) + (match.score.currentSet ? 1 : 0)}, 0.8fr) ` : ""}${showPoints ? "1.4fr 0fr" : ""};
           height: 100%;
-          gap: 0;
           width: 100%;
+          gap: 0;
           max-width: 100vw;
           margin: 0;
           padding: 0;
@@ -1152,7 +1152,7 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
         sup {
           font-size: 0.45em;
           position: relative;
-          top: -0.4em; /* Moved further down */
+          top: -0.49em; /* Moved higher by 20% of font size */
           margin-left: 0.6em; /* Moved further right */
         }
       `}</style>
