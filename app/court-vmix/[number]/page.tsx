@@ -721,7 +721,28 @@ export default function CourtVmixPage({ params }: CourtParams) {
     if (match && match.id) {
       matchUnsubscribe = subscribeToMatchUpdates(match.id, (updatedMatch) => {
         if (updatedMatch) {
-          setMatch(updatedMatch)
+          // Используем функциональное обновление состояния для гарантии актуальности
+          setMatch((prevMatch) => {
+            // Если ID матча изменился или это первое обновление, просто возвращаем новый матч
+            if (!prevMatch || prevMatch.id !== updatedMatch.id) {
+              return updatedMatch
+            }
+
+            // Проверяем, действительно ли изменился счет
+            const prevScore = JSON.stringify(prevMatch.score)
+            const newScore = JSON.stringify(updatedMatch.score)
+
+            // Если счет не изменился, сохраняем предыдущее состояние
+            if (prevScore === newScore) {
+              return prevMatch
+            }
+
+            // Возвращаем обновленный матч с принудительным обновлением счета
+            return {
+              ...updatedMatch,
+              _forceUpdate: Date.now(), // Добавляем временную метку для принудительного обновления
+            }
+          })
 
           // Обновляем отладочную информацию
           if (showDebug) {
@@ -797,7 +818,7 @@ export default function CourtVmixPage({ params }: CourtParams) {
         matchUnsubscribe()
       }
     }
-  }, [match, courtNumber, outputFormat, showDebug])
+  }, [match?.id, courtNumber, outputFormat, showDebug]) // Изменяем зависимость на match?.id вместо всего match
 
   // Эффект для отслеживания изменений важного момента и управления анимацией
   useEffect(() => {
@@ -1369,7 +1390,7 @@ export default function CourtVmixPage({ params }: CourtParams) {
               <>
                 {match.score.sets.map((set, idx) => (
                   <div
-                    key={idx}
+                    key={`teamA-set-${idx}-${set.teamA}-${tiebreakScores[idx]?.teamA || ""}`}
                     style={{
                       ...(theme === "transparent"
                         ? { background: "transparent" }
@@ -1446,7 +1467,13 @@ export default function CourtVmixPage({ params }: CourtParams) {
                 {match.isCompleted && match.winner === "teamA" ? (
                   <Trophy size={24} />
                 ) : (
-                  match.score.currentSet && getCurrentGameScore("teamA")
+                  match.score.currentSet && (
+                    <span
+                      key={`teamA-score-${match.id}-${JSON.stringify(match.score.currentSet?.currentGame?.teamA || 0)}`}
+                    >
+                      {getCurrentGameScore("teamA")}
+                    </span>
+                  )
                 )}
               </div>
             )}
@@ -1601,7 +1628,7 @@ export default function CourtVmixPage({ params }: CourtParams) {
               <>
                 {match.score.sets.map((set, idx) => (
                   <div
-                    key={idx}
+                    key={`teamB-set-${idx}-${set.teamB}-${tiebreakScores[idx]?.teamB || ""}`}
                     style={{
                       ...(theme === "transparent"
                         ? { background: "transparent" }
@@ -1679,7 +1706,13 @@ export default function CourtVmixPage({ params }: CourtParams) {
                 {match.isCompleted && match.winner === "teamB" ? (
                   <Trophy size={24} />
                 ) : (
-                  match.score.currentSet && getCurrentGameScore("teamB")
+                  match.score.currentSet && (
+                    <span
+                      key={`teamB-score-${match.id}-${JSON.stringify(match.score.currentSet?.currentGame?.teamB || 0)}`}
+                    >
+                      {getCurrentGameScore("teamB")}
+                    </span>
+                  )
                 )}
               </div>
             )}

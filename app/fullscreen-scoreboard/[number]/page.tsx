@@ -502,7 +502,9 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
     return (
       <span className="relative">
         {score}
-        <sup className="absolute -top-1.5 right-0 text-[0.25em] font-medium">{tiebreakScore}</sup>
+        <span className="absolute -top-0 -right-4 text-[0.45em] font-bold" style={{ color: "inherit" }}>
+          {tiebreakScore}
+        </span>
       </span>
     )
   }
@@ -1148,10 +1150,10 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
         }
 
         sup {
-          font-size: 0.25em;
+          font-size: 0.45em;
           position: relative;
-          top: -1em;
-          margin-left: 0.1em;
+          top: -0.4em; /* Moved further down */
+          margin-left: 0.6em; /* Moved further right */
         }
       `}</style>
 
