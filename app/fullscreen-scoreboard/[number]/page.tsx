@@ -497,10 +497,12 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
 
   // Форматируем счет сета с верхним индексом для тай-брейка
   const formatSetScore = (score, tiebreakScore = null) => {
+    if (tiebreakScore === null) return <span>{score}</span>
+
     return (
-      <span>
+      <span className="relative">
         {score}
-        <sup>{tiebreakScore}</sup>
+        <sup className="absolute -top-1.5 right-0 text-[0.25em] font-medium">{tiebreakScore}</sup>
       </span>
     )
   }
@@ -511,12 +513,15 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
 
     const tiebreakScores = {}
     match.score.sets.forEach((set, index) => {
+      // Проверяем наличие тай-брейка в данных сета
       if (set.tiebreak) {
         tiebreakScores[index] = {
           teamA: set.tiebreak.teamA,
           teamB: set.tiebreak.teamB,
         }
       }
+      // Удаляем альтернативный способ определения тай-брейка, который создавал примерный счет
+      // Если данных о тай-брейке нет, просто не показываем его
     })
 
     return tiebreakScores
@@ -1140,6 +1145,13 @@ export default function FullscreenScoreboard({ params }: FullscreenScoreboardPar
           .important-event {
             font-size: 4vh;
           }
+        }
+
+        sup {
+          font-size: 0.25em;
+          position: relative;
+          top: -1em;
+          margin-left: 0.1em;
         }
       `}</style>
 

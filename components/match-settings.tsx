@@ -153,8 +153,19 @@ export function MatchSettings({ match, updateMatch, type, settings, onChange }: 
     // Отключаем историю
     updatedMatch.history = []
 
+    // Сохраняем счет тай-брейка перед завершением
+    const tiebreakScore = {
+      teamA: updatedMatch.score.currentSet.currentGame.teamA,
+      teamB: updatedMatch.score.currentSet.currentGame.teamB,
+    }
+
     // Завершаем тай-брейк и увеличиваем счет победителя
     updatedMatch.score.currentSet[winner]++
+
+    // Сохраняем информацию о тай-брейке в текущем сете
+    updatedMatch.score.currentSet.tiebreak = tiebreakScore
+
+    // Отмечаем, что тай-брейк завершен
     updatedMatch.score.currentSet.isTiebreak = false
 
     // Завершаем сет

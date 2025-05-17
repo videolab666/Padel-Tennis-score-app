@@ -322,7 +322,7 @@ export default function MatchPage({ params }: MatchParams) {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="text-xs shadow-md hover:bg-gradient-to-b hover:from-white hover:to-[#f5f9fd] bg-gradient-to-b from-white to-[#f8fcff] transition-all duration-200 active:scale-95 active:translate-y-0.5 active:shadow-inner"
+                  className="text-xs shadow-md hover:bg-gradient-to-b hover:from-green-700 hover:to-green-900 bg-gradient-to-b from-green-800 to-green-950 text-white border-green-700 transition-all duration-200 active:scale-95 active:translate-y-0.5 active:shadow-inner"
                   onClick={() => {
                     // Dispatch an event to trigger the server switch in ScoreBoard
                     const event = new CustomEvent("switchServer", {

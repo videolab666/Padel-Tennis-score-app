@@ -902,10 +902,14 @@ export default function CourtVmixPage({ params }: CourtParams) {
 
   // Форматируем счет сета с верхним индексом для тай-брейка
   const formatSetScore = (score, tiebreakScore = null) => {
+    if (!tiebreakScore) {
+      return <span>{score}</span>
+    }
+
     return (
       <span>
         {score}
-        <sup>{tiebreakScore}</sup>
+        <sup style={{ fontSize: "0.67em", position: "relative", top: "-0.8em" }}>{tiebreakScore}</sup>
       </span>
     )
   }

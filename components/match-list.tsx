@@ -205,6 +205,9 @@ export function MatchList({ limit }: { limit?: number }) {
                             }`}
                           >
                             {set.teamA}
+                            {set.tiebreak && Number(set.teamA) === 7 && Number(set.teamB) === 6 && (
+                              <sup className="text-[9px] ml-0.5">{set.tiebreak.teamA}</sup>
+                            )}
                           </span>
                         ))
                       ) : (
@@ -231,6 +234,11 @@ export function MatchList({ limit }: { limit?: number }) {
                             }`}
                           >
                             {set.teamB}
+                            {set.tiebreak &&
+                              ((Number(set.teamB) === 7 && Number(set.teamA) === 6) ||
+                                (Number(set.teamB) === 6 && Number(set.teamA) === 7)) && (
+                                <sup className="text-[9px] ml-0.5">{set.tiebreak.teamB}</sup>
+                              )}
                           </span>
                         ))
                       ) : (

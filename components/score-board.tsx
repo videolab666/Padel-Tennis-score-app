@@ -190,6 +190,15 @@ export function ScoreBoard({ match, updateMatch }) {
         updatedMatch.score.currentSet.currentGame[team] >= pointsToWin &&
         updatedMatch.score.currentSet.currentGame[team] - updatedMatch.score.currentSet.currentGame[otherTeam] >= 2
       ) {
+        // Сохраняем счет тай-брейка перед завершением
+        const tiebreakScore = {
+          teamA: updatedMatch.score.currentSet.currentGame.teamA,
+          teamB: updatedMatch.score.currentSet.currentGame.teamB,
+        }
+
+        // Сохраняем информацию о тай-брейке в текущем сете
+        updatedMatch.score.currentSet.tiebreak = tiebreakScore
+
         // Increase set score
         updatedMatch.score.currentSet[team]++
 
@@ -418,11 +427,23 @@ export function ScoreBoard({ match, updateMatch }) {
     updatedMatch.score[team]++
 
     // Save current set to set history
-    updatedMatch.score.sets.push({
+    const setToSave = {
       teamA: updatedMatch.score.currentSet.teamA,
       teamB: updatedMatch.score.currentSet.teamB,
       winner: team,
-    })
+    }
+
+    // Если сет завершился тай-брейком, сохраняем счет тай-брейка
+    if (updatedMatch.score.currentSet.isTiebreak) {
+      setToSave.tiebreak = {
+        teamA: updatedMatch.score.currentSet.currentGame.teamA,
+        teamB: updatedMatch.score.currentSet.currentGame.teamB,
+      }
+      console.log("Сохраняем счет тай-брейка:", setToSave.tiebreak)
+    }
+
+    // Save current set to set history
+    updatedMatch.score.sets.push(setToSave)
 
     // Check for match win
     const totalSets = updatedMatch.settings.sets
@@ -1229,7 +1250,7 @@ export function ScoreBoard({ match, updateMatch }) {
           {/* Кнопка отмены изменения счета */}
           <div className="mt-4">
             <button
-              className="w-full py-2 px-4 bg-gradient-to-br from-gray-50 to-gray-100 hover:from-gray-100 hover:to-gray-200 active:from-gray-200 active:to-gray-300 rounded-md text-sm font-medium flex items-center justify-center transition-all shadow-md transform active:scale-95 active:translate-y-1 active:shadow-inner"
+              className="w-full py-2 px-4 bg-gradient-to-br from-blue-800 to-blue-950 hover:from-blue-700 hover:to-blue-900 active:from-blue-600 active:to-blue-800 text-white border border-blue-700 rounded-md text-sm font-medium flex items-center justify-center transition-all shadow-md transform active:scale-95 active:translate-y-1 active:shadow-inner disabled:opacity-50 disabled:pointer-events-none"
               onClick={() => {
                 if (matchHistory.length > 0) {
                   const previousMatch = matchHistory[matchHistory.length - 1]
