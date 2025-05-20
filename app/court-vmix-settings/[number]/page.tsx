@@ -27,6 +27,24 @@ import {
   type VmixSettings,
 } from "@/lib/vmix-settings-storage"
 import { Checkbox } from "@/components/ui/checkbox"
+import { useEffect as useEffectForPreview } from "react"
+
+// Add a new component for the vMix preview
+function VmixPreview({ url, height = 200 }) {
+  return (
+    <div className="border rounded-md overflow-hidden bg-gray-100 w-full">
+      <div className="bg-gray-200 p-2 flex justify-between items-center">
+        <span className="text-sm font-medium">vMix Preview</span>
+        <a href={url} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline">
+          Open in new tab
+        </a>
+      </div>
+      <div className="relative" style={{ height: `${height}px` }}>
+        <iframe src={url} className="absolute inset-0 w-full h-full" style={{ background: "transparent" }} />
+      </div>
+    </div>
+  )
+}
 
 export default function CourtVmixSettingsPage({ params }) {
   const router = useRouter()
@@ -577,6 +595,54 @@ export default function CourtVmixSettingsPage({ params }) {
     const previewUrl = generateCourtVmixUrl()
     window.open(previewUrl, "vmix_preview", "width=800,height=400")
   }
+
+  // Force iframe refresh when settings change
+  const [previewKey, setPreviewKey] = useState(0)
+  useEffectForPreview(() => {
+    // Debounce the refresh to avoid too many reloads
+    const timer = setTimeout(() => {
+      setPreviewKey((prev) => prev + 1)
+    }, 500)
+    return () => clearTimeout(timer)
+  }, [
+    theme,
+    showNames,
+    showPoints,
+    showSets,
+    showServer,
+    showCountry,
+    fontSize,
+    bgOpacity,
+    textColor,
+    accentColor,
+    playerNamesFontSize,
+    namesBgColor,
+    countryBgColor,
+    serveBgColor,
+    pointsBgColor,
+    setsBgColor,
+    setsTextColor,
+    namesGradient,
+    namesGradientFrom,
+    namesGradientTo,
+    countryGradient,
+    countryGradientFrom,
+    countryGradientTo,
+    serveGradient,
+    serveGradientFrom,
+    serveGradientTo,
+    pointsGradient,
+    pointsGradientFrom,
+    pointsGradientTo,
+    setsGradient,
+    setsGradientFrom,
+    setsGradientTo,
+    indicatorBgColor,
+    indicatorTextColor,
+    indicatorGradient,
+    indicatorGradientFrom,
+    indicatorGradientTo,
+  ])
 
   if (loading) {
     return (
@@ -1534,6 +1600,10 @@ export default function CourtVmixSettingsPage({ params }) {
                     <Database className="mr-2 h-4 w-4" />
                     {t("courtVmixSettings.saveToDatabase")}
                   </Button>
+                  <div className="mt-6 border-t pt-4">
+                    <h3 className="font-medium mb-2">Предпросмотр в реальном времени</h3>
+                    <VmixPreview url={generateCourtVmixUrl()} height={250} key={previewKey} />
+                  </div>
                 </CardContent>
               </Card>
             </div>
