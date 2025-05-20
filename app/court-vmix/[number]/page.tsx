@@ -1222,7 +1222,7 @@ export default function CourtVmixPage({ params }: CourtParams) {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                width: "33%", // Ширина индикатора - треть от общей ширины
+                width: "120px", // Фиксированная ширина для лучшего контроля
                 height: "100%",
                 fontWeight: "bold",
                 fontSize: "0.8em", // Такой же размер шрифта, как у индикатора важного события
@@ -1232,6 +1232,7 @@ export default function CourtVmixPage({ params }: CourtParams) {
                 top: 0, // Прикрепляем к верхней части контейнера
                 right: 0, // Прикрепляем к правой части контейнера
                 zIndex: 1, // Устанавливаем z-index ниже, чем у основного блока
+                overflow: "hidden", // Скрываем выходящий за пределы текст
               }}
             >
               {`BREAK POINT ${breakPointCount.current}/${breakPointCount.total}`}
