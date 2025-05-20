@@ -297,7 +297,7 @@ export default function CourtVmixSettingsPage({ params }) {
         })
       } else {
         toast({
-          title: "��шибка",
+          title: "шибка",
           description: "Не удалось загрузить настройки из базы данных",
           variant: "destructive",
         })
@@ -626,7 +626,7 @@ export default function CourtVmixSettingsPage({ params }) {
           <CardDescription>{t("courtVmixSettings.selectSaveOrDeleteSettings")}</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="flex flex-col gap-4">
             <div>
               <Label htmlFor="savedSettings">{t("courtVmixSettings.selectSettings")}</Label>
               <Select
@@ -649,11 +649,16 @@ export default function CourtVmixSettingsPage({ params }) {
                 </SelectContent>
               </Select>
             </div>
-            <div className="flex items-end gap-2">
-              <Button onClick={createNewSettings} className="flex-1">
+            <div className="flex flex-wrap gap-2">
+              <Button onClick={createNewSettings} className="flex-1 whitespace-normal">
                 {t("courtVmixSettings.createNewSettings")}
               </Button>
-              <Button onClick={openSaveDialog} disabled={!selectedSettingsId} variant="outline" className="flex-1">
+              <Button
+                onClick={openSaveDialog}
+                disabled={!selectedSettingsId}
+                variant="outline"
+                className="flex-1 whitespace-normal"
+              >
                 <Save className="mr-2 h-4 w-4" />
                 {t("courtVmixSettings.updateSettings")}
               </Button>
@@ -661,7 +666,7 @@ export default function CourtVmixSettingsPage({ params }) {
                 onClick={openDeleteDialog}
                 disabled={!selectedSettingsId}
                 variant="destructive"
-                className="flex-1"
+                className="flex-1 whitespace-normal"
               >
                 <Trash2 className="mr-2 h-4 w-4" />
                 {t("courtVmixSettings.deleteSettings")}
@@ -760,26 +765,6 @@ export default function CourtVmixSettingsPage({ params }) {
                         type="text"
                         value={textColor}
                         onChange={(e) => setTextColor(e.target.value)}
-                        className="flex-1"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="accentColor">{t("courtVmixSettings.serveIndicatorColor")}</Label>
-                    <div className="flex items-center space-x-2">
-                      <div className="w-6 h-6 rounded-full border" style={{ backgroundColor: accentColor }}></div>
-                      <Input
-                        id="accentColor"
-                        type="color"
-                        value={accentColor}
-                        onChange={(e) => setAccentColor(e.target.value)}
-                        className="w-12 p-1 h-8"
-                      />
-                      <Input
-                        type="text"
-                        value={accentColor}
-                        onChange={(e) => setAccentColor(e.target.value)}
                         className="flex-1"
                       />
                     </div>
@@ -1063,26 +1048,6 @@ export default function CourtVmixSettingsPage({ params }) {
                         </div>
                       </div>
 
-                      <div className="space-y-2">
-                        <Label htmlFor="accentColor">{t("courtVmixSettings.serveIndicatorColor")}</Label>
-                        <div className="flex items-center space-x-2">
-                          <div className="w-6 h-6 rounded-full border" style={{ backgroundColor: accentColor }}></div>
-                          <Input
-                            id="accentColor"
-                            type="color"
-                            value={accentColor}
-                            onChange={(e) => setAccentColor(e.target.value)}
-                            className="w-12 p-1 h-8"
-                          />
-                          <Input
-                            type="text"
-                            value={accentColor}
-                            onChange={(e) => setAccentColor(e.target.value)}
-                            className="flex-1"
-                          />
-                        </div>
-                      </div>
-
                       <div className="flex items-center justify-between">
                         <Label htmlFor="serveGradient">{t("courtVmixSettings.useGradientForServeIndicator")}</Label>
                         <Switch
@@ -1168,6 +1133,26 @@ export default function CourtVmixSettingsPage({ params }) {
                           <span style={{ fontSize: "2em", lineHeight: "0.5" }}>&bull;</span>
                         </div>
                         <span className="text-sm">{t("courtVmixSettings.serveIndicatorExample")}</span>
+                      </div>
+
+                      <div className="space-y-2 mt-4">
+                        <Label htmlFor="accentColor">{t("courtVmixSettings.serveIndicatorColor")}</Label>
+                        <div className="flex items-center space-x-2">
+                          <div className="w-6 h-6 rounded-full border" style={{ backgroundColor: accentColor }}></div>
+                          <Input
+                            id="accentColor"
+                            type="color"
+                            value={accentColor}
+                            onChange={(e) => setAccentColor(e.target.value)}
+                            className="w-12 p-1 h-8"
+                          />
+                          <Input
+                            type="text"
+                            value={accentColor}
+                            onChange={(e) => setAccentColor(e.target.value)}
+                            className="flex-1"
+                          />
+                        </div>
                       </div>
                     </div>
 
