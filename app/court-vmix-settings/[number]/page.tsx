@@ -1601,8 +1601,33 @@ export default function CourtVmixSettingsPage({ params }) {
                     {t("courtVmixSettings.saveToDatabase")}
                   </Button>
                   <div className="mt-6 border-t pt-4">
-                    <h3 className="font-medium mb-2">Предпросмотр в реальном времени</h3>
-                    <VmixPreview url={generateCourtVmixUrl()} height={250} key={previewKey} />
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="font-medium">Предпросмотр в реальном времени</h3>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setPreviewKey((prev) => prev + 1)}
+                        className="text-xs"
+                      >
+                        <ArrowRight className="h-3 w-3 mr-1" /> Обновить предпросмотр
+                      </Button>
+                    </div>
+                    <div className="relative">
+                      <VmixPreview url={generateCourtVmixUrl()} height={250} key={previewKey} />
+                      {/* Overlay that shows when settings change */}
+                      <div
+                        className="absolute inset-0 bg-black/10 flex items-center justify-center pointer-events-none transition-opacity duration-300"
+                        style={{ opacity: previewKey % 2 === 0 ? 0 : 0.1 }}
+                      >
+                        <div className="bg-white/90 px-3 py-1 rounded-md shadow-md text-sm font-medium">
+                          Применение изменений...
+                        </div>
+                      </div>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-2">
+                      Примечание: Некоторые изменения могут не отображаться мгновенно. Нажмите кнопку "Обновить
+                      предпросмотр" для принудительного обновления.
+                    </p>
                   </div>
                 </CardContent>
               </Card>
