@@ -217,11 +217,11 @@ export function FullscreenButton({
 
   return (
     <div className="flex flex-col gap-2">
-      <Button variant="outline" size={size} className={className} onClick={handleClick}>
+      <Button variant="outline" size={size} className={`whitespace-normal ${className}`} onClick={handleClick}>
         <Maximize2 className={`h-4 w-4 ${iconClassName}`} />
         {t("common.fullscreen")}
       </Button>
-      <Button variant="outline" size={size} className={className} onClick={handleShortUrlClick}>
+      <Button variant="outline" size={size} className={`whitespace-normal ${className}`} onClick={handleShortUrlClick}>
         <Maximize2 className={`h-4 w-4 ${iconClassName}`} />
         Табло
       </Button>
