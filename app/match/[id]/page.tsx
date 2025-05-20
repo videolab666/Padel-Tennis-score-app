@@ -315,7 +315,7 @@ export default function MatchPage({ params }: MatchParams) {
 
         <TabsContent value="match">
           <div className="flex flex-col gap-1 mb-3">
-            <Card className="px-4 py-2 bg-[#fefcf8]" aria-label={t.match.scoreCard}>
+            <Card className="px-[3px] py-2 bg-[#fefcf8]" aria-label={t.match.scoreCard}>
               <ScoreBoard match={match} updateMatch={handleUpdateMatch} />
 
               <div className="mt-2 pt-1.5 border-t border-gray-200 flex justify-center">

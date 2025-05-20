@@ -283,6 +283,64 @@ export function ScoreBoard({ match, updateMatch }) {
     updateMatch(updatedMatch)
   }
 
+  // Обработчик уменьшения счета
+  const handleScoreDecrease = (team) => {
+    if (!updateMatch || match.isCompleted) {
+      console.log("Cannot update: updateMatch function missing or match completed")
+      return
+    }
+
+    // Save the current match state before any changes
+    const previousState = JSON.parse(JSON.stringify(match))
+    // Save to history
+    setMatchHistory((prev) => [...prev, previousState])
+
+    // Create a copy of the match
+    const updatedMatch = { ...match }
+    const otherTeam = team === "teamA" ? "teamB" : "teamA"
+
+    if (currentSet.isTiebreak) {
+      // Tiebreak logic - просто уменьшаем счет, если он больше 0
+      if (updatedMatch.score.currentSet.currentGame[team] > 0) {
+        updatedMatch.score.currentSet.currentGame[team]--
+      }
+    } else {
+      // Regular game logic
+      const currentGame = updatedMatch.score.currentSet.currentGame
+      const scoringSystem = updatedMatch.settings.scoringSystem || "classic"
+
+      if (scoringSystem === "classic") {
+        // Классическая система счета (с преимуществом)
+        if (currentGame[team] === "Ad") {
+          currentGame[team] = 40
+        } else if (currentGame[team] === 40) {
+          if (currentGame[otherTeam] === "Ad") {
+            // Если у противника было преимущество, то у обоих становится 40
+            currentGame[otherTeam] = 40
+          } else {
+            currentGame[team] = 30
+          }
+        } else if (currentGame[team] === 30) {
+          currentGame[team] = 15
+        } else if (currentGame[team] === 15) {
+          currentGame[team] = 0
+        }
+      } else if (scoringSystem === "no-ad" || scoringSystem === "fast4") {
+        // No-Ad система (решающий мяч при ровно)
+        if (currentGame[team] === 40) {
+          currentGame[team] = 30
+        } else if (currentGame[team] === 30) {
+          currentGame[team] = 15
+        } else if (currentGame[team] === 15) {
+          currentGame[team] = 0
+        }
+      }
+    }
+
+    // Оптимизация: обновляем UI немедленно, не дожидаясь завершения операции сохранения
+    updateMatch(updatedMatch)
+  }
+
   // Helper functions from ScoreControls
   const winGame = (team, updatedMatch, previousState) => {
     const otherTeam = team === "teamA" ? "teamB" : "teamA"
@@ -768,7 +826,12 @@ export function ScoreBoard({ match, updateMatch }) {
     const isTiebreak = match.score.currentSet.isTiebreak || false
 
     // Сначала проверяем match point (самый приоритетный)
-    const matchPoint = isMatchPointIndicator(match)
+    let matchPoint = isMatchPointIndicator(match)
+    if (matchPoint) {
+      return { type: "MATCH POINT", team: matchPoint }
+    }
+    // Сначала проверяем match point (самый приоритетный)
+    matchPoint = isMatchPointIndicator(match)
     if (matchPoint) {
       return { type: "MATCH POINT", team: matchPoint }
     }
@@ -1011,7 +1074,7 @@ export function ScoreBoard({ match, updateMatch }) {
         </AlertDialogContent>
       </AlertDialog>
 
-      <div className="flex items-center justify-center mb-4 w-full -mx-4">
+      <div className="flex items-center justify-center mb-4 w-full">
         <Tabs
           defaultValue={fixedSides ? "sides" : "players"}
           value={fixedSides ? "sides" : "players"}
@@ -1026,7 +1089,7 @@ export function ScoreBoard({ match, updateMatch }) {
           }}
           className="w-full"
         >
-          <TabsList className="grid w-[calc(100%+32px)] grid-cols-2 bg-[#f5fef3] shadow-md">
+          <TabsList className="grid w-full grid-cols-2 bg-[#f5fef3] shadow-md">
             <TabsTrigger
               value="sides"
               className="data-[state=active]:bg-[#c5f87e] data-[state=inactive]:bg-[#f5fef3] flex items-center justify-center gap-1 px-3 py-1 text-xs sm:text-sm"
@@ -1060,7 +1123,10 @@ export function ScoreBoard({ match, updateMatch }) {
                   // Учитываем смену игроков
                   const actualIdx = swappedTeamA ? (idx === 0 ? 1 : 0) : idx
                   return (
-                    <div key={idx} className="flex items-center justify-end w-full">
+                    <div
+                      key={idx}
+                      className={`flex items-center justify-end w-full ${isServing("teamA", actualIdx) ? "bg-lime-100 rounded-md" : ""}`}
+                    >
                       {isServing("teamA", actualIdx) && (
                         <Badge
                           variant="outline"
@@ -1083,7 +1149,10 @@ export function ScoreBoard({ match, updateMatch }) {
                   // Учитываем смену игроков
                   const actualIdx = swappedTeamB ? (idx === 0 ? 1 : 0) : idx
                   return (
-                    <div key={idx} className="flex items-center justify-end w-full">
+                    <div
+                      key={idx}
+                      className={`flex items-center justify-end w-full ${isServing("teamB", actualIdx) ? "bg-lime-100 rounded-md" : ""}`}
+                    >
                       {isServing("teamB", actualIdx) && (
                         <Badge
                           variant="outline"
@@ -1106,7 +1175,10 @@ export function ScoreBoard({ match, updateMatch }) {
                 // Учитываем смену игроков
                 const actualIdx = swappedTeamA ? (idx === 0 ? 1 : 0) : idx
                 return (
-                  <div key={idx} className="flex items-center justify-end w-full">
+                  <div
+                    key={idx}
+                    className={`flex items-center justify-end w-full ${isServing("teamA", actualIdx) ? "bg-lime-100 rounded-md" : ""}`}
+                  >
                     {isServing("teamA", actualIdx) && (
                       <Badge
                         variant="outline"
@@ -1139,7 +1211,10 @@ export function ScoreBoard({ match, updateMatch }) {
                   // Учитываем смену игроков
                   const actualIdx = swappedTeamA ? (idx === 0 ? 1 : 0) : idx
                   return (
-                    <div key={idx} className="flex items-center w-full">
+                    <div
+                      key={idx}
+                      className={`flex items-center w-full ${isServing("teamA", actualIdx) ? "bg-lime-100 rounded-md" : ""}`}
+                    >
                       <div className="w-full overflow-hidden max-w-full">
                         <p className="font-medium text-left truncate text-[10px] sm:text-[14px] md:text-[16px]">
                           {teamA.players[actualIdx].name}
@@ -1162,7 +1237,10 @@ export function ScoreBoard({ match, updateMatch }) {
                   // Учитываем смену игроков
                   const actualIdx = swappedTeamB ? (idx === 0 ? 1 : 0) : idx
                   return (
-                    <div key={idx} className="flex items-center w-full">
+                    <div
+                      key={idx}
+                      className={`flex items-center w-full ${isServing("teamB", actualIdx) ? "bg-lime-100 rounded-md" : ""}`}
+                    >
                       <div className="w-full overflow-hidden max-w-full">
                         <p className="font-medium text-left truncate text-[10px] sm:text-[14px] md:text-[16px]">
                           {teamB.players[actualIdx].name}
@@ -1185,7 +1263,10 @@ export function ScoreBoard({ match, updateMatch }) {
                 // Учитываем смену игроков
                 const actualIdx = swappedTeamB ? (idx === 0 ? 1 : 0) : idx
                 return (
-                  <div key={idx} className="flex items-center w-full">
+                  <div
+                    key={idx}
+                    className={`flex items-center w-full ${isServing("teamB", actualIdx) ? "bg-lime-100 rounded-md" : ""}`}
+                  >
                     <div className="w-full overflow-hidden max-w-full">
                       <p className="font-medium text-left truncate text-[10px] sm:text-[14px] md:text-[16px]">
                         {teamB.players[actualIdx].name}
@@ -1209,9 +1290,9 @@ export function ScoreBoard({ match, updateMatch }) {
       <Card>
         <CardContent className="p-3 shadow-md rounded-lg">
           <div className="grid grid-cols-2 gap-4 items-center">
-            <div className="text-center">
+            <div className="text-center flex flex-col items-center gap-2">
               <button
-                className={`text-6xl font-bold px-8 py-4 rounded-md transition-all transform active:scale-95 active:translate-y-1 active:shadow-inner shadow-md ${
+                className={`text-6xl font-bold px-8 py-4 rounded-md transition-all transform active:scale-95 active:translate-y-1 active:shadow-inner shadow-md scale-110 ${
                   currentSet.isTiebreak
                     ? "bg-gradient-to-br from-red-50 to-red-100 hover:from-red-100 hover:to-red-200 active:from-red-200 active:to-red-300"
                     : "bg-gradient-to-br from-blue-50 to-blue-100 hover:from-blue-100 hover:to-blue-200 active:from-blue-200 active:to-blue-300"
@@ -1226,10 +1307,18 @@ export function ScoreBoard({ match, updateMatch }) {
                     : getCurrentGameScore("teamB")
                   : getCurrentGameScore("teamA")}
               </button>
-            </div>
-            <div className="text-center">
               <button
-                className={`text-6xl font-bold px-8 py-4 rounded-md transition-all transform active:scale-95 active:translate-y-1 active:shadow-inner shadow-md ${
+                className="text-sm font-medium px-4 py-1 rounded-md bg-red-100 hover:bg-red-200 active:bg-red-300 transition-all transform active:scale-95 shadow-sm"
+                onClick={() =>
+                  handleScoreDecrease(fixedSides ? (match.courtSides?.teamA === "left" ? "teamA" : "teamB") : "teamA")
+                }
+              >
+                -1
+              </button>
+            </div>
+            <div className="text-center flex flex-col items-center gap-2">
+              <button
+                className={`text-6xl font-bold px-8 py-4 rounded-md transition-all transform active:scale-95 active:translate-y-1 active:shadow-inner shadow-md scale-110 ${
                   currentSet.isTiebreak
                     ? "bg-gradient-to-br from-red-50 to-red-100 hover:from-red-100 hover:to-red-200 active:from-red-200 active:to-red-300"
                     : "bg-gradient-to-br from-blue-50 to-blue-100 hover:from-blue-100 hover:to-blue-200 active:from-blue-200 active:to-blue-300"
@@ -1243,6 +1332,14 @@ export function ScoreBoard({ match, updateMatch }) {
                     ? getCurrentGameScore("teamA")
                     : getCurrentGameScore("teamB")
                   : getCurrentGameScore("teamB")}
+              </button>
+              <button
+                className="text-sm font-medium px-4 py-1 rounded-md bg-red-100 hover:bg-red-200 active:bg-red-300 transition-all transform active:scale-95 shadow-sm"
+                onClick={() =>
+                  handleScoreDecrease(fixedSides ? (match.courtSides?.teamA === "right" ? "teamA" : "teamB") : "teamB")
+                }
+              >
+                -1
               </button>
             </div>
           </div>
