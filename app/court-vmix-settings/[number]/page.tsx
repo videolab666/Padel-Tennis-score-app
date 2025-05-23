@@ -935,8 +935,8 @@ export default function CourtVmixSettingsPage({ params }) {
 
               <Card className="mt-4">
                 <CardHeader>
-                  <CardTitle>Предпросмотр в реальном времени</CardTitle>
-                  <CardDescription>Просмотр изменений в реальном времени</CardDescription>
+                  <CardTitle>Realtime preview</CardTitle>
+                  <CardDescription>Preview your changes in realtime</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="flex items-center justify-between mb-2">
@@ -947,7 +947,7 @@ export default function CourtVmixSettingsPage({ params }) {
                       onClick={() => setPreviewKey((prev) => prev + 1)}
                       className="text-xs"
                     >
-                      <ArrowRight className="h-3 w-3 mr-1" /> Обновить предпросмотр
+                      <ArrowRight className="h-3 w-3 mr-1" /> Refresh preview
                     </Button>
                   </div>
                   <div className="relative">
@@ -962,13 +962,12 @@ export default function CourtVmixSettingsPage({ params }) {
                       }}
                     >
                       <div className="bg-white/90 px-3 py-1 rounded-md shadow-md text-sm font-medium">
-                        Применение изменений...
+                        Applying changes
                       </div>
                     </div>
                   </div>
                   <p className="text-xs text-muted-foreground mt-2">
-                    Примечание: Некоторые изменения могут не отображаться мгновенно. Нажмите кнопку "Обновить
-                    предпросмотр" для принудительного обновления.
+                    Note: Some changes may be unexpected. Click the "Refresh Preview"
                   </p>
                 </CardContent>
               </Card>
