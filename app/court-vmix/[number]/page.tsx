@@ -1230,7 +1230,7 @@ export default function CourtVmixPage({ params }: CourtParams) {
                 letterSpacing: "0.5px",
                 position: "absolute", // Абсолютное позиционирование
                 top: 0, // Прикрепляем к верхней части контейнера
-                right: 0, // Прикрепляем к правой части контейнера
+                right: "60px", // Смещаем влево на половину ширины (120px/2 = 60px)
                 zIndex: 1, // Устанавливаем z-index ниже, чем у основного блока
                 overflow: "hidden", // Скрываем выходящий за пределы текст
               }}

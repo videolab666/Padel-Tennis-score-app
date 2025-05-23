@@ -39,8 +39,36 @@ function VmixPreview({ url, height = 200 }) {
           Open in new tab
         </a>
       </div>
-      <div className="relative" style={{ height: `${height}px` }}>
-        <iframe src={url} className="absolute inset-0 w-full h-full" style={{ background: "transparent" }} />
+      <div className="relative" style={{ height: `${height}px`, overflow: "hidden", padding: 0 }}>
+        <div
+          className="absolute inset-0"
+          style={{
+            display: "flex",
+            alignItems: "flex-start",
+            justifyContent: "flex-start",
+            padding: 0,
+            overflow: "visible",
+            width: "100%",
+          }}
+        >
+          <iframe
+            src={url}
+            style={{
+              width: "300%",
+              height: "100%",
+              border: "none",
+              transform: "scale(0.65)",
+              transformOrigin: "0% 0%",
+              maxHeight: "none",
+              minHeight: "100%",
+              margin: "0 -50% 0 0",
+              padding: 0,
+              boxSizing: "border-box",
+            }}
+            scrolling="no"
+            allowFullScreen
+          />
+        </div>
       </div>
     </div>
   )
@@ -598,11 +626,24 @@ export default function CourtVmixSettingsPage({ params }) {
 
   // Force iframe refresh when settings change
   const [previewKey, setPreviewKey] = useState(0)
+  const [showOverlay, setShowOverlay] = useState(false)
+
   useEffectForPreview(() => {
+    // Show overlay when changes are made
+    setShowOverlay(true)
+
     // Debounce the refresh to avoid too many reloads
     const timer = setTimeout(() => {
       setPreviewKey((prev) => prev + 1)
+
+      // Hide the overlay after a short delay
+      const hideOverlayTimer = setTimeout(() => {
+        setShowOverlay(false)
+      }, 1000)
+
+      return () => clearTimeout(hideOverlayTimer)
     }, 500)
+
     return () => clearTimeout(timer)
   }, [
     theme,
@@ -914,7 +955,11 @@ export default function CourtVmixSettingsPage({ params }) {
                     {/* Overlay that shows when settings change */}
                     <div
                       className="absolute inset-0 bg-black/10 flex items-center justify-center pointer-events-none transition-opacity duration-300"
-                      style={{ opacity: previewKey % 2 === 0 ? 0 : 0.1 }}
+                      style={{
+                        opacity: showOverlay ? 0.5 : 0,
+                        visibility: showOverlay ? "visible" : "hidden",
+                        transition: "opacity 0.3s, visibility 0.3s",
+                      }}
                     >
                       <div className="bg-white/90 px-3 py-1 rounded-md shadow-md text-sm font-medium">
                         Применение изменений...
