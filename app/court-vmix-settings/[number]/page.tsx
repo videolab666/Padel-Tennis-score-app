@@ -27,6 +27,52 @@ import {
   type VmixSettings,
 } from "@/lib/vmix-settings-storage"
 import { Checkbox } from "@/components/ui/checkbox"
+import { useEffect as useEffectForPreview } from "react"
+
+// Add a new component for the vMix preview
+function VmixPreview({ url, height = 200 }) {
+  return (
+    <div className="border rounded-md overflow-hidden bg-gray-100 w-full">
+      <div className="bg-gray-200 p-2 flex justify-between items-center">
+        <span className="text-sm font-medium">vMix Preview</span>
+        <a href={url} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline">
+          Open in new tab
+        </a>
+      </div>
+      <div className="relative" style={{ height: `${height}px`, overflow: "hidden", padding: 0 }}>
+        <div
+          className="absolute inset-0"
+          style={{
+            display: "flex",
+            alignItems: "flex-start",
+            justifyContent: "flex-start",
+            padding: 0,
+            overflow: "visible",
+            width: "100%",
+          }}
+        >
+          <iframe
+            src={url}
+            style={{
+              width: "300%",
+              height: "100%",
+              border: "none",
+              transform: "scale(0.65)",
+              transformOrigin: "0% 0%",
+              maxHeight: "none",
+              minHeight: "100%",
+              margin: "0 -50% 0 0",
+              padding: 0,
+              boxSizing: "border-box",
+            }}
+            scrolling="no"
+            allowFullScreen
+          />
+        </div>
+      </div>
+    </div>
+  )
+}
 
 export default function CourtVmixSettingsPage({ params }) {
   const router = useRouter()
@@ -297,7 +343,7 @@ export default function CourtVmixSettingsPage({ params }) {
         })
       } else {
         toast({
-          title: "��шибка",
+          title: "шибка",
           description: "Не удалось загрузить настройки из базы данных",
           variant: "destructive",
         })
@@ -578,6 +624,67 @@ export default function CourtVmixSettingsPage({ params }) {
     window.open(previewUrl, "vmix_preview", "width=800,height=400")
   }
 
+  // Force iframe refresh when settings change
+  const [previewKey, setPreviewKey] = useState(0)
+  const [showOverlay, setShowOverlay] = useState(false)
+
+  useEffectForPreview(() => {
+    // Show overlay when changes are made
+    setShowOverlay(true)
+
+    // Debounce the refresh to avoid too many reloads
+    const timer = setTimeout(() => {
+      setPreviewKey((prev) => prev + 1)
+
+      // Hide the overlay after a short delay
+      const hideOverlayTimer = setTimeout(() => {
+        setShowOverlay(false)
+      }, 1000)
+
+      return () => clearTimeout(hideOverlayTimer)
+    }, 500)
+
+    return () => clearTimeout(timer)
+  }, [
+    theme,
+    showNames,
+    showPoints,
+    showSets,
+    showServer,
+    showCountry,
+    fontSize,
+    bgOpacity,
+    textColor,
+    accentColor,
+    playerNamesFontSize,
+    namesBgColor,
+    countryBgColor,
+    serveBgColor,
+    pointsBgColor,
+    setsBgColor,
+    setsTextColor,
+    namesGradient,
+    namesGradientFrom,
+    namesGradientTo,
+    countryGradient,
+    countryGradientFrom,
+    countryGradientTo,
+    serveGradient,
+    serveGradientFrom,
+    serveGradientTo,
+    pointsGradient,
+    pointsGradientFrom,
+    pointsGradientTo,
+    setsGradient,
+    setsGradientFrom,
+    setsGradientTo,
+    indicatorBgColor,
+    indicatorTextColor,
+    indicatorGradient,
+    indicatorGradientFrom,
+    indicatorGradientTo,
+  ])
+
   if (loading) {
     return (
       <div className="container mx-auto p-4">
@@ -626,7 +733,7 @@ export default function CourtVmixSettingsPage({ params }) {
           <CardDescription>{t("courtVmixSettings.selectSaveOrDeleteSettings")}</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="flex flex-col gap-4">
             <div>
               <Label htmlFor="savedSettings">{t("courtVmixSettings.selectSettings")}</Label>
               <Select
@@ -649,11 +756,16 @@ export default function CourtVmixSettingsPage({ params }) {
                 </SelectContent>
               </Select>
             </div>
-            <div className="flex items-end gap-2">
-              <Button onClick={createNewSettings} className="flex-1">
+            <div className="flex flex-wrap gap-2">
+              <Button onClick={createNewSettings} className="flex-1 whitespace-normal">
                 {t("courtVmixSettings.createNewSettings")}
               </Button>
-              <Button onClick={openSaveDialog} disabled={!selectedSettingsId} variant="outline" className="flex-1">
+              <Button
+                onClick={openSaveDialog}
+                disabled={!selectedSettingsId}
+                variant="outline"
+                className="flex-1 whitespace-normal"
+              >
                 <Save className="mr-2 h-4 w-4" />
                 {t("courtVmixSettings.updateSettings")}
               </Button>
@@ -661,7 +773,7 @@ export default function CourtVmixSettingsPage({ params }) {
                 onClick={openDeleteDialog}
                 disabled={!selectedSettingsId}
                 variant="destructive"
-                className="flex-1"
+                className="flex-1 whitespace-normal"
               >
                 <Trash2 className="mr-2 h-4 w-4" />
                 {t("courtVmixSettings.deleteSettings")}
@@ -765,26 +877,6 @@ export default function CourtVmixSettingsPage({ params }) {
                     </div>
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="accentColor">{t("courtVmixSettings.serveIndicatorColor")}</Label>
-                    <div className="flex items-center space-x-2">
-                      <div className="w-6 h-6 rounded-full border" style={{ backgroundColor: accentColor }}></div>
-                      <Input
-                        id="accentColor"
-                        type="color"
-                        value={accentColor}
-                        onChange={(e) => setAccentColor(e.target.value)}
-                        className="w-12 p-1 h-8"
-                      />
-                      <Input
-                        type="text"
-                        value={accentColor}
-                        onChange={(e) => setAccentColor(e.target.value)}
-                        className="flex-1"
-                      />
-                    </div>
-                  </div>
-
                   <Separator className="my-4" />
 
                   <div className="space-y-4">
@@ -838,6 +930,45 @@ export default function CourtVmixSettingsPage({ params }) {
                       />
                     </div>
                   </div>
+                </CardContent>
+              </Card>
+
+              <Card className="mt-4">
+                <CardHeader>
+                  <CardTitle>Realtime preview</CardTitle>
+                  <CardDescription>Preview your changes in realtime</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center justify-between mb-2">
+                    <div></div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setPreviewKey((prev) => prev + 1)}
+                      className="text-xs"
+                    >
+                      <ArrowRight className="h-3 w-3 mr-1" /> Refresh preview
+                    </Button>
+                  </div>
+                  <div className="relative">
+                    <VmixPreview url={generateCourtVmixUrl()} height={250} key={previewKey} />
+                    {/* Overlay that shows when settings change */}
+                    <div
+                      className="absolute inset-0 bg-black/10 flex items-center justify-center pointer-events-none transition-opacity duration-300"
+                      style={{
+                        opacity: showOverlay ? 0.5 : 0,
+                        visibility: showOverlay ? "visible" : "hidden",
+                        transition: "opacity 0.3s, visibility 0.3s",
+                      }}
+                    >
+                      <div className="bg-white/90 px-3 py-1 rounded-md shadow-md text-sm font-medium">
+                        Applying changes
+                      </div>
+                    </div>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-2">
+                    Note: Some changes may be unexpected. Click the "Refresh Preview"
+                  </p>
                 </CardContent>
               </Card>
             </div>
@@ -1063,26 +1194,6 @@ export default function CourtVmixSettingsPage({ params }) {
                         </div>
                       </div>
 
-                      <div className="space-y-2">
-                        <Label htmlFor="accentColor">{t("courtVmixSettings.serveIndicatorColor")}</Label>
-                        <div className="flex items-center space-x-2">
-                          <div className="w-6 h-6 rounded-full border" style={{ backgroundColor: accentColor }}></div>
-                          <Input
-                            id="accentColor"
-                            type="color"
-                            value={accentColor}
-                            onChange={(e) => setAccentColor(e.target.value)}
-                            className="w-12 p-1 h-8"
-                          />
-                          <Input
-                            type="text"
-                            value={accentColor}
-                            onChange={(e) => setAccentColor(e.target.value)}
-                            className="flex-1"
-                          />
-                        </div>
-                      </div>
-
                       <div className="flex items-center justify-between">
                         <Label htmlFor="serveGradient">{t("courtVmixSettings.useGradientForServeIndicator")}</Label>
                         <Switch
@@ -1168,6 +1279,26 @@ export default function CourtVmixSettingsPage({ params }) {
                           <span style={{ fontSize: "2em", lineHeight: "0.5" }}>&bull;</span>
                         </div>
                         <span className="text-sm">{t("courtVmixSettings.serveIndicatorExample")}</span>
+                      </div>
+
+                      <div className="space-y-2 mt-4">
+                        <Label htmlFor="accentColor">{t("courtVmixSettings.serveIndicatorColor")}</Label>
+                        <div className="flex items-center space-x-2">
+                          <div className="w-6 h-6 rounded-full border" style={{ backgroundColor: accentColor }}></div>
+                          <Input
+                            id="accentColor"
+                            type="color"
+                            value={accentColor}
+                            onChange={(e) => setAccentColor(e.target.value)}
+                            className="w-12 p-1 h-8"
+                          />
+                          <Input
+                            type="text"
+                            value={accentColor}
+                            onChange={(e) => setAccentColor(e.target.value)}
+                            className="flex-1"
+                          />
+                        </div>
                       </div>
                     </div>
 

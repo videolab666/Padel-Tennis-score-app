@@ -32,7 +32,7 @@ export function PlayerSelector({ players, value, onChange, placeholder, label }:
   }, [value, players])
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-0.5">
       {label && <label className="text-sm font-medium">{label}</label>}
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
@@ -40,12 +40,14 @@ export function PlayerSelector({ players, value, onChange, placeholder, label }:
             variant="outline"
             role="combobox"
             aria-expanded={open}
-            className="w-full justify-between"
+            className="w-full justify-between truncate px-1 py-0.5"
             type="button"
             onClick={() => setOpen(!open)}
           >
-            {selectedPlayer || placeholder || t("players.selectPlayer")}
-            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            <span className="truncate mr-0.25 text-left">
+              {selectedPlayer || placeholder || t("players.selectPlayer")}
+            </span>
+            <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50 flex-shrink-0" />
           </Button>
         </PopoverTrigger>
         <PopoverContent className="p-0 w-full min-w-[200px]">

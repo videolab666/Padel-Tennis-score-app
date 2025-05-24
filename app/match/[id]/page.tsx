@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useContext } from "react"
 import { useRouter } from "next/navigation"
-import { ArrowLeft, Share2, Copy, Download, Upload, ExternalLink } from "lucide-react"
+import { ArrowLeft, Share2, Copy, Download, Upload, ExternalLink, CircleDot } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { ScoreBoard } from "@/components/score-board"
@@ -44,6 +44,7 @@ export default function MatchPage({ params }: MatchParams) {
   const [alertMessage, setAlertMessage] = useState("")
   const [importData, setImportData] = useState("")
   const [activeTab, setActiveTab] = useState("match")
+  const [sideChangeAlert, setSideChangeAlert] = useState(false)
 
   useEffect(() => {
     const loadMatch = async () => {
@@ -100,12 +101,23 @@ export default function MatchPage({ params }: MatchParams) {
 
     window.addEventListener("match-updated", handleMatchUpdated)
 
+    // Добавляем обработчик события смены сторон
+    const handleCourtSidesSwapped = (event) => {
+      if (event.detail && event.detail.newSides) {
+        setSideChangeAlert(true)
+        setTimeout(() => setSideChangeAlert(false), 2000)
+      }
+    }
+
+    window.addEventListener("courtSidesSwapped", handleCourtSidesSwapped)
+
     return () => {
       // Отписываемся при размонтировании компонента
       if (unsubscribe) {
         unsubscribe()
       }
       window.removeEventListener("match-updated", handleMatchUpdated)
+      window.removeEventListener("courtSidesSwapped", handleCourtSidesSwapped)
     }
   }, [params.id, language])
 
@@ -117,10 +129,10 @@ export default function MatchPage({ params }: MatchParams) {
       await updateMatch(updatedMatch)
       setMatch(updatedMatch)
 
-      // Показываем уведомление об успешном обновлении
-      setAlertMessage(t.matchPage.scoreUpdated)
-      setShowAlert(true)
-      setTimeout(() => setShowAlert(false), 2000)
+      // Убираем показ уведомления при обновлении счета
+      // setAlertMessage(t.matchPage.scoreUpdated)
+      // setShowAlert(true)
+      // setTimeout(() => setShowAlert(false), 2000)
     } catch (err) {
       console.error("Ошибка обновления матча:", err)
 
@@ -251,7 +263,13 @@ export default function MatchPage({ params }: MatchParams) {
 
   return (
     <div className="container max-w-4xl mx-auto px-4 py-8">
-      {showAlert && (
+      {sideChangeAlert && (
+        <Alert className="fixed top-4 right-4 w-auto z-50 bg-yellow-50 border-yellow-200">
+          <AlertTitle>{t.matchPage.sideChange || "Стороны изменены"}</AlertTitle>
+          <AlertDescription>{t.matchPage.sidesSwapped || "Команды поменялись сторонами корта"}</AlertDescription>
+        </Alert>
+      )}
+      {showAlert && !sideChangeAlert && (
         <Alert className="fixed top-4 right-4 w-auto z-50 bg-green-50 border-green-200">
           <AlertTitle>{t.matchPage.notification}</AlertTitle>
           <AlertDescription>{alertMessage}</AlertDescription>
@@ -296,11 +314,31 @@ export default function MatchPage({ params }: MatchParams) {
         </TabsList>
 
         <TabsContent value="match">
-          <Card className="mb-6 p-4" aria-label={t.match.scoreCard}>
-            <ScoreBoard match={match} updateMatch={handleUpdateMatch} />
-          </Card>
+          <div className="flex flex-col gap-1 mb-3">
+            <Card className="px-[3px] py-2 bg-[#fefcf8]" aria-label={t.match.scoreCard}>
+              <ScoreBoard match={match} updateMatch={handleUpdateMatch} />
 
-          <div className="flex flex-col gap-4 w-full">
+              <div className="mt-2 pt-1.5 border-t border-gray-200 flex justify-center">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-xs shadow-md hover:bg-gradient-to-b hover:from-green-700 hover:to-green-900 bg-gradient-to-b from-green-800 to-green-950 text-white border-green-700 transition-all duration-200 active:scale-95 active:translate-y-0.5 active:shadow-inner"
+                  onClick={() => {
+                    // Dispatch an event to trigger the server switch in ScoreBoard
+                    const event = new CustomEvent("switchServer", {
+                      detail: { matchId: params.id },
+                    })
+                    window.dispatchEvent(event)
+                  }}
+                >
+                  <CircleDot className="h-3 w-3 mr-2 text-lime-500" />
+                  {t.matchPage.switchServer || "Сменить подающего"}
+                </Button>
+              </div>
+            </Card>
+          </div>
+
+          <div className="flex flex-col gap-2 w-full">
             <ScoreControls match={match} updateMatch={handleUpdateMatch} />
             <MatchSettings match={match} updateMatch={handleUpdateMatch} />
           </div>
@@ -336,19 +374,29 @@ export default function MatchPage({ params }: MatchParams) {
         </TabsContent>
       </Tabs>
       {activeTab === "match" && (
-        <Card className="mt-6 p-4">
+        <Card className="mt-3 p-4" style={{ backgroundColor: "#fbf2da" }}>
           <h3 className="text-sm font-medium mb-3 text-muted-foreground">{t.matchPage.technicalFunctions}</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-            <Button variant="outline" onClick={copyMatchId} className="w-full text-sm" size="sm">
+            <Button
+              variant="outline"
+              onClick={copyMatchId}
+              className="w-full text-sm shadow-md transition-all duration-200 active:scale-95 hover:bg-gradient-to-b hover:from-white hover:to-[#f5f9fd]"
+              size="sm"
+            >
               <Copy className="mr-2 h-4 w-4" />
               {t.matchPage.matchCode}
             </Button>
-            <VmixButton matchId={params.id} courtNumber={match?.courtNumber} className="w-full text-sm" size="sm" />
+            <VmixButton
+              matchId={params.id}
+              courtNumber={match?.courtNumber}
+              className="w-full text-sm shadow-md transition-all duration-200 active:scale-95 hover:bg-gradient-to-b hover:from-white hover:to-[#f5f9fd]"
+              size="sm"
+            />
             {match?.courtNumber && (
               <Button
                 variant="outline"
                 onClick={() => window.open(`/api/court/${match.courtNumber}`, "_blank")}
-                className="w-full text-sm"
+                className="w-full text-sm shadow-md transition-all duration-200 active:scale-95 hover:bg-gradient-to-b hover:from-white hover:to-[#f5f9fd]"
                 size="sm"
               >
                 <ExternalLink className="mr-2 h-4 w-4" />
@@ -359,7 +407,7 @@ export default function MatchPage({ params }: MatchParams) {
               <Button
                 variant="outline"
                 onClick={() => window.open(`/court-vmix/${match.courtNumber}`, "_blank")}
-                className="w-full text-sm"
+                className="w-full text-sm shadow-md transition-all duration-200 active:scale-95 hover:bg-gradient-to-b hover:from-white hover:to-[#f5f9fd]"
                 size="sm"
               >
                 <ExternalLink className="mr-2 h-4 w-4" />
@@ -369,7 +417,7 @@ export default function MatchPage({ params }: MatchParams) {
             <Button
               variant="outline"
               onClick={() => window.open(`/api/vmix/${params.id}`, "_blank")}
-              className="w-full text-sm"
+              className="w-full text-sm shadow-md transition-all duration-200 active:scale-95 hover:bg-gradient-to-b hover:from-white hover:to-[#f5f9fd]"
               size="sm"
             >
               <ExternalLink className="mr-2 h-4 w-4" />
@@ -499,7 +547,7 @@ export default function MatchPage({ params }: MatchParams) {
                   window.open(`/vmix/${params.id}`, "_blank")
                 }
               }}
-              className="w-full text-sm"
+              className="w-full text-sm shadow-md transition-all duration-200 active:scale-95 hover:bg-gradient-to-b hover:from-white hover:to-[#f5f9fd]"
               size="sm"
             >
               <ExternalLink className="mr-2 h-4 w-4" />

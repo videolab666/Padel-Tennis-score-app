@@ -198,7 +198,7 @@ const getImportantPoint = (match) => {
   }
 
   // Если нет важного момента, возвращаем тип индикатора в зависимости от того, идет ли тай-брейк
-  return { type: isTiebreak ? "TIEBREAK" : "GAME", team: null }
+  return { type: isTiebreak ? "TIEBREAK" : "", team: null }
 }
 
 // Функция для определения общего количества сетов
@@ -313,19 +313,8 @@ export async function GET(request: NextRequest, { params }: { params: { number: 
     })
 
     // Получаем текущие сеты для обеих команд
-// Получаем завершенные сеты
-const completedTeamASets = match.score.sets ? match.score.sets.map((set) => set.teamA) : []
-const completedTeamBSets = match.score.sets ? match.score.sets.map((set) => set.teamB) : []
-
-// Создаем полные массивы сетов, включая текущий играющийся сет
-const teamASets = [...completedTeamASets]
-const teamBSets = [...completedTeamBSets]
-
-// Если матч не завершен и есть текущий сет, добавляем его счет
-if (!match.isCompleted && match.score.currentSet) {
-  teamASets.push(match.score.currentSet.teamA)
-  teamBSets.push(match.score.currentSet.teamB)
-}
+    const teamASets = match.score.sets ? match.score.sets.map((set) => set.teamA) : []
+    const teamBSets = match.score.sets ? match.score.sets.map((set) => set.teamB) : []
 
     // Определяем информацию о победителе
     let winnerTeamName = ""
