@@ -43,7 +43,6 @@ import {
 import { deleteMatch, getAllMatches, getMatches } from "@/lib/match-storage"
 import { toast } from "@/components/ui/use-toast"
 
-// Обновляем тип Match, чтобы включить информацию о сетах
 type Match = {
   id: string
   date: string
@@ -59,16 +58,6 @@ type Match = {
   }
   completed: boolean
   courtNumber?: number | null
-  // Добавляем информацию о сетах
-  sets?: Array<{
-    teamA: string
-    teamB: string
-    winner?: string
-  }>
-  currentSet?: {
-    teamA: string
-    teamB: string
-  }
 }
 
 interface MatchHistoryListProps {
@@ -97,46 +86,70 @@ export function MatchHistoryList({ showControls = false }: MatchHistoryListProps
     try {
       console.log("Загрузка матчей...")
 
-      // Используем функцию getMatches из match-storage.ts для получения полных данных о матчах
-      const matchesFromStorage = await getMatches()
-      console.log("getMatches вернул:", matchesFromStorage.length, matchesFromStorage)
+      // Используем функцию getAllMatches из match-storage.ts
+      const allMatches = await getAllMatches()
+      console.log("Получено матчей:", allMatches.length, allMatches)
 
-      if (matchesFromStorage && matchesFromStorage.length > 0) {
-        // Преобразуем формат данных для совместимости с компонентом
-        const formattedMatches = matchesFromStorage.map((match) => ({
-          id: match.id,
-          date: match.createdAt || new Date().toISOString(),
-          team1: {
-            player1: match.teamA?.players?.[0]?.name || "Игрок 1",
-            player2: match.teamA?.players?.[1]?.name || "Игрок 2",
-            score: match.score?.teamA || 0,
-          },
-          team2: {
-            player1: match.teamB?.players?.[0]?.name || "Игрок 3",
-            player2: match.teamB?.players?.[1]?.name || "Игрок 4",
-            score: match.score?.teamB || 0,
-          },
-          completed: match.isCompleted || false,
-          courtNumber: match.courtNumber || null,
-          // Добавляем информацию о сетах
-          sets: match.score?.sets || [],
-          currentSet: match.score?.currentSet || null,
-        }))
-
-        console.log("Форматированные матчи с сетами:", formattedMatches)
-        setMatches(formattedMatches)
-        setFilteredMatches(formattedMatches)
+      if (allMatches && allMatches.length > 0) {
+        setMatches(allMatches)
+        setFilteredMatches(allMatches)
       } else {
-        // Если getMatches не вернул матчи, пробуем получить их через getAllMatches
-        console.log("getMatches вернул пустой массив, пробуем getAllMatches...")
-        const allMatches = await getAllMatches()
-        console.log("Получено матчей через getAllMatches:", allMatches.length, allMatches)
+        // Если getAllMatches не вернул матчи, пробуем получить их напрямую
+        console.log("getAllMatches вернул пустой массив, пробуем getMatches...")
+        const matchesFromStorage = await getMatches()
+        console.log("getMatches вернул:", matchesFromStorage.length, matchesFromStorage)
 
-        if (allMatches && allMatches.length > 0) {
-          setMatches(allMatches)
-          setFilteredMatches(allMatches)
+        if (matchesFromStorage && matchesFromStorage.length > 0) {
+          // Преобразуем формат данных для совместимости с компонентом
+          const formattedMatches = matchesFromStorage.map((match) => ({
+            id: match.id,
+            date: match.createdAt || new Date().toISOString(),
+            team1: {
+              player1: match.teamA?.players?.[0]?.name || "Игрок 1",
+              player2: match.teamA?.players?.[1]?.name || "Игрок 2",
+              score: match.score?.teamA || 0,
+            },
+            team2: {
+              player1: match.teamB?.players?.[0]?.name || "Игрок 3",
+              player2: match.teamB?.players?.[1]?.name || "Игрок 4",
+              score: match.score?.teamB || 0,
+            },
+            completed: match.isCompleted || false,
+            courtNumber: match.courtNumber || null,
+          }))
+
+          setMatches(formattedMatches)
+          setFilteredMatches(formattedMatches)
         } else {
-          setError("Матчи не найдены в хранилище")
+          // Если и это не помогло, проверяем localStorage напрямую
+          console.log("Проверяем localStorage напрямую...")
+
+          // Проверяем все возможные ключи
+          const keys = ["padelMatches", "tennis_padel_matches", "matches"]
+          let foundMatches = null
+
+          for (const key of keys) {
+            const savedMatches = localStorage.getItem(key)
+            if (savedMatches) {
+              try {
+                const parsedMatches = JSON.parse(savedMatches)
+                console.log(`Найдены матчи по ключу ${key}:`, parsedMatches)
+                if (Array.isArray(parsedMatches) && parsedMatches.length > 0) {
+                  foundMatches = parsedMatches
+                  break
+                }
+              } catch (e) {
+                console.error(`Ошибка при парсинге матчей из localStorage по ключу ${key}:`, e)
+              }
+            }
+          }
+
+          if (foundMatches) {
+            setMatches(foundMatches)
+            setFilteredMatches(foundMatches)
+          } else {
+            setError("Матчи не найдены в хранилище")
+          }
         }
       }
     } catch (error) {
@@ -253,130 +266,55 @@ export function MatchHistoryList({ showControls = false }: MatchHistoryListProps
 
       {filteredMatches.map((match) => (
         <Card key={match.id} className="hover:bg-muted/50 transition-colors">
-          <CardContent className={`p-4 ${!match.completed ? "bg-[#fef6f6] shadow-sm" : "bg-[#f0f2fc] shadow-sm"}`}>
+          <CardContent className="p-4">
             <div className="flex justify-between items-center mb-2">
               <div className="flex items-center gap-2">
-                <span className="text-xs sm:text-sm text-muted-foreground">
+                <span className="text-sm text-muted-foreground">
                   {match.date ? formatTimeAgo(new Date(match.date)) : "Recently"}
                 </span>
                 {match.courtNumber && (
-                  <Badge variant="outline" className="bg-blue-100 text-blue-800 hover:bg-blue-100 shadow-sm">
+                  <Badge variant="outline" className="bg-blue-100 text-blue-800 hover:bg-blue-100">
                     Корт {match.courtNumber}
                   </Badge>
                 )}
               </div>
               {match.completed ? (
-                <Badge variant="outline" className="bg-green-100 text-green-800 hover:bg-green-100 shadow-sm">
+                <Badge variant="outline" className="bg-green-100 text-green-800 hover:bg-green-100">
                   Завершен
                 </Badge>
               ) : (
-                <Badge variant="outline" className="bg-[#a5fe50] text-green-800 hover:bg-[#a5fe50] shadow-sm">
+                <Badge variant="outline" className="bg-amber-100 text-amber-800 hover:bg-amber-100">
                   В процессе
                 </Badge>
               )}
             </div>
 
-            <div className="grid grid-cols-[2fr_1fr] gap-2">
+            <div className="grid grid-cols-[1fr_auto_1fr] gap-2 items-center">
               <div className="text-left">
-                <div className="mb-1">
-                  <p
-                    className={`text-xs sm:text-sm truncate ${match.completed && match.team1.score > match.team2.score ? "font-bold" : "font-medium"}`}
-                  >
-                    {match.team1.player1}
-                  </p>
-                  <p
-                    className={`text-xs sm:text-sm truncate ${match.completed && match.team1.score > match.team2.score ? "font-bold" : "font-medium"}`}
-                  >
-                    {match.team1.player2}
-                  </p>
-                </div>
-                <div className="h-px bg-gray-200 my-1.5 w-full"></div>
-                <div>
-                  <p
-                    className={`text-xs sm:text-sm truncate ${match.completed && match.team2.score > match.team1.score ? "font-bold" : "font-medium"}`}
-                  >
-                    {match.team2.player1}
-                  </p>
-                  <p
-                    className={`text-xs sm:text-sm truncate ${match.completed && match.team2.score > match.team1.score ? "font-bold" : "font-medium"}`}
-                  >
-                    {match.team2.player2}
-                  </p>
-                </div>
+                <p className="font-medium truncate">{match.team1.player1}</p>
+                <p className="font-medium truncate">{match.team1.player2}</p>
               </div>
-              <div className="flex flex-col justify-between">
-                <div className="text-right flex items-center justify-end">
-                  <span className="font-bold text-base sm:text-xl mr-2">{match.team1.score}</span>
-                  <span className="h-4 w-px bg-gray-300 mx-1.5"></span>
-                  {/* Добавляем счет по сетам с проверкой наличия данных */}
-                  <div className="text-xs text-gray-600">
-                    {match.sets && Array.isArray(match.sets) ? (
-                      match.sets.map((set, idx) => (
-                        <span
-                          key={idx}
-                          className={`mr-1 px-1 rounded shadow-sm ${
-                            Number.parseInt(set.teamA) > Number.parseInt(set.teamB)
-                              ? "bg-[#fffec0]" // Победитель
-                              : "bg-[#dff1ff]" // Проигравший
-                          }`}
-                        >
-                          {set.teamA}
-                        </span>
-                      ))
-                    ) : (
-                      <span className="text-xs text-gray-400">-</span>
-                    )}
-                    {match.currentSet && !match.completed && (
-                      <span className="mr-1 bg-green-100 px-1 rounded shadow-sm">{match.currentSet.teamA}</span>
-                    )}
-                  </div>
-                </div>
-                <div className="text-right flex items-center justify-end">
-                  <span className="font-bold text-base sm:text-xl mr-2">{match.team2.score}</span>
-                  <span className="h-4 w-px bg-gray-300 mx-1.5"></span>
-                  {/* Добавляем счет по сетам с проверкой наличия данных */}
-                  <div className="text-xs text-gray-600">
-                    {match.sets && Array.isArray(match.sets) ? (
-                      match.sets.map((set, idx) => (
-                        <span
-                          key={idx}
-                          className={`mr-1 px-1 rounded shadow-sm ${
-                            Number.parseInt(set.teamB) > Number.parseInt(set.teamA)
-                              ? "bg-[#fffec0]" // Победитель
-                              : "bg-[#dff1ff]" // Проигравший
-                          }`}
-                        >
-                          {set.teamB}
-                        </span>
-                      ))
-                    ) : (
-                      <span className="text-xs text-gray-400">-</span>
-                    )}
-                    {match.currentSet && !match.completed && (
-                      <span className="mr-1 bg-green-100 px-1 rounded shadow-sm">{match.currentSet.teamB}</span>
-                    )}
-                  </div>
-                </div>
+              <div className="text-center font-bold text-xl">
+                {match.team1.score} - {match.team2.score}
+              </div>
+              <div className="text-right">
+                <p className="font-medium truncate">{match.team2.player1}</p>
+                <p className="font-medium truncate">{match.team2.player2}</p>
               </div>
             </div>
 
             {showControls && (
               <div className="flex justify-between mt-4">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  asChild
-                  className="shadow-md bg-gradient-to-r from-blue-50 to-blue-100 hover:from-blue-100 hover:to-blue-200 border-blue-200"
-                >
+                <Button variant="outline" size="sm" asChild>
                   <Link href={`/match/${match.id}`}>
-                    <Eye className="h-4 w-4 mr-1 text-blue-600" />
+                    <Eye className="h-4 w-4 mr-1" />
                     Просмотр
                   </Link>
                 </Button>
                 <Button
                   variant="outline"
                   size="sm"
-                  className="shadow-md bg-gradient-to-r from-red-50 to-red-100 hover:from-red-100 hover:to-red-200 border-red-200 text-red-500 hover:text-red-700"
+                  className="text-red-500 hover:text-red-700"
                   onClick={() => openDeleteDialog(match.id)}
                 >
                   <Trash2 className="h-4 w-4 mr-1" />

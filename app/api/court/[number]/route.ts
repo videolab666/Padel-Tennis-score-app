@@ -313,8 +313,19 @@ export async function GET(request: NextRequest, { params }: { params: { number: 
     })
 
     // Получаем текущие сеты для обеих команд
-    const teamASets = match.score.sets ? match.score.sets.map((set) => set.teamA) : []
-    const teamBSets = match.score.sets ? match.score.sets.map((set) => set.teamB) : []
+// Получаем завершенные сеты
+const completedTeamASets = match.score.sets ? match.score.sets.map((set) => set.teamA) : []
+const completedTeamBSets = match.score.sets ? match.score.sets.map((set) => set.teamB) : []
+
+// Создаем полные массивы сетов, включая текущий играющийся сет
+const teamASets = [...completedTeamASets]
+const teamBSets = [...completedTeamBSets]
+
+// Если матч не завершен и есть текущий сет, добавляем его счет
+if (!match.isCompleted && match.score.currentSet) {
+  teamASets.push(match.score.currentSet.teamA)
+  teamBSets.push(match.score.currentSet.teamB)
+}
 
     // Определяем информацию о победителе
     let winnerTeamName = ""

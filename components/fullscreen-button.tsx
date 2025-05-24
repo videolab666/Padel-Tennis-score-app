@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button"
 import { Maximize2 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useLanguage } from "@/contexts/language-context"
-import { getDefaultVmixSettings } from "@/lib/vmix-settings-storage"
 
 interface FullscreenButtonProps {
   courtNumber: number | null
@@ -186,45 +185,12 @@ export function FullscreenButton({
     router.push(url)
   }
 
-  // Изменяем функцию handleShortUrlClick, чтобы использовать короткий URL "sb" и открывать страницу в новом окне
-
-  const handleShortUrlClick = async () => {
-    if (!courtNumber) return
-
-    try {
-      // Получаем настройки по умолчанию из базы данных
-      const defaultSettings = await getDefaultVmixSettings()
-
-      // Если настройки найдены, сохраняем их в localStorage для использования на странице полного экрана
-      if (defaultSettings && defaultSettings.settings) {
-        localStorage.setItem("vmix_settings", JSON.stringify(defaultSettings.settings))
-      }
-
-      // Используем короткий URL "sb" вместо "fullscreen-scoreboard"
-      // Добавляем параметр autoFullscreen=true для автоматического перехода в полноэкранный режим
-      const url = `/sb/${courtNumber}?autoFullscreen=true`
-
-      // Открываем в новом окне
-      window.open(url, "_blank", "noopener,noreferrer")
-    } catch (error) {
-      console.error("Ошибка при получении настроек из базы данных:", error)
-      // В случае ошибки, все равно открываем страницу
-      window.open(`/sb/${courtNumber}?autoFullscreen=true`, "_blank", "noopener,noreferrer")
-    }
-  }
-
   if (!courtNumber) return null
 
   return (
-    <div className="flex flex-col gap-2">
-      <Button variant="outline" size={size} className={`whitespace-normal ${className}`} onClick={handleClick}>
-        <Maximize2 className={`h-4 w-4 ${iconClassName}`} />
-        {t("common.fullscreen")}
-      </Button>
-      <Button variant="outline" size={size} className={`whitespace-normal ${className}`} onClick={handleShortUrlClick}>
-        <Maximize2 className={`h-4 w-4 ${iconClassName}`} />
-        Табло
-      </Button>
-    </div>
+    <Button variant="outline" size={size} className={className} onClick={handleClick}>
+      <Maximize2 className={`h-4 w-4 ${iconClassName}`} />
+      {t("common.fullscreen")}
+    </Button>
   )
 }

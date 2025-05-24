@@ -53,19 +53,13 @@ export function CourtsList() {
   }
 
   return (
-    <Card className="bg-gradient-to-br from-blue-900 to-blue-950 text-white">
+    <Card>
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <div>
-          <CardTitle className="text-white">{t("courtsList.title")}</CardTitle>
-          <CardDescription className="text-blue-200">{t("courtsList.description")}</CardDescription>
+          <CardTitle>{t("courtsList.title")}</CardTitle>
+          <CardDescription>{t("courtsList.description")}</CardDescription>
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleRefresh}
-          disabled={refreshing}
-          className="bg-blue-800 text-white hover:bg-blue-700 border-blue-700"
-        >
+        <Button variant="outline" size="sm" onClick={handleRefresh} disabled={refreshing}>
           {refreshing ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
           <span className="sr-only">{t("courtsList.refresh")}</span>
         </Button>
@@ -83,19 +77,14 @@ export function CourtsList() {
                 <div
                   key={courtNumber}
                   className={`p-3 rounded-lg border ${
-                    occupied
-                      ? "bg-gradient-to-br from-[#ffeeee] to-[#ffe6e6] border-[#ffd6d6]"
-                      : "bg-gradient-to-br from-[#fdfefb] to-[#f7f8f4] border-[#eceee9]"
+                    occupied ? "bg-green-50 border-green-200" : "bg-gray-50 border-gray-200"
                   }`}
                 >
                   <div className="flex flex-col items-center gap-2">
-                    <div className="text-lg font-medium text-blue-900">
+                    <div className="text-lg font-medium">
                       {t("courtsList.court")} {courtNumber}
                     </div>
-                    <Badge
-                      variant={occupied ? "success" : "outline"}
-                      className={`shadow-md ${occupied ? "bg-green-600" : "bg-blue-700 text-white"}`}
-                    >
+                    <Badge variant={occupied ? "success" : "outline"}>
                       {occupied ? t("courtsList.occupied") : t("courtsList.available")}
                     </Badge>
 
@@ -104,26 +93,26 @@ export function CourtsList() {
                         courtNumber={courtNumber}
                         directLink={true}
                         size="sm"
-                        className="w-full text-xs bg-[#f6f9fe] hover:bg-blue-100 text-blue-900 border-blue-200 shadow-md"
+                        className="w-full text-xs"
                         iconClassName="mr-1"
                       />
                       <VmixButton
                         courtNumber={courtNumber}
                         directLink={false}
                         size="sm"
-                        className="w-full text-xs bg-[#f6f9fe] hover:bg-blue-100 text-blue-900 border-blue-200 shadow-md"
+                        className="w-full text-xs"
                         iconClassName="mr-1"
                       />
                       <FullscreenButton
                         courtNumber={courtNumber}
                         size="sm"
-                        className="w-full text-xs bg-[#f6f9fe] hover:bg-blue-100 text-blue-900 border-blue-200 shadow-md"
+                        className="w-full text-xs"
                         iconClassName="mr-1"
                       />
                       <Button
                         variant="outline"
                         onClick={() => window.open(`/api/court/${courtNumber}`, "_blank")}
-                        className="w-full text-xs bg-[#f6f9fe] hover:bg-blue-100 text-blue-900 border-blue-200 shadow-md"
+                        className="w-full text-xs"
                         size="sm"
                       >
                         <ExternalLink className="mr-1 h-3 w-3" />

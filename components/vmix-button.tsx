@@ -246,7 +246,7 @@ export function VmixButton({
 
   // Replace the hardcoded text with translated text
   return (
-    <Button variant="outline" size={size} className={`whitespace-normal ${className}`} onClick={handleClick}>
+    <Button variant="outline" size={size} className={className} onClick={handleClick}>
       <MonitorPlay className={`h-4 w-4 ${iconClassName}`} />
       {directLink ? t("common.vmixOverlay") : t("common.vmixSettings")}
     </Button>

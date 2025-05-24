@@ -36,33 +36,17 @@ export default function HomePage() {
             <CardDescription>{t("home.newMatchDesc")}</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
+            <div className="space-y-6">
               <div className="grid grid-cols-2 gap-4">
-                <Link href="/new-match?type=tennis" className="block">
-                  <Button
-                    className="w-full shadow-md bg-gradient-to-r from-[#1164a5] to-[#0875c9] text-white 
-                    transition-all duration-300 hover:scale-105 hover:shadow-lg hover:brightness-110 
-                    active:scale-95 active:shadow-inner"
-                  >
-                    {t("home.tennis")}
-                  </Button>
+                <Link href="/new-match?type=tennis">
+                  <Button className="w-full shadow-md">{t("home.tennis")}</Button>
                 </Link>
-                <Link href="/new-match?type=padel" className="block">
-                  <Button
-                    className="w-full shadow-md bg-gradient-to-r from-[#1164a5] to-[#0875c9] text-white 
-                    transition-all duration-300 hover:scale-105 hover:shadow-lg hover:brightness-110 
-                    active:scale-95 active:shadow-inner"
-                  >
-                    {t("home.padel")}
-                  </Button>
+                <Link href="/new-match?type=padel">
+                  <Button className="w-full shadow-md">{t("home.padel")}</Button>
                 </Link>
               </div>
-              <Link href="/players" className="block">
-                <Button
-                  variant="outline"
-                  className="w-full shadow-md transition-all duration-300 hover:scale-105 
-                  hover:shadow-lg hover:bg-gray-100 active:scale-95 active:shadow-inner"
-                >
+              <Link href="/players">
+                <Button variant="outline" className="w-full shadow-md">
                   <Users className="h-4 w-4 mr-2" />
                   {t("home.managePlayers")}
                 </Button>
@@ -73,20 +57,16 @@ export default function HomePage() {
       </div>
 
       {/* Активные матчи */}
-      <Card className="mb-6 bg-gradient-to-br from-blue-50 via-indigo-50 to-green-50 shadow-md">
+      <Card className="mb-6 bg-[#f6f6f5] shadow-md">
         <CardHeader>
           <CardTitle>{t("home.activeMatches")}</CardTitle>
           <CardDescription>{t("home.activeMatchesDesc")}</CardDescription>
         </CardHeader>
-        <CardContent className="bg-gradient-to-br from-blue-50 via-indigo-50 to-green-50 shadow-md rounded-b-lg">
+        <CardContent className="bg-[#f6f6f5] shadow-md rounded-b-lg">
           <MatchList limit={12} />
           <div className="mt-4">
-            <Link href="/history" className="block">
-              <Button
-                className="w-full shadow-md bg-gradient-to-r from-[#1164a5] to-[#0875c9] text-white 
-                transition-all duration-300 hover:scale-105 hover:shadow-lg hover:brightness-110 
-                active:scale-95 active:shadow-inner"
-              >
+            <Link href="/history">
+              <Button variant="outline" className="w-full">
                 <History className="h-4 w-4 mr-2" />
                 {t("home.matchHistory")}
               </Button>
@@ -108,14 +88,8 @@ export default function HomePage() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            <Link href="/join-match" className="block">
-              <Button
-                className="w-full shadow-md bg-gradient-to-r from-[#1164a5] to-[#0875c9] text-white 
-                transition-all duration-300 hover:scale-105 hover:shadow-lg hover:brightness-110 
-                active:scale-95 active:shadow-inner"
-              >
-                {t("home.joinByCode")}
-              </Button>
+            <Link href="/join-match">
+              <Button className="w-full">{t("home.joinByCode")}</Button>
             </Link>
           </div>
         </CardContent>
@@ -123,12 +97,8 @@ export default function HomePage() {
 
       {/* Кнопка диагностики - перемещена в самый низ */}
       <div className="text-center mt-8">
-        <Link href="/debug" className="inline-block">
-          <Button
-            variant="outline"
-            size="sm"
-            className="transition-all duration-300 hover:scale-105 hover:shadow-sm active:scale-95"
-          >
+        <Link href="/debug">
+          <Button variant="outline" size="sm">
             <Bug className="h-4 w-4 mr-2" />
             {t("home.diagnostics")}
           </Button>

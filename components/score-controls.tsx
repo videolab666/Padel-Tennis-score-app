@@ -85,25 +85,6 @@ export function ScoreControls({ match, updateMatch }) {
     updateMatch(updatedMatch)
   }
 
-  const manualSwitchSides = () => {
-    const updatedMatch = { ...localMatch, history: [] }
-
-    // Меняем стороны
-    updatedMatch.courtSides = {
-      teamA: updatedMatch.courtSides.teamA === "left" ? "right" : "left",
-      teamB: updatedMatch.courtSides.teamB === "left" ? "right" : "left",
-    }
-
-    // Сбрасываем флаг необходимости смены сторон
-    updatedMatch.shouldChangeSides = false
-
-    // Обновляем локальное состояние немедленно
-    setLocalMatch(updatedMatch)
-
-    // Обновляем глобальное состояние
-    updateMatch(updatedMatch)
-  }
-
   // Изменяем функцию addPoint
   const addPoint = (team) => {
     // Сохраняем текущее состояние матча в историю
@@ -310,7 +291,7 @@ export function ScoreControls({ match, updateMatch }) {
     }
   }
 
-  // Изменяем функции обработчиков, чтобы они не использовали состояния
+  // Изменим функции обработчиков, чтобы они не использовали состояния
   // Заменим функцию handleAddPointTeamA:
   const handleAddPointTeamA = () => {
     addPoint("teamA")
@@ -504,7 +485,7 @@ export function ScoreControls({ match, updateMatch }) {
     // Start new set
     let newSet
     if (isThirdSetTiebreak) {
-      // Если это решающий сет и включен тайбрейк в решающем сете
+      // Если это решающий сет и включен тай-брейк в решающем сете
       // Сразу начинаем с тайбрейка вместо обычного сета
       const tiebreakLength = updatedMatch.settings.finalSetTiebreakLength || 10
 
@@ -649,31 +630,31 @@ export function ScoreControls({ match, updateMatch }) {
 
   return (
     <div className="w-full">
-      {/* Court SVG Preview with buttons */}
-      <CourtPreview match={localMatch}>
-        {/* Кнопки управления сервером и сменой сторон */}
-        <div className="flex gap-2 mt-2">
-          <Button
-            variant="outline"
-            className="flex-1 text-xs sm:text-sm py-1 sm:py-2 score-button transition-all hover:bg-blue-50"
-            onClick={manualSwitchServer}
-            disabled={localMatch.isCompleted}
-          >
-            <RepeatIcon className="h-4 w-4 mr-1" />
-            {tMatch.switchServer || "Switch Server"}
-          </Button>
+      {/* Кнопки управления сервером и сменой сторон */}
+      <div className="flex gap-2 mb-4">
+        <Button
+          variant="outline"
+          className="flex-1 text-xs sm:text-sm py-1 sm:py-2 score-button transition-all hover:bg-blue-50"
+          onClick={manualSwitchServer}
+          disabled={localMatch.isCompleted}
+        >
+          <RepeatIcon className="h-4 w-4 mr-1" />
+          {tMatch.switchServer || "Switch Server"}
+        </Button>
 
-          <Button
-            variant="outline"
-            className="flex-1 text-xs sm:text-sm py-1 sm:py-2 score-button transition-all hover:bg-blue-50"
-            onClick={manualSwitchSides}
-            disabled={localMatch.isCompleted}
-          >
-            <ArrowLeftRightIcon className="h-4 w-4 mr-1" />
-            {tMatch.switchSides || "Switch Sides"}
-          </Button>
-        </div>
-      </CourtPreview>
+        <Button
+          variant="outline"
+          className="flex-1 text-xs sm:text-sm py-1 sm:py-2 score-button transition-all hover:bg-blue-50"
+          onClick={changeSides}
+          disabled={localMatch.isCompleted}
+        >
+          <ArrowLeftRightIcon className="h-4 w-4 mr-1" />
+          {tMatch.switchSides || "Switch Sides"}
+        </Button>
+      </div>
+
+      {/* Court SVG Preview */}
+      <CourtPreview match={localMatch} />
     </div>
   )
 }

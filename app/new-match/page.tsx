@@ -134,7 +134,6 @@ export default function NewMatchPage() {
   const [goldenGame, setGoldenGame] = useState(false)
   const [goldenPoint, setGoldenPoint] = useState(false)
   const [windbreak, setWindbreak] = useState(false)
-  const [matchRound, setMatchRound] = useState<string | null>(null)
   const [players, setPlayers] = useState([])
   const [newPlayerName, setNewPlayerName] = useState("")
   const [loading, setLoading] = useState(true)
@@ -343,7 +342,6 @@ export default function NewMatchPage() {
       type: matchType,
       format: matchFormat,
       createdAt: new Date().toISOString(),
-      matchRound: matchRound, // Добавляем тип игры
       settings: matchSettings,
       teamA: {
         players: [
@@ -651,31 +649,6 @@ export default function NewMatchPage() {
                     {t("newMatch.windbreak")}
                   </Label>
                 </div>
-                <div className="mt-4 border rounded-md shadow-md bg-[#fdead1] p-2">
-                  <Label>{t("newMatch.matchRound") || "Match Round"}</Label>
-                  <Select
-                    value={matchRound || ""}
-                    onValueChange={(value) => setMatchRound(value === "" ? null : value)}
-                  >
-                    <SelectTrigger className="w-full mt-2">
-                      <SelectValue placeholder={t("newMatch.selectMatchRound") || "Select match round"} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="none">None</SelectItem>
-                      <SelectItem value="final">Final</SelectItem>
-                      <SelectItem value="semifinal">Semifinal</SelectItem>
-                      <SelectItem value="quarterfinal">Quarterfinal</SelectItem>
-                      <SelectItem value="round16">Round of 16</SelectItem>
-                      <SelectItem value="round32">Round of 32</SelectItem>
-                      <SelectItem value="round64">Round of 64</SelectItem>
-                      <SelectItem value="round128">Round of 128</SelectItem>
-                      <SelectItem value="qualificationFinal">Qualification Final</SelectItem>
-                      <SelectItem value="qualificationRound2">Qualification Round 2</SelectItem>
-                      <SelectItem value="qualificationRound1">Qualification Round 1</SelectItem>
-                      <SelectItem value="prequalifying">Pre-qualifying</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
               </div>
             </div>
           </div>
@@ -708,10 +681,10 @@ export default function NewMatchPage() {
                   {t("common.loadingPlayers")}
                 </div>
               ) : (
-                <div className="grid grid-cols-2 gap-1">
-                  <div className="pl-[0.03125rem] pr-0.5">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
                     <Label>{t("match.teamA")}</Label>
-                    <div className="space-y-0.5 mt-0.5">
+                    <div className="space-y-2 mt-2">
                       <PlayerSelector
                         players={players}
                         value={teamAPlayer1}
@@ -730,9 +703,9 @@ export default function NewMatchPage() {
                     </div>
                   </div>
 
-                  <div className="px-0.5">
+                  <div>
                     <Label>{t("match.teamB")}</Label>
-                    <div className="space-y-0.5 mt-0.5">
+                    <div className="space-y-2 mt-2">
                       <PlayerSelector
                         players={players}
                         value={teamBPlayer1}
@@ -797,7 +770,7 @@ export default function NewMatchPage() {
 
           {/* Выбор корта */}
           <div className="border rounded-md p-4 bg-[#e5febd] shadow-md mb-4">
-            <Label className="text-[1.3rem] sm:text-sm">{t("newMatch.courtSelection")}</Label>
+            <Label className="text-[0.65rem] sm:text-sm">{t("newMatch.courtSelection")}</Label>
             <div className="border rounded-md p-2 sm:p-3 bg-white mt-2">
               <div className="mb-2">
                 <RadioGroup
@@ -812,14 +785,7 @@ export default function NewMatchPage() {
                 >
                   <div className="flex items-center space-x-2 mb-2">
                     <RadioGroupItem value="no-court" id="no-court" className="scale-75 sm:scale-100" />
-                    <Label
-                      htmlFor="no-court"
-                      className={`text-[1.3rem] sm:text-sm px-2 py-1 rounded-md transition-all duration-200 ${
-                        courtNumber === null
-                          ? "bg-gradient-to-r from-blue-100 to-blue-200 text-blue-800 font-medium shadow-md"
-                          : "hover:bg-gray-100"
-                      }`}
-                    >
+                    <Label htmlFor="no-court" className="text-[0.65rem] sm:text-sm">
                       {t("newMatch.noCourt")}
                     </Label>
                   </div>
@@ -837,13 +803,7 @@ export default function NewMatchPage() {
                           />
                           <Label
                             htmlFor={`court-${num}`}
-                            className={`text-[1.3rem] sm:text-sm px-2 py-1 rounded-md transition-all duration-200 ${
-                              courtNumber === num
-                                ? "bg-gradient-to-r from-green-100 to-green-200 text-green-800 font-medium shadow-md"
-                                : isCourtOccupied(num)
-                                  ? "text-muted-foreground line-through"
-                                  : "hover:bg-gray-100"
-                            }`}
+                            className={`text-[0.65rem] sm:text-sm ${isCourtOccupied(num) ? "text-muted-foreground line-through" : ""}`}
                           >
                             {t("newMatch.court")} {num}
                           </Label>
@@ -863,13 +823,7 @@ export default function NewMatchPage() {
                           />
                           <Label
                             htmlFor={`court-${num}`}
-                            className={`text-[1.3rem] sm:text-sm px-2 py-1 rounded-md transition-all duration-200 ${
-                              courtNumber === num
-                                ? "bg-gradient-to-r from-green-100 to-green-200 text-green-800 font-medium shadow-md"
-                                : isCourtOccupied(num)
-                                  ? "text-muted-foreground line-through"
-                                  : "hover:bg-gray-100"
-                            }`}
+                            className={`text-[0.65rem] sm:text-sm ${isCourtOccupied(num) ? "text-muted-foreground line-through" : ""}`}
                           >
                             {t("newMatch.court")} {num}
                           </Label>
@@ -881,16 +835,16 @@ export default function NewMatchPage() {
               </div>
 
               {loadingCourts ? (
-                <div className="text-center py-2 text-[1.3rem] sm:text-sm text-muted-foreground">
+                <div className="text-center py-2 text-[0.65rem] sm:text-sm text-muted-foreground">
                   <Loader2 className="h-4 w-4 animate-spin inline mr-1" />
                   {t("newMatch.checkingCourtAvailability")}
                 </div>
               ) : occupiedCourts.length > 0 ? (
-                <div className="text-[1.3rem] sm:text-sm text-muted-foreground">
+                <div className="text-[0.65rem] sm:text-sm text-muted-foreground">
                   {t("newMatch.occupiedCourts")}: {occupiedCourts.sort((a, b) => a - b).join(", ")}
                 </div>
               ) : (
-                <div className="text-[1.3rem] sm:text-sm text-green-600">{t("newMatch.allCourtsAvailable")}</div>
+                <div className="text-[0.65rem] sm:text-sm text-green-600">{t("newMatch.allCourtsAvailable")}</div>
               )}
             </div>
           </div>

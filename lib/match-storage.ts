@@ -183,9 +183,6 @@ export const getMatches = async () => {
               score: {
                 teamA: scoreTeamA,
                 teamB: scoreTeamB,
-                // Добавляем информацию о сетах
-                sets: match.score?.sets || [],
-                currentSet: match.score?.currentSet || null,
               },
               isCompleted: match.is_completed,
               winner: match.winner,
@@ -259,11 +256,11 @@ const findAllMatchesInLocalStorage = () => {
                       players: match.teamB.players,
                     },
                     score: {
-                      teamA: match.score?.teamA || 0,
-                      teamB: match.score?.teamB || 0,
-                      // Добавляем информацию о сетах
-                      sets: match.score?.sets || [],
-                      currentSet: match.score?.currentSet || null,
+                      teamA: match.score.teamA,
+                    },
+                    score: {
+                      teamA: match.score.teamA,
+                      teamB: match.score.teamB,
                     },
                     isCompleted: match.isCompleted,
                     courtNumber: match.courtNumber,
@@ -286,10 +283,6 @@ const findAllMatchesInLocalStorage = () => {
                     },
                     teamB: {
                       players: match.teamB.players,
-                    },
-                    score: {
-                      teamA: match.score.teamA,
-                      teamB: match.score.teamB,
                     },
                     score: {
                       teamA: match.score.teamA,
@@ -796,9 +789,6 @@ export const updateMatch = async (updatedMatch) => {
         score: {
           teamA: updatedMatch.score.teamA,
           teamB: updatedMatch.score.teamB,
-          // Добавляем информацию о сетах
-          sets: updatedMatch.score.sets || [],
-          currentSet: updatedMatch.score.currentSet || null,
         },
         isCompleted: updatedMatch.isCompleted,
         courtNumber: updatedMatch.courtNumber,
@@ -1242,7 +1232,7 @@ export async function getAllMatches() {
           try {
             const item = localStorage.getItem(key)
             if (item) {
-              // Пробуем распаковать, если эо сжатые данные
+              // Пробуем распаковать, если э��о сжатые данные
               try {
                 const decompressed = decompressFromUTF16(item)
                 if (decompressed && isValidJSON(decompressed)) {

@@ -15,62 +15,12 @@ function CourtSVG({
   servingTeam = "teamA",
   servingPlayerIndex = 0,
   courtSides = { teamA: "left", teamB: "right" },
-  match,
 }) {
   const { language } = useContext(LanguageContext)
 
   // Определяем, какая четверть корта должна быть подсвечена
   const isServing = (team, playerIndex) => {
     return team === servingTeam && playerIndex === servingPlayerIndex
-  }
-
-  // Определяем сторону подачи (R - правая, L - левая)
-  const getServeSide = () => {
-    // Если матч не инициализирован, вернуть правую сторону по умолчанию
-    if (!match) return "R"
-
-    // Получаем текущий гейм, если он есть
-    const currentGame = match?.score?.currentSet?.currentGame
-    if (!currentGame) return "R"
-
-    // Считаем общее количество очков в текущем гейме
-    const totalPoints =
-      (currentGame.teamA === "Ad"
-        ? 4
-        : typeof currentGame.teamA === "number"
-          ? currentGame.teamA === 0
-            ? 0
-            : currentGame.teamA === 15
-              ? 1
-              : currentGame.teamA === 30
-                ? 2
-                : 3
-          : 0) +
-      (currentGame.teamB === "Ad"
-        ? 4
-        : typeof currentGame.teamB === "number"
-          ? currentGame.teamB === 0
-            ? 0
-            : currentGame.teamB === 15
-              ? 1
-              : currentGame.teamB === 30
-                ? 2
-                : 3
-          : 0)
-
-    // В тай-брейке логика немного другая
-    if (match?.score?.currentSet?.isTiebreak) {
-      // В тай-брейке первая подача справа, затем чередуется каждые 2 очка
-      // Но первая смена происходит после 1 очка
-      if (totalPoints === 0) return "R"
-
-      // После первого очка и далее
-      // Нечетное количество очков - левая сторона, четное - правая
-      return totalPoints % 2 === 1 ? "L" : "R"
-    }
-
-    // В обычном гейме: четное количество очков - правая сторона, нечетное - левая
-    return totalPoints % 2 === 0 ? "R" : "L"
   }
 
   // Определяем позиции игроков на основе сторон корта
@@ -259,39 +209,15 @@ function CourtSVG({
                       justifyContent: "center",
                       color: "#0022FF",
                       fontFamily: "Inter, sans-serif",
-                      fontSize: "50.4px",
+                      fontSize: "24px",
                       textAlign: "center",
                       padding: "4px",
                       background: "transparent",
                       border: "none",
                       cursor: "pointer",
-                      transition: "transform 0.1s ease-in-out",
-                    }}
-                    onMouseDown={(e) => {
-                      e.currentTarget.style.transform = "scale(0.9)"
-                    }}
-                    onMouseUp={(e) => {
-                      e.currentTarget.style.transform = "scale(1)"
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.transform = "scale(1)"
                     }}
                   >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="80"
-                      height="80"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="m18 8-6-6-6 6" />
-                      <path d="m18 16-6 6-6-6" />
-                      <path d="M12 2v20" />
-                    </svg>
+                    {language === "ru" ? "Поменять" : "Swap"}
                   </button>
                 </foreignObject>
               </g>
@@ -330,39 +256,15 @@ function CourtSVG({
                       justifyContent: "center",
                       color: "#0022FF",
                       fontFamily: "Inter, sans-serif",
-                      fontSize: "50.4px",
+                      fontSize: "24px",
                       textAlign: "center",
                       padding: "4px",
                       background: "transparent",
                       border: "none",
                       cursor: "pointer",
-                      transition: "transform 0.1s ease-in-out",
-                    }}
-                    onMouseDown={(e) => {
-                      e.currentTarget.style.transform = "scale(0.9)"
-                    }}
-                    onMouseUp={(e) => {
-                      e.currentTarget.style.transform = "scale(1)"
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.transform = "scale(1)"
                     }}
                   >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="80"
-                      height="80"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="m18 8-6-6-6 6" />
-                      <path d="m18 16-6 6-6-6" />
-                      <path d="M12 2v20" />
-                    </svg>
+                    {language === "ru" ? "Поменять" : "Swap"}
                   </button>
                 </foreignObject>
               </g>
@@ -385,18 +287,7 @@ function CourtSVG({
                 <foreignObject x="913" y="197" width="132" height="600">
                   <button
                     xmlns="http://www.w3.org/1999/xhtml"
-                    onClick={() => {
-                      // Call the local function to update the visualization
-                      const newSides = swapCourtSides()
-
-                      // Dispatch a custom event to notify other components
-                      const event = new CustomEvent("courtSidesSwapped", {
-                        detail: {
-                          newSides: newSides,
-                        },
-                      })
-                      window.dispatchEvent(event)
-                    }}
+                    onClick={swapCourtSides}
                     style={{
                       width: "100%",
                       height: "100%",
@@ -412,57 +303,20 @@ function CourtSVG({
                       border: "none",
                       cursor: "pointer",
                       padding: "0",
-                      margin: "0",
-                      position: "absolute",
-                      top: "0",
-                      left: "0",
-                      right: "0",
-                      bottom: "0",
-                      transition: "all 0.2s ease-in-out",
-                    }}
-                    onMouseDown={(e) => {
-                      e.currentTarget.style.transform = "scale(0.9)"
-                      e.currentTarget.style.opacity = "0.8"
-                    }}
-                    onMouseUp={(e) => {
-                      e.currentTarget.style.transform = "scale(1)"
-                      e.currentTarget.style.opacity = "1"
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.transform = "scale(1)"
-                      e.currentTarget.style.opacity = "1"
                     }}
                   >
                     <div
                       style={{
+                        transform: "rotate(90deg)",
                         width: "100%",
                         height: "100%",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
                         whiteSpace: "nowrap",
-                        fontSize: "84px", // Увеличено в 3 раза с 28px
-                        position: "relative",
-                        zIndex: "1",
-                        transition: "all 0.2s ease-in-out",
                       }}
                     >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="120"
-                        height="120"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <path d="M8 3L4 7l4 4" />
-                        <path d="M4 7h16" />
-                        <path d="m16 21 4-4-4-4" />
-                        <path d="M20 17H4" />
-                      </svg>
+                      {language === "ru" ? "СМЕНИТЬ СТОРОНЫ" : "SWAP SIDES"}
                     </div>
                   </button>
                 </foreignObject>
@@ -471,7 +325,7 @@ function CourtSVG({
           </g>
 
           {/* Игрок в верхнем левом углу */}
-          <foreignObject x="50" y="50" width="978" height="300">
+          <foreignObject x="252" y="120" width="600" height="120">
             <div
               xmlns="http://www.w3.org/1999/xhtml"
               style={{
@@ -479,45 +333,21 @@ function CourtSVG({
                 height: "100%",
                 color: "white",
                 fontFamily: "Inter, sans-serif",
-                fontSize: "83px", // Уменьшено с 108px в 1.3 раза
+                fontSize: "54px",
                 fontWeight: "bold",
                 userSelect: "text",
-                lineHeight: "1.2",
-                display: "flex",
-                flexDirection: "column",
-                wordWrap: "break-word",
-                whiteSpace: "normal",
+                lineHeight: "1",
               }}
             >
-              <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
-                {isServing(positions.topLeft.team, positions.topLeft.playerIndex) && (
-                  <span
-                    style={{
-                      backgroundColor: "#a7e32d",
-                      color: "#2d5016",
-                      borderRadius: "50%",
-                      width: "90px",
-                      height: "90px",
-                      minWidth: "90px",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: "75px", // Увеличено с 50px в 1.5 раза
-                      fontWeight: "bold",
-                      boxShadow: "0 0 15px rgba(0,0,0,0.5)",
-                      border: "3px solid white",
-                    }}
-                  >
-                    {getServeSide()}
-                  </span>
-                )}
-                <div className="break-words max-w-[80%] leading-tight">{getPlayerName(positions.topLeft)}</div>
-              </div>
+              {getPlayerName(positions.topLeft)}
+              {isServing(positions.topLeft.team, positions.topLeft.playerIndex) && (
+                <span style={{ color: "#FF6B6B", marginLeft: "20px" }}>●</span>
+              )}
             </div>
           </foreignObject>
 
           {/* Игрок в нижнем левом углу */}
-          <foreignObject x="50" y="600" width="978" height="300">
+          <foreignObject x="252" y="770" width="600" height="120">
             <div
               xmlns="http://www.w3.org/1999/xhtml"
               style={{
@@ -525,45 +355,21 @@ function CourtSVG({
                 height: "100%",
                 color: "white",
                 fontFamily: "Inter, sans-serif",
-                fontSize: "83px", // Уменьшено с 108px в 1.3 раза
+                fontSize: "54px",
                 fontWeight: "bold",
                 userSelect: "text",
-                lineHeight: "1.2",
-                display: "flex",
-                flexDirection: "column-reverse",
-                wordWrap: "break-word",
-                whiteSpace: "normal",
+                lineHeight: "1",
               }}
             >
-              <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
-                {isServing(positions.bottomLeft.team, positions.bottomLeft.playerIndex) && (
-                  <span
-                    style={{
-                      backgroundColor: "#a7e32d",
-                      color: "#2d5016",
-                      borderRadius: "50%",
-                      width: "90px",
-                      height: "90px",
-                      minWidth: "90px",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: "75px", // Увеличено с 50px в 1.5 раза
-                      fontWeight: "bold",
-                      boxShadow: "0 0 15px rgba(0,0,0,0.5)",
-                      border: "3px solid white",
-                    }}
-                  >
-                    {getServeSide()}
-                  </span>
-                )}
-                <div className="break-words max-w-[80%] leading-tight">{getPlayerName(positions.bottomLeft)}</div>
-              </div>
+              {getPlayerName(positions.bottomLeft)}
+              {isServing(positions.bottomLeft.team, positions.bottomLeft.playerIndex) && (
+                <span style={{ color: "#FF6B6B", marginLeft: "20px" }}>●</span>
+              )}
             </div>
           </foreignObject>
 
           {/* Игрок в верхнем правом углу */}
-          <foreignObject x="992" y="50" width="978" height="300">
+          <foreignObject x="1169" y="120" width="600" height="120">
             <div
               xmlns="http://www.w3.org/1999/xhtml"
               style={{
@@ -571,47 +377,22 @@ function CourtSVG({
                 height: "100%",
                 color: "white",
                 fontFamily: "Inter, sans-serif",
-                fontSize: "83px", // Уменьшено с 108px в 1.3 раза
+                fontSize: "54px",
                 fontWeight: "bold",
                 userSelect: "text",
                 textAlign: "right",
-                lineHeight: "1.2",
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "flex-end",
-                wordWrap: "break-word",
-                whiteSpace: "normal",
+                lineHeight: "1",
               }}
             >
-              <div style={{ display: "flex", alignItems: "center", gap: "20px", marginRight: "30px" }}>
-                <div className="break-words max-w-[95%] leading-tight">{getPlayerName(positions.topRight)}</div>
-                {isServing(positions.topRight.team, positions.topRight.playerIndex) && (
-                  <span
-                    style={{
-                      backgroundColor: "#a7e32d",
-                      color: "#2d5016",
-                      borderRadius: "50%",
-                      width: "90px",
-                      height: "90px",
-                      minWidth: "90px",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: "75px", // Увеличено с 50px в 1.5 раза
-                      fontWeight: "bold",
-                      boxShadow: "0 0 15px rgba(0,0,0,0.5)",
-                      border: "3px solid white",
-                    }}
-                  >
-                    {getServeSide()}
-                  </span>
-                )}
-              </div>
+              {isServing(positions.topRight.team, positions.topRight.playerIndex) && (
+                <span style={{ color: "#FF6B6B", marginRight: "20px" }}>●</span>
+              )}
+              {getPlayerName(positions.topRight)}
             </div>
           </foreignObject>
 
           {/* Игрок в нижнем правом углу */}
-          <foreignObject x="992" y="600" width="978" height="300">
+          <foreignObject x="1169" y="770" width="600" height="120">
             <div
               xmlns="http://www.w3.org/1999/xhtml"
               style={{
@@ -619,42 +400,17 @@ function CourtSVG({
                 height: "100%",
                 color: "white",
                 fontFamily: "Inter, sans-serif",
-                fontSize: "83px", // Уменьшено с 108px в 1.3 раза
+                fontSize: "54px",
                 fontWeight: "bold",
                 userSelect: "text",
                 textAlign: "right",
-                lineHeight: "1.2",
-                display: "flex",
-                flexDirection: "column-reverse",
-                alignItems: "flex-end",
-                wordWrap: "break-word",
-                whiteSpace: "normal",
+                lineHeight: "1",
               }}
             >
-              <div style={{ display: "flex", alignItems: "center", gap: "20px", marginRight: "30px" }}>
-                <div className="break-words max-w-[95%] leading-tight">{getPlayerName(positions.bottomRight)}</div>
-                {isServing(positions.bottomRight.team, positions.bottomRight.playerIndex) && (
-                  <span
-                    style={{
-                      backgroundColor: "#a7e32d",
-                      color: "#2d5016",
-                      borderRadius: "50%",
-                      width: "90px",
-                      height: "90px",
-                      minWidth: "90px",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: "75px", // Увеличено с 50px в 1.5 раза
-                      fontWeight: "bold",
-                      boxShadow: "0 0 15px rgba(0,0,0,0.5)",
-                      border: "3px solid white",
-                    }}
-                  >
-                    {getServeSide()}
-                  </span>
-                )}
-              </div>
+              {isServing(positions.bottomRight.team, positions.bottomRight.playerIndex) && (
+                <span style={{ color: "#FF6B6B", marginRight: "20px" }}>●</span>
+              )}
+              {getPlayerName(positions.bottomRight)}
             </div>
           </foreignObject>
 
@@ -995,12 +751,10 @@ export default function CourtPreview({ match }) {
 
   // Функция для смены сторон корта
   const swapCourtSides = () => {
-    const newSides = {
-      teamA: localCourtSides.teamA === "left" ? "right" : "left",
-      teamB: localCourtSides.teamB === "left" ? "right" : "left",
-    }
-    setLocalCourtSides(newSides)
-    return newSides
+    setLocalCourtSides((prev) => ({
+      teamA: prev.teamA === "left" ? "right" : "left",
+      teamB: prev.teamB === "left" ? "right" : "left",
+    }))
   }
 
   // Получаем информацию о текущем подающем
@@ -1021,7 +775,6 @@ export default function CourtPreview({ match }) {
           servingTeam={servingTeam}
           servingPlayerIndex={servingPlayerIndex}
           courtSides={localCourtSides}
-          match={match}
         />
       </div>
     </div>

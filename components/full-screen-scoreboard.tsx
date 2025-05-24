@@ -85,7 +85,7 @@ export function FullScreenScoreboard({
 
     const handleResize = () => {
       if (wrapperRef.current) {
-        // Сбрасываем стили, чтобы получить естественные азмеры
+        // Сбрасываем стили, чтобы получить естественные ��азмеры
         wrapperRef.current.style.transform = ""
         wrapperRef.current.style.width = "100%"
         wrapperRef.current.style.height = "100%"
@@ -231,19 +231,6 @@ export function FullScreenScoreboard({
     return { fontSize: `${(baseSize * (customSize || defaultValue)) / 100}rem` }
   }
 
-  // Добавьте эту функцию, если ее нет
-  const getTiebreakScore = (set) => {
-    // Проверяем наличие данных тай-брейка
-    if (set && set.tiebreak) {
-      console.log("Найден счет тай-брейка:", set.tiebreak)
-      return `(${set.tiebreak.teamA}-${set.tiebreak.teamB})`
-    }
-
-    // Если данных нет, возвращаем null
-    console.log("Счет тай-брейка не найден для сета:", set)
-    return null
-  }
-
   // Разные рендеры для полноэкранного и обычного режимов
   if (isFullScreen) {
     return (
@@ -373,7 +360,6 @@ export function FullScreenScoreboard({
                               }}
                             >
                               {set.teamA}
-                              {getTiebreakScore(set) && <span className="text-xs ml-1">{getTiebreakScore(set)}</span>}
                             </span>
                           </div>
                         </td>
@@ -465,7 +451,6 @@ export function FullScreenScoreboard({
                               }}
                             >
                               {set.teamB}
-                              {getTiebreakScore(set) && <span className="text-xs ml-1">{getTiebreakScore(set)}</span>}
                             </span>
                           </div>
                         </td>
@@ -742,7 +727,6 @@ export function FullScreenScoreboard({
                               }}
                             >
                               {set.teamA}
-                              {getTiebreakScore(set) && <span className="text-xs ml-1">{getTiebreakScore(set)}</span>}
                             </span>
                           </div>
                         </td>
@@ -785,7 +769,9 @@ export function FullScreenScoreboard({
                                   ? { fontSize: `calc(min(10vh, 10vw) * ${playerNamesFontSize || 100} / 50 * 0.5)` }
                                   : { fontSize: "clamp(1.5rem, 5vw, 2.5rem)" }
                               }
-                            ></span>
+                            >
+                              ���
+                            </span>
                           )}
                           <span
                             className="font-bold text-white text-xl md:text-2xl lg:text-4xl xl:text-5xl"
@@ -841,7 +827,6 @@ export function FullScreenScoreboard({
                               }}
                             >
                               {set.teamB}
-                              {getTiebreakScore(set) && <span className="text-xs ml-1">{getTiebreakScore(set)}</span>}
                             </span>
                           </div>
                         </td>

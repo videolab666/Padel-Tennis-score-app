@@ -31,9 +31,6 @@ export function MatchList({ limit }: { limit?: number }) {
           return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         })
         setMatches(sortedMatches)
-        // Добавьте этот код после строки, где вы устанавливаете matches в state
-        // В функции loadMatches после setMatches(sortedMatches)
-        console.log("Загруженные матчи:", sortedMatches)
       } catch (error) {
         console.error("Ошибка при загрузке матчей:", error)
         setError(error.message || "Ошибка при загрузке матчей")
@@ -74,8 +71,6 @@ export function MatchList({ limit }: { limit?: number }) {
           return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         })
         setMatches(sortedMatches)
-        // И в функции handleStorageChange после setMatches(sortedMatches)
-        console.log("Обновленные матчи:", sortedMatches)
       } catch (error) {
         console.error("Ошибка при обновлении матчей:", error)
       }
@@ -191,66 +186,8 @@ export function MatchList({ limit }: { limit?: number }) {
                   </div>
                 </div>
                 <div className="flex flex-col justify-between">
-                  <div className="text-right flex items-center justify-end">
-                    <span className="font-bold text-base sm:text-xl mr-2">{match.score && match.score.teamA}</span>
-                    <span className="h-4 w-px bg-gray-300 mx-1.5"></span>
-                    {/* Добавляем счет по сетам с проверкой наличия данных */}
-                    <div className="text-xs text-gray-600">
-                      {match.score && match.score.sets && Array.isArray(match.score.sets) ? (
-                        match.score.sets.map((set, idx) => (
-                          <span
-                            key={idx}
-                            className={`mr-1 px-1 rounded shadow-sm ${
-                              Number.parseInt(set.teamA) > Number.parseInt(set.teamB) ? "bg-[#fffec0]" : "bg-[#dff1ff]"
-                            }`}
-                          >
-                            {set.teamA}
-                            {set.tiebreak && Number(set.teamA) === 7 && Number(set.teamB) === 6 && (
-                              <sup className="text-[9px] ml-0.5">{set.tiebreak.teamA}</sup>
-                            )}
-                          </span>
-                        ))
-                      ) : (
-                        <span className="text-xs text-red-400">Нет данных о сетах</span>
-                      )}
-                      {match.score && match.score.currentSet && !match.isCompleted && (
-                        <span className="text-green-600 bg-green-50 px-1 rounded shadow-sm">
-                          {match.score.currentSet.teamA}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  <div className="text-right flex items-center justify-end">
-                    <span className="font-bold text-base sm:text-xl mr-2">{match.score && match.score.teamB}</span>
-                    <span className="h-4 w-px bg-gray-300 mx-1.5"></span>
-                    {/* Добавляем счет по сетам с проверкой наличия данных */}
-                    <div className="text-xs text-gray-600">
-                      {match.score && match.score.sets && Array.isArray(match.score.sets) ? (
-                        match.score.sets.map((set, idx) => (
-                          <span
-                            key={idx}
-                            className={`mr-1 px-1 rounded shadow-sm ${
-                              Number.parseInt(set.teamB) > Number.parseInt(set.teamA) ? "bg-[#fffec0]" : "bg-[#dff1ff]"
-                            }`}
-                          >
-                            {set.teamB}
-                            {set.tiebreak &&
-                              ((Number(set.teamB) === 7 && Number(set.teamA) === 6) ||
-                                (Number(set.teamB) === 6 && Number(set.teamA) === 7)) && (
-                                <sup className="text-[9px] ml-0.5">{set.tiebreak.teamB}</sup>
-                              )}
-                          </span>
-                        ))
-                      ) : (
-                        <span className="text-xs text-red-400">Нет данных о сетах</span>
-                      )}
-                      {match.score && match.score.currentSet && !match.isCompleted && (
-                        <span className="text-green-600 bg-green-50 px-1 rounded shadow-sm">
-                          {match.score.currentSet.teamB}
-                        </span>
-                      )}
-                    </div>
-                  </div>
+                  <div className="text-right font-bold text-base sm:text-xl">{match.score && match.score.teamA}</div>
+                  <div className="text-right font-bold text-base sm:text-xl">{match.score && match.score.teamB}</div>
                 </div>
               </div>
 
