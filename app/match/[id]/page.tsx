@@ -236,6 +236,14 @@ export default function MatchPage({ params }: MatchParams) {
     }
   }
 
+  // Обработчик смены подающего
+  const handleSwitchServer = () => {
+    const event = new CustomEvent("switchServer", {
+      detail: { matchId: params.id },
+    })
+    window.dispatchEvent(event)
+  }
+
   // Если матч не найден, предлагаем создать новый
   const handleCreateNewMatch = () => {
     router.push("/new-match")
@@ -322,16 +330,27 @@ export default function MatchPage({ params }: MatchParams) {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="text-xs shadow-md hover:bg-gradient-to-b hover:from-green-700 hover:to-green-900 bg-gradient-to-b from-green-800 to-green-950 text-white border-green-700 transition-all duration-200 active:scale-95 active:translate-y-0.5 active:shadow-inner"
-                  onClick={() => {
-                    // Dispatch an event to trigger the server switch in ScoreBoard
-                    const event = new CustomEvent("switchServer", {
-                      detail: { matchId: params.id },
-                    })
-                    window.dispatchEvent(event)
+                  className="text-xs shadow-md hover:bg-gradient-to-b hover:from-green-700 hover:to-green-900 bg-gradient-to-b from-green-800 to-green-950 text-white border-green-700 transition-all duration-200 active:scale-95 active:translate-y-0.5 active:shadow-inner webkit-appearance-none"
+                  onClick={handleSwitchServer}
+                  style={{
+                    WebkitAppearance: 'none',
+                    position: 'relative',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    zIndex: 1
                   }}
                 >
-                  <CircleDot className="h-3 w-3 mr-2 text-lime-500" />
+                  {/* Заменяем SVG иконку на простой CSS-индикатор для Safari */}
+                  <span
+                    className="inline-block w-3 h-3 mr-2 rounded-full bg-lime-500 border border-lime-400"
+                    style={{
+                      minWidth: '12px',
+                      minHeight: '12px',
+                      flexShrink: 0
+                    }}
+                    aria-hidden="true"
+                  />
                   {t.matchPage.switchServer || "Сменить подающего"}
                 </Button>
               </div>
@@ -427,7 +446,7 @@ export default function MatchPage({ params }: MatchParams) {
               variant="outline"
               onClick={() => {
                 // Загружаем сохраненные настройки vMix
-                const savedSettings = localStorage.getItem("vmix_settings")
+                const savedSettings = typeof window !== 'undefined' && window.localStorage ? localStorage.getItem("vmix_settings") : null
                 if (savedSettings) {
                   const settings = JSON.parse(savedSettings)
                   // Формируем URL с параметрами
