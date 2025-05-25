@@ -241,58 +241,71 @@ function CourtSVG({
                   fill="url(#paint1_linear_2106_354)"
                 />
                 <foreignObject x="252" y="431" width="155" height="132">
-                  <button
+                  <div
                     xmlns="http://www.w3.org/1999/xhtml"
-                    onClick={() => {
-                      // Определяем, какая команда находится слева, и меняем её игроков
-                      if (courtSides.teamA === "left") {
-                        swapTeamAPlayers()
-                      } else {
-                        swapTeamBPlayers()
-                      }
-                    }}
                     style={{
                       width: "100%",
                       height: "100%",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      color: "#0022FF",
-                      fontFamily: "Inter, sans-serif",
-                      fontSize: "50.4px",
-                      textAlign: "center",
-                      padding: "4px",
-                      background: "transparent",
-                      border: "none",
-                      cursor: "pointer",
-                      transition: "transform 0.1s ease-in-out",
-                    }}
-                    onMouseDown={(e) => {
-                      e.currentTarget.style.transform = "scale(0.9)"
-                    }}
-                    onMouseUp={(e) => {
-                      e.currentTarget.style.transform = "scale(1)"
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.transform = "scale(1)"
+                      position: "relative",
                     }}
                   >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="80"
-                      height="80"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
+                    <button
+                      onClick={() => {
+                        // Определяем, какая команда находится слева, и меняем её игроков
+                        if (courtSides.teamA === "left") {
+                          swapTeamAPlayers()
+                        } else {
+                          swapTeamBPlayers()
+                        }
+                      }}
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        color: "#0022FF",
+                        fontFamily: "Inter, sans-serif",
+                        fontSize: "50.4px",
+                        textAlign: "center",
+                        padding: "4px",
+                        background: "transparent",
+                        border: "none",
+                        cursor: "pointer",
+                        transition: "transform 0.1s ease-in-out",
+                        position: "static", // Изменено с absolute на static для Safari
+                        transform: "none", // Убираем трансформы по умолчанию
+                      }}
+                      onMouseDown={(e) => {
+                        e.currentTarget.style.transform = "scale(0.9)"
+                      }}
+                      onMouseUp={(e) => {
+                        e.currentTarget.style.transform = "scale(1)"
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.transform = "scale(1)"
+                      }}
                     >
-                      <path d="m18 8-6-6-6 6" />
-                      <path d="m18 16-6 6-6-6" />
-                      <path d="M12 2v20" />
-                    </svg>
-                  </button>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="80"
+                        height="80"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="m18 8-6-6-6 6" />
+                        <path d="m18 16-6 6-6-6" />
+                        <path d="M12 2v20" />
+                      </svg>
+                    </button>
+                  </div>
                 </foreignObject>
               </g>
             </g>
@@ -312,63 +325,77 @@ function CourtSVG({
                   fill="url(#paint2_linear_2106_354)"
                 />
                 <foreignObject x="1588" y="431" width="155" height="132">
-                  <button
+                  <div
                     xmlns="http://www.w3.org/1999/xhtml"
-                    onClick={() => {
-                      // Определяем, какая команда находится справа, и меняем её игроков
-                      if (courtSides.teamA === "right") {
-                        swapTeamAPlayers()
-                      } else {
-                        swapTeamBPlayers()
-                      }
-                    }}
                     style={{
                       width: "100%",
                       height: "100%",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      color: "#0022FF",
-                      fontFamily: "Inter, sans-serif",
-                      fontSize: "50.4px",
-                      textAlign: "center",
-                      padding: "4px",
-                      background: "transparent",
-                      border: "none",
-                      cursor: "pointer",
-                      transition: "transform 0.1s ease-in-out",
-                    }}
-                    onMouseDown={(e) => {
-                      e.currentTarget.style.transform = "scale(0.9)"
-                    }}
-                    onMouseUp={(e) => {
-                      e.currentTarget.style.transform = "scale(1)"
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.transform = "scale(1)"
+                      position: "relative",
                     }}
                   >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="80"
-                      height="80"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
+                    <button
+                      onClick={() => {
+                        // Определяем, какая команда находится справа, и меняем её игроков
+                        if (courtSides.teamA === "right") {
+                          swapTeamAPlayers()
+                        } else {
+                          swapTeamBPlayers()
+                        }
+                      }}
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        color: "#0022FF",
+                        fontFamily: "Inter, sans-serif",
+                        fontSize: "50.4px",
+                        textAlign: "center",
+                        padding: "4px",
+                        background: "transparent",
+                        border: "none",
+                        cursor: "pointer",
+                        transition: "transform 0.1s ease-in-out",
+                        position: "static", // Изменено с absolute на static для Safari
+                        transform: "none", // Убираем трансформы по умолчанию
+                      }}
+                      onMouseDown={(e) => {
+                        e.currentTarget.style.transform = "scale(0.9)"
+                      }}
+                      onMouseUp={(e) => {
+                        e.currentTarget.style.transform = "scale(1)"
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.transform = "scale(1)"
+                      }}
                     >
-                      <path d="m18 8-6-6-6 6" />
-                      <path d="m18 16-6 6-6-6" />
-                      <path d="M12 2v20" />
-                    </svg>
-                  </button>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="80"
+                        height="80"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="m18 8-6-6-6 6" />
+                        <path d="m18 16-6 6-6-6" />
+                        <path d="M12 2v20" />
+                      </svg>
+                    </button>
+                  </div>
                 </foreignObject>
               </g>
             </g>
           </g>
 
+          {/* Кнопка смены сторон корта - исправлена для Safari */}
           <g id="Buttons/Generic Button_3" filter="url(#filter4_d_2106_354)">
             <g id="Generic Button_3">
               <g id="On Button_5" clipPath="url(#clip3_2106_354)">
@@ -383,88 +410,96 @@ function CourtSVG({
                   fill="url(#paint3_linear_2106_354)"
                 />
                 <foreignObject x="913" y="197" width="132" height="600">
-                  <button
+                  <div
                     xmlns="http://www.w3.org/1999/xhtml"
-                    onClick={() => {
-                      // Call the local function to update the visualization
-                      const newSides = swapCourtSides()
-
-                      // Dispatch a custom event to notify other components
-                      const event = new CustomEvent("courtSidesSwapped", {
-                        detail: {
-                          newSides: newSides,
-                        },
-                      })
-                      window.dispatchEvent(event)
-                    }}
                     style={{
                       width: "100%",
                       height: "100%",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      color: "#FAFFBA",
-                      fontFamily: "Inter, sans-serif",
-                      fontSize: "28px",
-                      fontWeight: "bold",
-                      textAlign: "center",
-                      background: "transparent",
-                      border: "none",
-                      cursor: "pointer",
-                      padding: "0",
-                      margin: "0",
-                      position: "absolute",
-                      top: "0",
-                      left: "0",
-                      right: "0",
-                      bottom: "0",
-                      transition: "all 0.2s ease-in-out",
-                    }}
-                    onMouseDown={(e) => {
-                      e.currentTarget.style.transform = "scale(0.9)"
-                      e.currentTarget.style.opacity = "0.8"
-                    }}
-                    onMouseUp={(e) => {
-                      e.currentTarget.style.transform = "scale(1)"
-                      e.currentTarget.style.opacity = "1"
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.transform = "scale(1)"
-                      e.currentTarget.style.opacity = "1"
+                      position: "relative", // Изменено с absolute
                     }}
                   >
-                    <div
+                    <button
+                      onClick={() => {
+                        // Call the local function to update the visualization
+                        const newSides = swapCourtSides()
+
+                        // Dispatch a custom event to notify other components
+                        const event = new CustomEvent("courtSidesSwapped", {
+                          detail: {
+                            newSides: newSides,
+                          },
+                        })
+                        window.dispatchEvent(event)
+                      }}
                       style={{
                         width: "100%",
                         height: "100%",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        whiteSpace: "nowrap",
-                        fontSize: "84px", // Увеличено в 3 раза с 28px
-                        position: "relative",
-                        zIndex: "1",
+                        color: "#FAFFBA",
+                        fontFamily: "Inter, sans-serif",
+                        fontSize: "28px",
+                        fontWeight: "bold",
+                        textAlign: "center",
+                        background: "transparent",
+                        border: "none",
+                        cursor: "pointer",
+                        padding: "0",
+                        margin: "0",
+                        position: "static", // Изменено с absolute на static для Safari
                         transition: "all 0.2s ease-in-out",
+                        transform: "none", // Убираем трансформы по умолчанию
+                      }}
+                      onMouseDown={(e) => {
+                        e.currentTarget.style.transform = "scale(0.9)"
+                        e.currentTarget.style.opacity = "0.8"
+                      }}
+                      onMouseUp={(e) => {
+                        e.currentTarget.style.transform = "scale(1)"
+                        e.currentTarget.style.opacity = "1"
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.transform = "scale(1)"
+                        e.currentTarget.style.opacity = "1"
                       }}
                     >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="120"
-                        height="120"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
+                      <div
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          whiteSpace: "nowrap",
+                          fontSize: "84px", // Увеличено в 3 раза с 28px
+                          position: "static", // Убираем relative позиционирование
+                          zIndex: "1",
+                          transition: "all 0.2s ease-in-out",
+                        }}
                       >
-                        <path d="M8 3L4 7l4 4" />
-                        <path d="M4 7h16" />
-                        <path d="m16 21 4-4-4-4" />
-                        <path d="M20 17H4" />
-                      </svg>
-                    </div>
-                  </button>
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="120"
+                          height="120"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M8 3L4 7l4 4" />
+                          <path d="M4 7h16" />
+                          <path d="m16 21 4-4-4-4" />
+                          <path d="M20 17H4" />
+                        </svg>
+                      </div>
+                    </button>
+                  </div>
                 </foreignObject>
               </g>
             </g>
