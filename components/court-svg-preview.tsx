@@ -249,7 +249,7 @@ function CourtSVG({
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      position: "relative",
+                      // position: "relative",
                     }}
                   >
                     <button
@@ -275,26 +275,27 @@ function CourtSVG({
                         background: "transparent",
                         border: "none",
                         cursor: "pointer",
-                        transition: "transform 0.1s ease-in-out",
-                        position: "static", // Изменено с absolute на static для Safari
-                        transform: "none", // Убираем трансформы по умолчанию
+                        transition: "opacity 0.1s ease-in-out", // Изменено с transform на opacity
+                        position: "static",
+                        transform: "none",
                       }}
-                      onMouseDown={(e) => {
-                        e.currentTarget.style.transform = "scale(0.9)"
-                      }}
-                      onMouseUp={(e) => {
-                        e.currentTarget.style.transform = "scale(1)"
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.transform = "scale(1)"
-                      }}
+                      // Удалены onMouseDown, onMouseUp, onMouseLeave для transform: scale
+                      // onMouseDown={(e) => {
+                      //   e.currentTarget.style.transform = "scale(0.9)"
+                      // }}
+                      // onMouseUp={(e) => {
+                      //   e.currentTarget.style.transform = "scale(1)"
+                      // }}
+                      // onMouseLeave={(e) => {
+                      //   e.currentTarget.style.transform = "scale(1)"
+                      // }}
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        width="80"
-                        height="80"
+                        // Удалены width="80" height="80"
                         viewBox="0 0 24 24"
                         fill="none"
+                        style={{ display: 'block', width: "70%", height: "70%"}} // Добавлен стиль для масштабирования
                         stroke="currentColor"
                         strokeWidth="2"
                         strokeLinecap="round"
@@ -333,7 +334,7 @@ function CourtSVG({
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      position: "relative",
+                      //position: "relative",
                     }}
                   >
                     <button
@@ -359,26 +360,27 @@ function CourtSVG({
                         background: "transparent",
                         border: "none",
                         cursor: "pointer",
-                        transition: "transform 0.1s ease-in-out",
-                        position: "static", // Изменено с absolute на static для Safari
-                        transform: "none", // Убираем трансформы по умолчанию
+                        transition: "opacity 0.1s ease-in-out", // Изменено с transform на opacity
+                        position: "static",
+                        transform: "none",
                       }}
-                      onMouseDown={(e) => {
-                        e.currentTarget.style.transform = "scale(0.9)"
-                      }}
-                      onMouseUp={(e) => {
-                        e.currentTarget.style.transform = "scale(1)"
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.transform = "scale(1)"
-                      }}
+                      // Удалены onMouseDown, onMouseUp, onMouseLeave для transform: scale
+                      // onMouseDown={(e) => {
+                      //   e.currentTarget.style.transform = "scale(0.9)"
+                      // }}
+                      // onMouseUp={(e) => {
+                      //   e.currentTarget.style.transform = "scale(1)"
+                      // }}
+                      // onMouseLeave={(e) => {
+                      //   e.currentTarget.style.transform = "scale(1)"
+                      // }}
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        width="80"
-                        height="80"
+                        // Удалены width="80" height="80"
                         viewBox="0 0 24 24"
                         fill="none"
+                        style={{ display: 'block', width: "70%", height: "70%"}} // Добавлен стиль для масштабирования
                         stroke="currentColor"
                         strokeWidth="2"
                         strokeLinecap="round"
@@ -418,7 +420,7 @@ function CourtSVG({
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      position: "relative", // Изменено с absolute
+                     // position: "relative", // Изменено с absolute
                     }}
                   >
                     <button
@@ -433,7 +435,6 @@ function CourtSVG({
                           },
                         })
                         window.dispatchEvent(event)
-                      }}
                       style={{
                         width: "100%",
                         height: "100%",
@@ -450,20 +451,20 @@ function CourtSVG({
                         cursor: "pointer",
                         padding: "0",
                         margin: "0",
-                        position: "static", // Изменено с absolute на static для Safari
-                        transition: "all 0.2s ease-in-out",
-                        transform: "none", // Убираем трансформы по умолчанию
+                        position: "static",
+                        transition: "opacity 0.2s ease-in-out", // Изменено с all на opacity
+                        transform: "none",
                       }}
                       onMouseDown={(e) => {
-                        e.currentTarget.style.transform = "scale(0.9)"
+                        // e.currentTarget.style.transform = "scale(0.9)" // Удалено
                         e.currentTarget.style.opacity = "0.8"
                       }}
                       onMouseUp={(e) => {
-                        e.currentTarget.style.transform = "scale(1)"
+                        // e.currentTarget.style.transform = "scale(1)" // Удалено
                         e.currentTarget.style.opacity = "1"
                       }}
                       onMouseLeave={(e) => {
-                        e.currentTarget.style.transform = "scale(1)"
+                        // e.currentTarget.style.transform = "scale(1)" // Удалено
                         e.currentTarget.style.opacity = "1"
                       }}
                     >
@@ -475,18 +476,18 @@ function CourtSVG({
                           alignItems: "center",
                           justifyContent: "center",
                           whiteSpace: "nowrap",
-                          fontSize: "84px", // Увеличено в 3 раза с 28px
-                          position: "static", // Убираем relative позиционирование
+                          fontSize: "84px",
+                          position: "static",
                           zIndex: "1",
-                          transition: "all 0.2s ease-in-out",
+                          transition: "all 0.2s ease-in-out", // transition для иконки можно оставить, если она анимируется отдельно
                         }}
                       >
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
-                          width="120"
-                          height="120"
+                          // Удалены width="120" height="120"
                           viewBox="0 0 24 24"
                           fill="none"
+                          style={{ display: 'block', width: "80%", height: "80%"}} // Добавлен стиль для масштабирования
                           stroke="currentColor"
                           strokeWidth="2"
                           strokeLinecap="round"
