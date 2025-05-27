@@ -435,6 +435,7 @@ function CourtSVG({
                           },
                         })
                         window.dispatchEvent(event)
+                      }}
                       style={{
                         width: "100%",
                         height: "100%",
